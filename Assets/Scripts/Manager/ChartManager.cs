@@ -9,6 +9,7 @@ public class ChartManager : MonoBehaviour
 {
     public static bool IsReady { get; private set; }
     public static string SongFolder { get; private set; }
+    public static string SongName { get; private set; }
     public static float CurrentJumpBpm { get; private set; } = 120f;
 
     [Header("References")]
@@ -125,6 +126,7 @@ public class ChartManager : MonoBehaviour
         var text = File.ReadAllText(path);
         var chart = ChartParser.Parse(text);
 
+        SongName = chart.name;
         CurrentJumpBpm = chart.jumpBpm;
         _jumpBpms = new List<BpmData>(chart.jumpBpms);
         _jumpBpms.Sort((a, b) => a.ms.CompareTo(b.ms));

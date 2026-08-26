@@ -85,14 +85,14 @@ public static class ChartParser
         int ms = int.Parse(parts[0].Trim());
         int key = int.Parse(parts[1].Trim());
 
-        if (parts.Length >= 3)
-        {
-            int endMs = int.Parse(parts[2].Trim());
-            data.holds.Add(new HoldData(ms + data.offset, -key, endMs + data.offset));
-        }
-        else if (key == 0)
+        if (key == 0)
         {
             data.grounds.Add(new GroundData(ms + data.offset));
+        }
+        else if (parts.Length >= 3)
+        {
+            int endMs = int.Parse(parts[2].Trim());
+            data.holds.Add(new HoldData(ms + data.offset, key, endMs + data.offset));
         }
         else
         {

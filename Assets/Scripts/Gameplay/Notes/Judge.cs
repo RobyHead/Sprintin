@@ -125,7 +125,7 @@ public class Judge : MonoBehaviour
             {
                 float diff = GameTime.ElapsedMs - hold.EndMs;
                 var judgement = diff >= -tailEarlyWindow ? Judgement.Perfect : Judgement.Bad;
-                JudgementInfo.Show(judgement);
+                HandleJudgement(judgement);
                 hold.JudgeTail(judgement, diff);
                 return;
             }
@@ -136,7 +136,7 @@ public class Judge : MonoBehaviour
     {
         float diff = GameTime.ElapsedMs - tap.Ms;
         var judgement = GetJudgement(Mathf.Abs(diff));
-        JudgementInfo.Show(judgement);
+        HandleJudgement(judgement);
         tap.OnJudged(judgement, diff);
     }
 
@@ -144,8 +144,18 @@ public class Judge : MonoBehaviour
     {
         float diff = GameTime.ElapsedMs - hold.Ms;
         var judgement = GetJudgement(Mathf.Abs(diff));
-        JudgementInfo.Show(judgement);
+        HandleJudgement(judgement);
         hold.JudgeHead(judgement, diff);
+
+        if (judgement == Judgement.Miss)
+            HandleJudgement(Judgement.Miss);
+    }
+
+    private void HandleJudgement(Judgement judgement)
+    {
+        JudgementInfo.Show(judgement);
+        ComboInfo.UpdateCombo(judgement);
+        ScoreInfo.AddScore(judgement);
     }
 
     private Judgement GetJudgement(float absDiff)
@@ -169,7 +179,7 @@ public class Judge : MonoBehaviour
                 float judgeTime = ground.Ms + groundWindow;
                 var judgement = Judgement.Miss;
                 if (Player.WasJumpingAt(judgeTime)) judgement = Judgement.Perfect;
-                JudgementInfo.Show(judgement);
+                HandleJudgement(judgement);
                 ground.OnJudged(judgement, GameTime.ElapsedMs - ground.Ms);
             }
         }
@@ -183,7 +193,7 @@ public class Judge : MonoBehaviour
             {
                 if (GameTime.ElapsedMs > _taps[i][j].Ms + badWindow)
                 {
-                    JudgementInfo.Show(Judgement.Miss);
+                    HandleJudgement(Judgement.Miss);
                     _taps[i][j].OnJudged(Judgement.Miss, GameTime.ElapsedMs - _taps[i][j].Ms);
                 }
             }
@@ -192,14 +202,16 @@ public class Judge : MonoBehaviour
             {
                 if (!_holds[i][j].HeadJudged && GameTime.ElapsedMs > _holds[i][j].Ms + badWindow)
                 {
-                    JudgementInfo.Show(Judgement.Miss);
+                    HandleJudgement(Judgement.Miss);
                     _holds[i][j].JudgeHead(Judgement.Miss, GameTime.ElapsedMs - _holds[i][j].Ms);
+                    HandleJudgement(Judgement.Miss);
+                    continue;
                 }
 
                 if (_holds[i][j].HeadJudged && !_holds[i][j].TailJudged && !_holds[i][j].HeadWasMiss
                     && GameTime.ElapsedMs > _holds[i][j].EndMs)
                 {
-                    JudgementInfo.Show(Judgement.Perfect);
+                    HandleJudgement(Judgement.Perfect);
                     _holds[i][j].JudgeTail(Judgement.Perfect, GameTime.ElapsedMs - _holds[i][j].EndMs);
                 }
             }

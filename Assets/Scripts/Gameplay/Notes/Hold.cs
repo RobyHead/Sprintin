@@ -78,7 +78,6 @@ public class Hold : MonoBehaviour
         {
             HeadWasMiss = true;
             TailJudged = true;
-            Debug.Log($"Hold Tail | Miss (head missed)");
             DestroySelf();
         }
     }

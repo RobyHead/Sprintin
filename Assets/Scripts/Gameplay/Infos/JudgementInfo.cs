@@ -32,8 +32,6 @@ public class JudgementInfo : MonoBehaviour
             return;
 
         Instance.ShowInternal(judgement);
-        ComboInfo.UpdateCombo(judgement);
-        ScoreInfo.AddScore(judgement);
     }
 
     private void ShowInternal(Judgement judgement)
