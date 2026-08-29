@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BarPool : MonoBehaviour
+public class BarManager : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private Bar barPrefab;
@@ -12,5 +12,11 @@ public class BarPool : MonoBehaviour
     {
         var bar = Instantiate(barPrefab, spawnParent);
         bar.Initialize(ms);
+    }
+
+    public void Clear()
+    {
+        foreach (Transform child in spawnParent)
+            Destroy(child.gameObject);
     }
 }

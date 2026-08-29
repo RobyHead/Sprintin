@@ -27,15 +27,24 @@ public class Hold : MonoBehaviour
     private int _key;
     private int _ms;
     private int _endMs;
+    private bool _fullyJudged;
 
     private void Update()
     {
         if (!GameTime.HasStarted)
             return;
 
+        if (_fullyJudged)
+        {
+            SetRenderersVisible(false);
+            return;
+        }
+
+        float z;
+
         if (!HeadJudged)
         {
-            float z = (_ms - GameTime.ElapsedMs) / 1000f * GameConfig.Instance.Speed;
+            z = (_ms - GameTime.ElapsedMs) / 1000f * GameConfig.Instance.Speed;
             var pos = transform.position;
             pos.z = z;
             transform.position = pos;
@@ -53,10 +62,18 @@ public class Hold : MonoBehaviour
             bodyScale.x = remaining / 2f;
             body.localScale = bodyScale;
 
+            z = 0f;
             var pos = transform.position;
             pos.z = 0f;
             transform.position = pos;
         }
+        else
+        {
+            z = 0f;
+        }
+
+        bool visible = z >= GameConfig.Instance.VisibleRangeMin && z <= GameConfig.Instance.VisibleRangeMax;
+        SetRenderersVisible(visible);
     }
 
     public void Initialize(int trackKey, int ms, int endMs)
@@ -67,31 +84,30 @@ public class Hold : MonoBehaviour
 
         ApplyStaticTransform();
         ApplyMaterial();
+        SetRenderersVisible(false);
         Judge.Instance.RegisterHold(this);
     }
 
     public void JudgeHead(Judgement judgement, float diff)
     {
         HeadJudged = true;
-        
+
         if (judgement == Judgement.Miss)
         {
             HeadWasMiss = true;
             TailJudged = true;
-            DestroySelf();
+            _fullyJudged = true;
+            SetRenderersVisible(false);
+            Judge.Instance.UnregisterHold(this);
         }
     }
 
     public void JudgeTail(Judgement judgement, float diff)
     {
         TailJudged = true;
-        DestroySelf();
-    }
-
-    private void DestroySelf()
-    {
+        _fullyJudged = true;
+        SetRenderersVisible(false);
         Judge.Instance.UnregisterHold(this);
-        Destroy(gameObject);
     }
 
     private void ApplyStaticTransform()
@@ -117,7 +133,6 @@ public class Hold : MonoBehaviour
     private void ApplyMaterial()
     {
         var mat = (_key == 1 || _key == 4) ? tapOutMaterial : tapInMaterial;
-
         foreach (var renderer in headRenderers)
         {
             if (renderer != null) renderer.material = mat;
@@ -134,5 +149,15 @@ public class Hold : MonoBehaviour
                 else renderer.material = mat;
             }
         }
+    }
+
+    private void SetRenderersVisible(bool visible)
+    {
+        foreach (var renderer in headRenderers)
+            if (renderer != null) renderer.enabled = visible;
+        foreach (var renderer in bodyRenderers)
+            if (renderer != null) renderer.enabled = visible;
+        foreach (var renderer in tailRenderers)
+            if (renderer != null) renderer.enabled = visible;
     }
 }

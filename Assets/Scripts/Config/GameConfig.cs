@@ -7,7 +7,13 @@ public class GameConfig : MonoBehaviour
     [Header("Notes Movement")]
     [SerializeField] private float speed = 10f;
 
+    [Header("Notes Visibility")]
+    [SerializeField] private float visibleRangeMax = 30f;
+    [SerializeField] private float visibleRangeMin = -5f;
+
     public float Speed => speed;
+    public float VisibleRangeMax => visibleRangeMax;
+    public float VisibleRangeMin => visibleRangeMin;
 
     private void Awake()
     {

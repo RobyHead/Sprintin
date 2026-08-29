@@ -8,9 +8,6 @@ public class Bar : MonoBehaviour
     [Header("Renderers")]
     [SerializeField] private MeshRenderer[] meshRenderers;
 
-    [Header("Delete")]
-    [SerializeField] private float deleteZ = -10f;
-
     private int _ms;
 
     private void Update()
@@ -23,14 +20,15 @@ public class Bar : MonoBehaviour
         pos.z = z;
         transform.position = pos;
 
-        if (z < deleteZ)
-            Destroy(gameObject);
+        bool visible = z >= GameConfig.Instance.VisibleRangeMin && z <= GameConfig.Instance.VisibleRangeMax;
+        SetRenderersVisible(visible);
     }
 
     public void Initialize(int ms)
     {
         _ms = ms;
         ApplyMaterial();
+        SetRenderersVisible(false);
         transform.SetPositionAndRotation(
             new Vector3(0f, 0.0001f, 50f),
             Quaternion.identity
@@ -46,6 +44,14 @@ public class Bar : MonoBehaviour
         {
             if (renderer != null)
                 renderer.material = barMaterial;
+        }
+    }
+
+    private void SetRenderersVisible(bool visible)
+    {
+        foreach (var renderer in meshRenderers)
+        {
+            if (renderer != null) renderer.enabled = visible;
         }
     }
 }

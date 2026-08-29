@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GroundPool : MonoBehaviour
+public class GroundManager : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private Ground groundPrefab;
@@ -12,5 +12,11 @@ public class GroundPool : MonoBehaviour
     {
         var ground = Instantiate(groundPrefab, spawnParent);
         ground.Initialize(ms);
+    }
+
+    public void Clear()
+    {
+        foreach (Transform child in spawnParent)
+            Destroy(child.gameObject);
     }
 }

@@ -34,8 +34,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 693134440396698740}
-  - {fileID: 5119711798004915123}
   - {fileID: 3670900179507495213}
+  - {fileID: 5119711798004915123}
   - {fileID: 1832193900516877178}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -52,6 +52,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
   speed: 30
+  visibleRangeMax: 30
+  visibleRangeMin: -5
 --- !u!114 &9131032730402185134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,10 +66,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 315bedbdf048bdf48aad1bef704adfef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChartManager
-  tapPool: {fileID: 6348981534055412640}
-  holdPool: {fileID: 5398793889997474018}
-  groundPool: {fileID: 2603272030079891455}
-  barPool: {fileID: 0}
+  tapManager: {fileID: 0}
+  holdManager: {fileID: 0}
+  groundManager: {fileID: 0}
+  barManager: {fileID: 0}
   songFolder: Songs/Bitter Juicy
   difficulty: 0
   delay: 250
@@ -231,7 +233,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NotePool
   tapPrefab: {fileID: 2164896397715941013, guid: 4d7426211a116d8408c61c946538b7bc, type: 3}
   spawnParent: {fileID: 693134440396698740}
-  spawnLookaheadMs: 2000
 --- !u!1 &7138473896365301933
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,7 +279,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GroundPool
   groundPrefab: {fileID: 312262880377884722, guid: 3f2f7b1aeedd8974e9bbc815bcdcff3d, type: 3}
   spawnParent: {fileID: 5119711798004915123}
-  spawnLookaheadMs: 2000
 --- !u!1 &9107342494429549791
 GameObject:
   m_ObjectHideFlags: 0
@@ -371,5 +371,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoldPool
   holdPrefab: {fileID: 7281974258782945817, guid: c25962a456831f74a83b82f767536cce, type: 3}
   spawnParent: {fileID: 3670900179507495213}
-  spawnLookaheadMs: 2000
-  holdDurationMs: 500

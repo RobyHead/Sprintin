@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TapPool : MonoBehaviour
+public class TapManager : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private Tap tapPrefab;
@@ -12,5 +12,11 @@ public class TapPool : MonoBehaviour
     {
         var tap = Instantiate(tapPrefab, spawnParent);
         tap.Initialize(trackKey, ms);
+    }
+
+    public void Clear()
+    {
+        foreach (Transform child in spawnParent)
+            Destroy(child.gameObject);
     }
 }

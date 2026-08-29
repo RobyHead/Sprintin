@@ -11,25 +11,29 @@ public class Tap : MonoBehaviour
 
     public int Key => _key;
     public int Ms => _ms;
+    public bool IsJudged { get; private set; }
 
     private int _key;
     private int _ms;
-
-    private void Start()
-    {
-        ApplyMaterial();
-        ApplyStaticTransform();
-    }
 
     private void Update()
     {
         if (!GameTime.HasStarted)
             return;
 
+        if (IsJudged)
+        {
+            SetRenderersVisible(false);
+            return;
+        }
+
         float z = (_ms - GameTime.ElapsedMs) / 1000f * GameConfig.Instance.Speed;
         var pos = transform.position;
         pos.z = z;
         transform.position = pos;
+
+        bool visible = z >= GameConfig.Instance.VisibleRangeMin && z <= GameConfig.Instance.VisibleRangeMax;
+        SetRenderersVisible(visible);
     }
 
     public void Initialize(int trackKey, int ms)
@@ -38,13 +42,15 @@ public class Tap : MonoBehaviour
         _ms = ms;
         ApplyMaterial();
         ApplyStaticTransform();
+        SetRenderersVisible(false);
         Judge.Instance.RegisterTap(this);
     }
 
     public void OnJudged(Judgement judgement, float diff)
     {
+        IsJudged = true;
+        SetRenderersVisible(false);
         Judge.Instance.UnregisterTap(this);
-        Destroy(gameObject);
     }
 
     private void ApplyStaticTransform()
@@ -63,6 +69,14 @@ public class Tap : MonoBehaviour
         foreach (var renderer in meshRenderers)
         {
             if (renderer != null) renderer.material = mat;
+        }
+    }
+
+    private void SetRenderersVisible(bool visible)
+    {
+        foreach (var renderer in meshRenderers)
+        {
+            if (renderer != null) renderer.enabled = visible;
         }
     }
 }

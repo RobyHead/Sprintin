@@ -13,10 +13,10 @@ public class ChartManager : MonoBehaviour
     public static float CurrentJumpBpm { get; private set; } = 120f;
 
     [Header("References")]
-    [SerializeField] private TapPool tapPool;
-    [SerializeField] private HoldPool holdPool;
-    [SerializeField] private GroundPool groundPool;
-    [SerializeField] private BarPool barPool;
+    [SerializeField] private TapManager tapManager;
+    [SerializeField] private HoldManager holdManager;
+    [SerializeField] private GroundManager groundManager;
+    [SerializeField] private BarManager barManager;
 
     [Header("Song")]
     [SerializeField] private string songFolder = "Dev/Sound Chimera";
@@ -146,20 +146,20 @@ public class ChartManager : MonoBehaviour
     private void PreSpawnAllNotes()
     {
         foreach (var t in _taps)
-            tapPool.Spawn(t.key, t.ms);
+            tapManager.Spawn(t.key, t.ms);
 
         foreach (var h in _holds)
-            holdPool.Spawn(h.key, h.ms, h.endMs);
+            holdManager.Spawn(h.key, h.ms, h.endMs);
 
         foreach (var g in _grounds)
-            groundPool.Spawn(g.ms);
+            groundManager.Spawn(g.ms);
 
         SpawnBars();
     }
 
     private void SpawnBars()
     {
-        if (barPool == null || _barBpms == null || _barBpms.Count == 0)
+        if (barManager == null || _barBpms == null || _barBpms.Count == 0)
             return;
 
         int lastNoteMs = 0;
@@ -202,8 +202,17 @@ public class ChartManager : MonoBehaviour
         foreach (var t in barTimes)
         {
             if (t != lastSpawned)
-                barPool.Spawn(t);
+                barManager.Spawn(t);
             lastSpawned = t;
         }
+    }
+
+    public void UnloadChart()
+    {
+        tapManager.Clear();
+        holdManager.Clear();
+        groundManager.Clear();
+        barManager.Clear();
+        IsReady = false;
     }
 }

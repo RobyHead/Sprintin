@@ -48,7 +48,9 @@ MonoBehaviour:
   groundMaterial: {fileID: 2100000, guid: ade426f2051a5ff4991886601dea15f7, type: 2}
   meshRenderers:
   - {fileID: 7327310288396867611}
-  deleteZ: -10
+  landingStartMs: 100
+  landingDurationMs: 80
+  landingY: -0.18
 --- !u!1 &6521814459939715370
 GameObject:
   m_ObjectHideFlags: 0
