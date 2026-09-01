@@ -9,6 +9,12 @@ public class GameTime : MonoBehaviour
     public static float ElapsedMs { get; private set; } = StartOffsetMs;
     public static bool HasStarted { get; private set; }
 
+    public static void Reset()
+    {
+        ElapsedMs = StartOffsetMs;
+        HasStarted = false;
+    }
+
     [Header("Display")]
     [SerializeField] private TMP_Text timeText;
 

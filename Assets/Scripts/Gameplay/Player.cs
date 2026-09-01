@@ -9,6 +9,14 @@ public class Player : MonoBehaviour
     private static float _jumpStartTime = float.MinValue;
     private static float _jumpEndTime = float.MinValue;
 
+    public static void ResetStatics()
+    {
+        IsJumping = false;
+        CanOperate = false;
+        _jumpStartTime = float.MinValue;
+        _jumpEndTime = float.MinValue;
+    }
+
     public static bool WasJumpingAt(float elapsedMs)
     {
         if (_jumpStartTime == float.MinValue)

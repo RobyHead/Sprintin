@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class SongInfo : MonoBehaviour
+public class SongMeta : MonoBehaviour
 {
     [SerializeField] private Image coverImage;
     [SerializeField] private TMP_Text titleText;
@@ -29,7 +29,7 @@ public class SongInfo : MonoBehaviour
 
         if (coverPath == null)
         {
-            Debug.LogWarning($"SongInfo: cover not found in {folder}");
+            Debug.LogWarning($"SongMeta: cover not found in {folder}");
             yield break;
         }
 
@@ -39,7 +39,7 @@ public class SongInfo : MonoBehaviour
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogWarning($"SongInfo: failed to load cover: {request.error}");
+            Debug.LogWarning($"SongMeta: failed to load cover: {request.error}");
             yield break;
         }
 

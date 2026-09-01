@@ -1,0 +1,12 @@
+{
+  "packs": [
+    {
+      "id": "dev",
+      "name": "dev pack"
+    },
+    {
+      "id": "example",
+      "name": "example pack"
+    }
+  ]
+}

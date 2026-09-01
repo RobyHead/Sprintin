@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Networking;
 
 [RequireComponent(typeof(AudioSource))]
@@ -19,8 +20,6 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private BarManager barManager;
 
     [Header("Song")]
-    [SerializeField] private string songFolder = "Dev/Sound Chimera";
-    [SerializeField] private Difficulty difficulty = Difficulty.Easy;
     [SerializeField] private float delay = 0f;
 
     private List<TapData> _taps = new List<TapData>();
@@ -35,16 +34,32 @@ public class ChartManager : MonoBehaviour
     private List<BpmData> _barBpms;
     private int _nextJumpBpmIndex;
 
+    private string _packId;
+    private string _songId;
+    private int _difficultyId;
+
     private void Awake()
     {
-        IsReady = false;
-        SongFolder = songFolder;
+        ResetStatics();
+
+        _packId = SceneTransition.PackId;
+        _songId = SceneTransition.SongId;
+        _difficultyId = SceneTransition.DifficultyId;
+        SongFolder = SceneTransition.SongFolder;
 
         _audioSource = GetComponent<AudioSource>();
         _audioSource.playOnAwake = false;
 
         LoadChart();
         StartCoroutine(LoadAudio());
+    }
+
+    private static void ResetStatics()
+    {
+        IsReady = false;
+        CurrentJumpBpm = 120f;
+        GameTime.Reset();
+        Player.ResetStatics();
     }
 
     private void Start()
@@ -56,6 +71,12 @@ public class ChartManager : MonoBehaviour
 
     private void Update()
     {
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            StopAndReturnToMenu();
+            return;
+        }
+
         if (!GameTime.HasStarted)
             return;
 
@@ -63,6 +84,13 @@ public class ChartManager : MonoBehaviour
             SchedulePlayback();
 
         UpdateJumpBpm();
+    }
+
+    private void StopAndReturnToMenu()
+    {
+        _audioSource.Stop();
+        _playbackScheduled = false;
+        SceneTransition.GoToMenu(_packId, _songId, _difficultyId);
     }
 
     private void UpdateJumpBpm()
@@ -93,7 +121,7 @@ public class ChartManager : MonoBehaviour
 
     private IEnumerator LoadAudio()
     {
-        var srcPath = Path.Combine(Application.streamingAssetsPath, "Songs", songFolder, "track.mp3");
+        var srcPath = Path.Combine(Application.streamingAssetsPath, "Songs", SongFolder, "track.mp3");
         var uri = new System.Uri(srcPath).AbsoluteUri;
 
         using var request = UnityWebRequestMultimedia.GetAudioClip(uri, AudioType.MPEG);
@@ -115,8 +143,8 @@ public class ChartManager : MonoBehaviour
 
     private void LoadChart()
     {
-        var chartFileName = $"{(int)difficulty}.spr";
-        var path = Path.Combine(Application.streamingAssetsPath, "Songs", songFolder, chartFileName);
+        var chartFileName = $"{_difficultyId}.spr";
+        var path = Path.Combine(Application.streamingAssetsPath, "Songs", SongFolder, chartFileName);
         if (!File.Exists(path))
         {
             Debug.LogError($"Chart not found: {path}");
