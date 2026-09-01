@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1345761158683487381}
-  - component: {fileID: 5016913381596141878}
+  - component: {fileID: 2803827738097722571}
   m_Layer: 0
   m_Name: Lanes
   m_TagString: Untagged
@@ -36,7 +36,7 @@ Transform:
   - {fileID: 8189628399845206462}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5016913381596141878
+--- !u!114 &2803827738097722571
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45,9 +45,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3830219597923817660}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8aa811d7b52d284b95f8af591ca43e8, type: 3}
+  m_Script: {fileID: 11500000, guid: d7558d949949d4d43857f697b6b922d7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Lanes
+  m_EditorClassIdentifier: Assembly-CSharp::LaneGroup
   keyPositions:
   - {x: -4, y: 2}
   - {x: -2.3, y: 0.9}

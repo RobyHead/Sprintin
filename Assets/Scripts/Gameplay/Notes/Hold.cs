@@ -112,8 +112,8 @@ public class Hold : MonoBehaviour
 
     private void ApplyStaticTransform()
     {
-        var pos = Lanes.Instance.KeyPositions[_key - 1];
-        var rotX = Lanes.Instance.KeyRotationsX[_key - 1];
+        var pos = LaneGroup.Instance.KeyPositions[_key - 1];
+        var rotX = LaneGroup.Instance.KeyRotationsX[_key - 1];
         float tailOffset = (_endMs - _ms) / 1000f * GameConfig.Instance.Speed;
 
         var bodyScale = body.localScale;

@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class Lanes : MonoBehaviour
+public class LaneGroup : MonoBehaviour
 {
-    public static Lanes Instance { get; private set; }
+    public static LaneGroup Instance { get; private set; }
 
     [Header("Track Layout")]
     [SerializeField] private Vector2[] keyPositions = new Vector2[]

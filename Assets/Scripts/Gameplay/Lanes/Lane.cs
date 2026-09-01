@@ -34,11 +34,11 @@ public class Lane : MonoBehaviour
 
         if (isPressed && !_wasPressed)
         {
-            Lanes.Instance.OnLanePressed(_trackIndex);
+            LaneGroup.Instance.OnLanePressed(_trackIndex);
         }
         else if (!isPressed && _wasPressed)
         {
-            Lanes.Instance.OnLaneReleased(_trackIndex);
+            LaneGroup.Instance.OnLaneReleased(_trackIndex);
         }
 
         _wasPressed = isPressed;

@@ -55,8 +55,8 @@ public class Tap : MonoBehaviour
 
     private void ApplyStaticTransform()
     {
-        var pos = Lanes.Instance.KeyPositions[_key - 1];
-        var rotX = Lanes.Instance.KeyRotationsX[_key - 1];
+        var pos = LaneGroup.Instance.KeyPositions[_key - 1];
+        var rotX = LaneGroup.Instance.KeyRotationsX[_key - 1];
         transform.SetPositionAndRotation(
             new Vector3(pos.x, pos.y, 50f),
             Quaternion.Euler(rotX, 90f, 0f)
