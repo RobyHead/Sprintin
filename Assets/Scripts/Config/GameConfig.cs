@@ -5,13 +5,19 @@ public class GameConfig : MonoBehaviour
     public static GameConfig Instance { get; private set; }
 
     [Header("Notes Movement")]
-    [SerializeField] private float speed = 10f;
+    [SerializeField] private string speedKey = "GameConfig_Speed";
+    private float speed;
+
+    [Header("Offset")]
+    [SerializeField] private string offsetKey = "GameConfig_Offset";
+    private float offset;
 
     [Header("Notes Visibility")]
     [SerializeField] private float visibleRangeMax = 30f;
     [SerializeField] private float visibleRangeMin = -5f;
 
     public float Speed => speed;
+    public float Offset => offset;
     public float VisibleRangeMax => visibleRangeMax;
     public float VisibleRangeMin => visibleRangeMin;
 
@@ -27,20 +33,9 @@ public class GameConfig : MonoBehaviour
             Instance = null;
     }
 
-    public void SetSpeed(float value)
-    {
-        speed = value;
-        Save();
-    }
-
-    private void Save()
-    {
-        PlayerPrefs.SetFloat("GameConfig_Speed", speed);
-        PlayerPrefs.Save();
-    }
-
     private void Load()
     {
-        speed = PlayerPrefs.GetFloat("GameConfig_Speed", speed);
+        speed = float.Parse(PlayerPrefs.GetString(speedKey)) * 10;
+        offset = float.Parse(PlayerPrefs.GetString(offsetKey));
     }
 }

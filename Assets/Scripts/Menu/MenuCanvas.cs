@@ -7,6 +7,7 @@ public class MenuCanvas : MonoBehaviour
     [SerializeField] private CanvasGroup blackBackground;
     [SerializeField] private CanvasGroup titlePanel;
     [SerializeField] private CanvasGroup selectPanel;
+    [SerializeField] private CanvasGroup settingsPanel;
 
     [Header("Timing")]
     [SerializeField] private float blackScreenDuration = 0.5f;
@@ -39,6 +40,7 @@ public class MenuCanvas : MonoBehaviour
         titlePanel.gameObject.SetActive(true);
         selectPanel.gameObject.SetActive(false);
         selectPanel.interactable = false;
+        settingsPanel.gameObject.SetActive(false);
 
         _state = State.BlackScreen;
     }
@@ -110,9 +112,12 @@ public class MenuCanvas : MonoBehaviour
                 break;
 
             case State.Done:
-                if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+                if (Keyboard.current != null)
                 {
-                    HandleEscape();
+                    if (Keyboard.current.escapeKey.wasPressedThisFrame)
+                        HandleEscape();
+                    else if (Keyboard.current.tabKey.wasPressedThisFrame && _currentPanel == Panel.Select)
+                        OpenSettings();
                 }
                 break;
         }
@@ -133,14 +138,23 @@ public class MenuCanvas : MonoBehaviour
 
     private void CloseSettings()
     {
-        // TODO: 关闭 Settings，回到 Select
+        settingsPanel.gameObject.SetActive(false);
+        selectPanel.interactable = true;
         _currentPanel = Panel.Select;
+    }
+
+    private void OpenSettings()
+    {
+        selectPanel.interactable = false;
+        settingsPanel.gameObject.SetActive(true);
+        _currentPanel = Panel.Settings;
     }
 
     private void SkipToSelect()
     {
         blackBackground.gameObject.SetActive(false);
         titlePanel.gameObject.SetActive(false);
+        settingsPanel.gameObject.SetActive(false);
         selectPanel.gameObject.SetActive(true);
         selectPanel.interactable = true;
         _currentPanel = Panel.Select;
@@ -155,8 +169,8 @@ public class MenuCanvas : MonoBehaviour
     private void ShowTitlePanel()
     {
         selectPanel.interactable = false;
-        titlePanel.gameObject.SetActive(true);
         titlePanel.alpha = 0f;
+        titlePanel.gameObject.SetActive(true);
         titleAnimation.ResetToOffscreen();
         _timer = 0f;
         _exitSlideStarted = false;

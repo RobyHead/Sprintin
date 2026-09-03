@@ -2704,6 +2704,14 @@ PrefabInstance:
       propertyPath: speed
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: speedKey
+      value: speed
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: offsetKey
+      value: offset
+      objectReference: {fileID: 0}
     - target: {fileID: 4722278448619478701, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2757,6 +2765,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 866499908}
     - target: {fileID: 9131032730402185134, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: gameConfig
+      value: 
+      objectReference: {fileID: 8914841135642013321}
+    - target: {fileID: 9131032730402185134, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: songFolder
       value: dev/bitterjuicy
       objectReference: {fileID: 0}
@@ -2777,6 +2789,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+--- !u!114 &8914841135642013321 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+  m_PrefabInstance: {fileID: 8914841135642013320}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660760afef7aa1b46a86bb4be5354783, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameConfig
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

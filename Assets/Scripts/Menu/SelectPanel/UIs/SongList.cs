@@ -36,6 +36,13 @@ public class SongList : MonoBehaviour
     private float _stableTimer;
     private int _lastNotifiedIndex = -1;
 
+    public void SetInteractable(bool interactable)
+    {
+        _interactable = interactable;
+    }
+
+    private bool _interactable = true;
+
     private class SongListEntry
     {
         public SongListItem Data;
@@ -100,6 +107,8 @@ public class SongList : MonoBehaviour
 
     private void Update()
     {
+        if (!_interactable) return;
+
         _holdTimer += Time.deltaTime;
 
         if (Time.time >= _nextActionTime)

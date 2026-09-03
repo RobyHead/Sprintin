@@ -18,9 +18,7 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private HoldManager holdManager;
     [SerializeField] private GroundManager groundManager;
     [SerializeField] private BarManager barManager;
-
-    [Header("Song")]
-    [SerializeField] private float delay = 0f;
+    [SerializeField] private GameConfig gameConfig;
 
     private List<TapData> _taps = new List<TapData>();
     private List<HoldData> _holds = new List<HoldData>();
@@ -111,7 +109,7 @@ public class ChartManager : MonoBehaviour
         _audioSource.clip = _songClip;
 
         double timeToZero = -GameTime.ElapsedMs / 1000.0;
-        double scheduledTime = AudioSettings.dspTime + timeToZero - delay / 1000.0;
+        double scheduledTime = AudioSettings.dspTime + timeToZero - gameConfig.Offset / 1000.0;
         if (scheduledTime < 0)
             scheduledTime = 0;
 

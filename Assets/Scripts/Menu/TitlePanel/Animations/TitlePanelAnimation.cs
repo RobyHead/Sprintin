@@ -2,9 +2,6 @@ using UnityEngine;
 
 public class TitlePanelAnimation : MonoBehaviour
 {
-    [Header("Canvas Group")]
-    [SerializeField] private CanvasGroup canvasGroup;
-
     [Header("Ground")]
     [SerializeField] private RectTransform groundRect;
 
@@ -39,9 +36,6 @@ public class TitlePanelAnimation : MonoBehaviour
             _groundOffscreenPos = _groundTargetPos + new Vector2(0f, -Screen.height);
             groundRect.anchoredPosition = _groundOffscreenPos;
         }
-
-        if (canvasGroup != null)
-            canvasGroup.alpha = 1f;
 
         IsSlideInComplete = false;
     }
