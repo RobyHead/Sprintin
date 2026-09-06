@@ -175,6 +175,7 @@ public class ChartManager : MonoBehaviour
 
         SongName = chart.name;
         _chartOffset = chart.offset;
+        SpeedTimeline.Instance.SetSpeeds(chart.speeds);
         CurrentJumpBpm = chart.jumpBpm;
         _jumpBpms = new List<BpmData>(chart.jumpBpms);
         _jumpBpms.Sort((a, b) => a.ms.CompareTo(b.ms));

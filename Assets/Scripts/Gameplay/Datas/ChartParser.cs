@@ -109,20 +109,12 @@ public static class ChartParser
             return;
 
         int ms = int.Parse(parts[0].Trim());
-        var effect = new EffectData(ms);
+        string effectName = parts[1].Trim();
 
-        for (int i = 1; i < parts.Length; i++)
+        if (effectName == "speed" && parts.Length >= 3)
         {
-            var pair = parts[i].Trim();
-            var colonIdx = pair.IndexOf(':');
-            if (colonIdx < 0)
-                continue;
-
-            var key = pair.Substring(0, colonIdx).Trim();
-            var value = pair.Substring(colonIdx + 1).Trim();
-            effect.properties[key] = value;
+            float multiplier = float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture);
+            data.speeds.Add(new SpeedData(ms, multiplier));
         }
-
-        data.effects.Add(effect);
     }
 }

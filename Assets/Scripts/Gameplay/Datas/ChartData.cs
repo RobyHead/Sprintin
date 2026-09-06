@@ -13,4 +13,5 @@ public class ChartData
     public List<HoldData> holds = new List<HoldData>();
     public List<GroundData> grounds = new List<GroundData>();
     public List<EffectData> effects = new List<EffectData>();
+    public List<SpeedData> speeds = new List<SpeedData>();
 }
