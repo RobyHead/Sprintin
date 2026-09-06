@@ -67,7 +67,7 @@ public static class ChartParser
         float bpm = float.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
         float beatsPerBar = float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture);
 
-        var entry = new BpmData(ms + data.offset, bpm, beatsPerBar);
+        var entry = new BpmData(ms, bpm, beatsPerBar);
         if (beatsPerBar == 0f)
             data.jumpBpms.Add(entry);
         else
@@ -87,16 +87,16 @@ public static class ChartParser
 
         if (key == 0)
         {
-            data.grounds.Add(new GroundData(ms + data.offset));
+            data.grounds.Add(new GroundData(ms));
         }
         else if (parts.Length >= 3)
         {
             int endMs = int.Parse(parts[2].Trim());
-            data.holds.Add(new HoldData(ms + data.offset, key, endMs + data.offset));
+            data.holds.Add(new HoldData(ms, key, endMs));
         }
         else
         {
-            data.taps.Add(new TapData(ms + data.offset, key));
+            data.taps.Add(new TapData(ms, key));
         }
     }
 
@@ -109,7 +109,7 @@ public static class ChartParser
             return;
 
         int ms = int.Parse(parts[0].Trim());
-        var effect = new EffectData(ms + data.offset);
+        var effect = new EffectData(ms);
 
         for (int i = 1; i < parts.Length; i++)
         {

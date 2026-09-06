@@ -4,14 +4,22 @@ using TMPro;
 
 public class GameTime : MonoBehaviour
 {
-    private const float StartOffsetMs = -3000f;
+    [SerializeField] private GameConfig gameConfig;
 
-    public static float ElapsedMs { get; private set; } = StartOffsetMs;
+    private static float s_startOffsetMs = -3000f;
+
+    public static float ElapsedMs { get; private set; } = -3000f;
     public static bool HasStarted { get; private set; }
+
+    private void Awake()
+    {
+        s_startOffsetMs = -gameConfig.BlankMs;
+        ElapsedMs = s_startOffsetMs;
+    }
 
     public static void Reset()
     {
-        ElapsedMs = StartOffsetMs;
+        ElapsedMs = s_startOffsetMs;
         HasStarted = false;
     }
 
@@ -26,7 +34,7 @@ public class GameTime : MonoBehaviour
         {
             if (!ChartManager.IsReady)
             {
-                ElapsedMs = StartOffsetMs;
+                ElapsedMs = s_startOffsetMs;
                 return;
             }
 
@@ -40,7 +48,7 @@ public class GameTime : MonoBehaviour
 
         if (HasStarted)
         {
-            ElapsedMs = (float)((AudioSettings.dspTime - _startTime) * 1000.0) + StartOffsetMs;
+            ElapsedMs = (float)((AudioSettings.dspTime - _startTime) * 1000.0) + s_startOffsetMs;
         }
 
         if (timeText != null)

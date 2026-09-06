@@ -27,6 +27,7 @@ public class ChartManager : MonoBehaviour
     private AudioSource _audioSource;
     private AudioClip _songClip;
     private bool _playbackScheduled;
+    private int _chartOffset;
 
     private List<BpmData> _jumpBpms;
     private List<BpmData> _barBpms;
@@ -81,6 +82,7 @@ public class ChartManager : MonoBehaviour
         if (!_playbackScheduled)
             SchedulePlayback();
 
+        UpdateVolumeFade();
         UpdateJumpBpm();
     }
 
@@ -108,13 +110,32 @@ public class ChartManager : MonoBehaviour
 
         _audioSource.clip = _songClip;
 
-        double timeToZero = -GameTime.ElapsedMs / 1000.0;
-        double scheduledTime = AudioSettings.dspTime + timeToZero - gameConfig.Offset / 1000.0;
+        float totalOffset = _chartOffset + gameConfig.Offset;
+        float musicStartOffset = Mathf.Min(totalOffset, gameConfig.MaxSkipMs);
+        float skipMs = Mathf.Max(0f, totalOffset - gameConfig.MaxSkipMs);
+
+        double timeToMusicStart = (-musicStartOffset - GameTime.ElapsedMs) / 1000.0;
+        double scheduledTime = AudioSettings.dspTime + timeToMusicStart;
         if (scheduledTime < 0)
             scheduledTime = 0;
 
+        _audioSource.time = skipMs / 1000f;
         _audioSource.PlayScheduled(scheduledTime);
         _playbackScheduled = true;
+    }
+
+    private void UpdateVolumeFade()
+    {
+        if (!_playbackScheduled)
+            return;
+
+        float elapsedMs = GameTime.ElapsedMs;
+        if (elapsedMs >= -gameConfig.MaxSkipMs && elapsedMs <= -gameConfig.FadeEndMs)
+            _audioSource.volume = (elapsedMs + gameConfig.MaxSkipMs) / (gameConfig.MaxSkipMs - gameConfig.FadeEndMs);
+        else if (elapsedMs > -gameConfig.FadeEndMs)
+            _audioSource.volume = 1f;
+        else
+            _audioSource.volume = 0f;
     }
 
     private IEnumerator LoadAudio()
@@ -153,6 +174,7 @@ public class ChartManager : MonoBehaviour
         var chart = ChartParser.Parse(text);
 
         SongName = chart.name;
+        _chartOffset = chart.offset;
         CurrentJumpBpm = chart.jumpBpm;
         _jumpBpms = new List<BpmData>(chart.jumpBpms);
         _jumpBpms.Sort((a, b) => a.ms.CompareTo(b.ms));
