@@ -44,14 +44,14 @@ public class Hold : MonoBehaviour
 
         if (!HeadJudged)
         {
-            z = (_ms - GameTime.ElapsedMs) / 1000f * GameConfig.Instance.Speed;
+            z = SpeedTimeline.Instance.GetDistance(GameTime.ElapsedMs, _ms);
             var pos = transform.position;
             pos.z = z;
             transform.position = pos;
         }
         else if (!TailJudged)
         {
-            float remaining = (_endMs - GameTime.ElapsedMs) / 1000f * GameConfig.Instance.Speed;
+            float remaining = SpeedTimeline.Instance.GetDistance(GameTime.ElapsedMs, _endMs);
             if (remaining < 0f) remaining = 0f;
 
             head.localPosition = Vector3.zero;
@@ -72,7 +72,7 @@ public class Hold : MonoBehaviour
             z = 0f;
         }
 
-        bool visible = z >= GameConfig.Instance.VisibleRangeMin && z <= GameConfig.Instance.VisibleRangeMax;
+        bool visible = z >= SpeedTimeline.Instance.VisibleRangeMin && z <= SpeedTimeline.Instance.VisibleRangeMax;
         SetRenderersVisible(visible);
     }
 
@@ -114,7 +114,7 @@ public class Hold : MonoBehaviour
     {
         var pos = LaneGroup.Instance.KeyPositions[_key - 1];
         var rotX = LaneGroup.Instance.KeyRotationsX[_key - 1];
-        float tailOffset = (_endMs - _ms) / 1000f * GameConfig.Instance.Speed;
+        float tailOffset = SpeedTimeline.Instance.GetDistance(_ms, _endMs);
 
         var bodyScale = body.localScale;
         bodyScale.x = tailOffset / 2f;

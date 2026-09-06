@@ -30,7 +30,7 @@ public class Ground : MonoBehaviour
             return;
         }
 
-        float z = (_ms - GameTime.ElapsedMs) / 1000f * GameConfig.Instance.Speed;
+        float z = SpeedTimeline.Instance.GetDistance(GameTime.ElapsedMs, _ms);
         var pos = transform.position;
         pos.z = z;
 
@@ -55,7 +55,7 @@ public class Ground : MonoBehaviour
 
         transform.position = pos;
 
-        bool visible = z >= GameConfig.Instance.VisibleRangeMin && z <= GameConfig.Instance.VisibleRangeMax;
+        bool visible = z >= SpeedTimeline.Instance.VisibleRangeMin && z <= SpeedTimeline.Instance.VisibleRangeMax;
         SetRenderersVisible(visible);
     }
 

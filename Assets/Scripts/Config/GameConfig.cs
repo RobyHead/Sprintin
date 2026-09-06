@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class GameConfig : MonoBehaviour
 {
-    public static GameConfig Instance { get; private set; }
-
     [Header("Notes Movement")]
     [SerializeField] private string speedKey = "GameConfig_Speed";
     private float speed;
@@ -23,14 +21,7 @@ public class GameConfig : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
         Load();
-    }
-
-    private void OnDestroy()
-    {
-        if (Instance == this)
-            Instance = null;
     }
 
     private void Load()

@@ -63,7 +63,7 @@ public class ChartManager : MonoBehaviour
     private void Start()
     {
         PreSpawnAllNotes();
-        ScoreInfo.CalculateMaxScore(_taps.Count, _grounds.Count, _holds.Count);
+        Judge.Instance.InitializeScore();
         IsReady = true;
     }
 

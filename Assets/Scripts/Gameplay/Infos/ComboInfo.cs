@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class ComboInfo : MonoBehaviour
 {
-    public static ComboInfo Instance { get; private set; }
-
     [SerializeField] private TMP_Text text;
 
     [Header("Animation")]
@@ -19,21 +17,12 @@ public class ComboInfo : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
         _baseScale = transform.localScale;
         text.text = "";
         SetAlpha(0f);
     }
 
-    public static void UpdateCombo(Judgement judgement)
-    {
-        if (Instance == null)
-            return;
-
-        Instance.UpdateComboInternal(judgement);
-    }
-
-    private void UpdateComboInternal(Judgement judgement)
+    public void UpdateCombo(Judgement judgement)
     {
         if (judgement == Judgement.Bad || judgement == Judgement.Miss)
         {

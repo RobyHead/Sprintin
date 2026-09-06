@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class JudgementInfo : MonoBehaviour
 {
-    public static JudgementInfo Instance { get; private set; }
-
     [SerializeField] private TMP_Text text;
 
     [Header("Animation")]
@@ -20,21 +18,12 @@ public class JudgementInfo : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
         _baseScale = transform.localScale;
         text.text = "";
         SetAlpha(0f);
     }
 
-    public static void Show(Judgement judgement)
-    {
-        if (Instance == null)
-            return;
-
-        Instance.ShowInternal(judgement);
-    }
-
-    private void ShowInternal(Judgement judgement)
+    public void Show(Judgement judgement)
     {
         if (_animation != null)
             StopCoroutine(_animation);

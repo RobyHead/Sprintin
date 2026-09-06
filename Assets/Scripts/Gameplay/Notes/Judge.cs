@@ -16,6 +16,11 @@ public class Judge : MonoBehaviour
     [Header("Ground")]
     [SerializeField] private float groundWindow = 50f;
 
+    [Header("Info")]
+    [SerializeField] private ScoreInfo scoreInfo;
+    [SerializeField] private JudgementInfo judgementInfo;
+    [SerializeField] private ComboInfo comboInfo;
+
     private readonly List<Tap>[] _taps = new List<Tap>[4];
     private readonly List<Hold>[] _holds = new List<Hold>[4];
     private readonly List<Ground> _grounds = new List<Ground>();
@@ -28,6 +33,23 @@ public class Judge : MonoBehaviour
             _taps[i] = new List<Tap>();
             _holds[i] = new List<Hold>();
         }
+    }
+
+    public void InitializeScore()
+    {
+        if (scoreInfo == null)
+            return;
+
+        int tapCount = 0;
+        int holdCount = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            tapCount += _taps[i].Count;
+            holdCount += _holds[i].Count;
+        }
+        int groundCount = _grounds.Count;
+
+        scoreInfo.CalculateMaxScore(tapCount, groundCount, holdCount);
     }
 
     private void Update()
@@ -153,9 +175,12 @@ public class Judge : MonoBehaviour
 
     private void HandleJudgement(Judgement judgement)
     {
-        JudgementInfo.Show(judgement);
-        ComboInfo.UpdateCombo(judgement);
-        ScoreInfo.AddScore(judgement);
+        if (judgementInfo != null)
+            judgementInfo.Show(judgement);
+        if (comboInfo != null)
+            comboInfo.UpdateCombo(judgement);
+        if (scoreInfo != null)
+            scoreInfo.AddScore(judgement);
     }
 
     private Judgement GetJudgement(float absDiff)

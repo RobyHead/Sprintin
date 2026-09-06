@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4722278448619478701}
   - component: {fileID: 1288237328917100798}
   - component: {fileID: 9131032730402185134}
+  - component: {fileID: 2870739912697746325}
   - component: {fileID: 1256937887020617005}
   - component: {fileID: 8561290373246098020}
   m_Layer: 0
@@ -51,7 +52,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 660760afef7aa1b46a86bb4be5354783, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
-  speed: 30
+  speedKey: speed
+  offsetKey: offset
   visibleRangeMax: 30
   visibleRangeMin: -5
 --- !u!114 &9131032730402185134
@@ -66,13 +68,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 315bedbdf048bdf48aad1bef704adfef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChartManager
-  tapManager: {fileID: 0}
-  holdManager: {fileID: 0}
-  groundManager: {fileID: 0}
-  barManager: {fileID: 0}
-  songFolder: Songs/Bitter Juicy
-  difficulty: 0
-  delay: 250
+  tapManager: {fileID: 6348981534055412640}
+  holdManager: {fileID: 5398793889997474018}
+  groundManager: {fileID: 2603272030079891455}
+  barManager: {fileID: 5137567094460471255}
+  gameConfig: {fileID: 1288237328917100798}
+--- !u!114 &2870739912697746325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460627644799356570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2019a8dfd8897944b603e6b0f7a8e54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpeedTimeline
+  gameConfig: {fileID: 1288237328917100798}
 --- !u!114 &1256937887020617005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,6 +103,9 @@ MonoBehaviour:
   badWindow: 150
   tailEarlyWindow: 100
   groundWindow: 50
+  scoreInfo: {fileID: 0}
+  judgementInfo: {fileID: 0}
+  comboInfo: {fileID: 0}
 --- !u!82 &8561290373246098020
 AudioSource:
   m_ObjectHideFlags: 0

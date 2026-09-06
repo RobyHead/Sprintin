@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class ScoreInfo : MonoBehaviour
 {
-    public static ScoreInfo Instance { get; private set; }
-
     [SerializeField] private TMP_Text text;
 
     private int _currentScore;
@@ -12,19 +10,10 @@ public class ScoreInfo : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
         text.text = "";
     }
 
-    public static void CalculateMaxScore(int tapCount, int groundCount, int holdCount)
-    {
-        if (Instance == null)
-            return;
-
-        Instance.CalculateMaxScoreInternal(tapCount, groundCount, holdCount);
-    }
-
-    private void CalculateMaxScoreInternal(int tapCount, int groundCount, int holdCount)
+    public void CalculateMaxScore(int tapCount, int groundCount, int holdCount)
     {
         int n = tapCount + groundCount + holdCount * 2;
         _maxScore = n * 3;
@@ -32,15 +21,7 @@ public class ScoreInfo : MonoBehaviour
         UpdateDisplay();
     }
 
-    public static void AddScore(Judgement judgement)
-    {
-        if (Instance == null)
-            return;
-
-        Instance.AddScoreInternal(judgement);
-    }
-
-    private void AddScoreInternal(Judgement judgement)
+    public void AddScore(Judgement judgement)
     {
         _currentScore += judgement switch
         {
