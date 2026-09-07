@@ -39,20 +39,8 @@ public class ScoreInfo : MonoBehaviour
 
     private void UpdateDisplay()
     {
-        if (_maxScore == 0)
-        {
-            text.text = "000000";
-            FinalScore = 0;
-            return;
-        }
-        if (_currentScore >= _maxScore)
-        {
-            text.text = "1000000";
-            FinalScore = 1000000;
-            return;
-        }
-        int display = Mathf.CeilToInt((float)_currentScore / _maxScore * 1000000f);
-        text.text = display.ToString("D6");
+        int display = _maxScore == 0 ? 0 : Mathf.CeilToInt((float)_currentScore / _maxScore * 1000000f);
+        text.text = $"{display:D6}";
         FinalScore = display;
     }
 }

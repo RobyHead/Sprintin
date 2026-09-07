@@ -16,9 +16,6 @@ public class ResultInfo : MonoBehaviour
     [SerializeField] private TMP_Text badText;
     [SerializeField] private TMP_Text missText;
 
-    [Header("Record")]
-    [SerializeField] private int defaultRecord = 1000000;
-
     public void Populate()
     {
         var judge = Judge.Instance;
@@ -31,12 +28,22 @@ public class ResultInfo : MonoBehaviour
         int score = judge.FinalScore;
         int maxCombo = judge.MaxCombo;
 
+        int highestScore = 0;
+        if (RecordManager.Instance != null)
+        {
+            var diff = RecordManager.Instance.GetDiffRecord(
+                SceneTransition.PackId,
+                SceneTransition.SongId,
+                SceneTransition.DifficultyId);
+            highestScore = diff.highestScore;
+        }
+
         if (scoreText != null)
-            scoreText.text = score == 1000000 ? score.ToString() : score.ToString("D6");
+            scoreText.text = score.ToString("D6");
 
         if (highestScoreText != null)
-            highestScoreText.text = $"Best:\n{defaultRecord}";
-
+            highestScoreText.text = $"Best:\n{highestScore:D6}";
+            
         if (comboText != null)
             comboText.text = $"Combo:\n{maxCombo}";
 

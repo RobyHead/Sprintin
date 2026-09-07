@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.IO;
 using TMPro;
@@ -18,12 +19,17 @@ public class SongInfo : MonoBehaviour
     [Header("Difficulties")]
     [SerializeField] private DifficultySelector difficultySelector;
 
+    [Header("Record")]
+    [SerializeField] private TMP_Text recordScoreText;
+    [SerializeField] private TMP_Text recordComboText;
+
     private int _selectedDifficultyId = -1;
     public int SelectedDifficultyId => _selectedDifficultyId;
 
     public void SetPendingDifficulty(int id)
     {
         _selectedDifficultyId = id;
+        UpdateRecordDisplay();
     }
     private SongData _pendingSong;
     private string _pendingPackId;
@@ -44,6 +50,8 @@ public class SongInfo : MonoBehaviour
         _pendingSong = song;
         _pendingPackId = packId;
         _pendingSongsPath = songsPath;
+
+        UpdateRecordDisplay();
     }
 
     public void DisplayCover()
@@ -56,12 +64,14 @@ public class SongInfo : MonoBehaviour
     {
         difficultySelector?.SelectNext();
         _selectedDifficultyId = difficultySelector?.SelectedId ?? -1;
+        UpdateRecordDisplay();
     }
 
     public void SelectPreviousDifficulty()
     {
         difficultySelector?.SelectPrevious();
         _selectedDifficultyId = difficultySelector?.SelectedId ?? -1;
+        UpdateRecordDisplay();
     }
 
     private IEnumerator LoadCover(string packId, string songId, string songsPath)
@@ -74,7 +84,7 @@ public class SongInfo : MonoBehaviour
 
         if (!File.Exists(path)) yield break;
 
-        var uri = new System.Uri(path).AbsoluteUri;
+        var uri = new Uri(path).AbsoluteUri;
         using var request = UnityWebRequestTexture.GetTexture(uri);
         yield return request.SendWebRequest();
 
@@ -83,5 +93,26 @@ public class SongInfo : MonoBehaviour
             var tex = DownloadHandlerTexture.GetContent(request);
             coverImage.texture = tex;
         }
+    }
+
+    private void UpdateRecordDisplay()
+    {
+        if (_pendingSong == null || _pendingPackId == null)
+            return;
+
+        if (_selectedDifficultyId < 0)
+            return;
+
+        if (RecordManager.Instance == null)
+            return;
+
+        var diff = RecordManager.Instance.GetDiffRecord(
+            _pendingPackId, _pendingSong.id, _selectedDifficultyId);
+
+        if (recordScoreText != null)
+            recordScoreText.text = diff.highestScore.ToString("D6");
+
+        if (recordComboText != null)
+            recordComboText.text = diff.maxCombo.ToString();
     }
 }
