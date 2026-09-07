@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DiffBar : MonoBehaviour
+public class DifficultyBackground : MonoBehaviour
 {
     [SerializeField] private RawImage barImage;
     [SerializeField] private Color[] colors;

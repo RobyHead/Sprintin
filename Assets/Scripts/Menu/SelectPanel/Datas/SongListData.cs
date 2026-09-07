@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [Serializable]
 public class SongListRoot
 {
-    public List<PackData> packs;
+    public List<string> packs;
 }
 
 [Serializable]
@@ -12,12 +12,7 @@ public class PackData
 {
     public string id;
     public string name;
-}
-
-[Serializable]
-public class SongListPack
-{
-    public List<SongData> songs;
+    public List<string> songs;
 }
 
 [Serializable]

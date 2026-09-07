@@ -5,7 +5,7 @@ using UnityEngine;
 public class DifficultySelector : MonoBehaviour
 {
     [SerializeField] private GameObject[] diffOptions;
-    [SerializeField] private DiffBar diffBar;
+    [SerializeField] private DifficultyBackground difficultyBackground;
 
     private List<DifficultyData> _difficulties;
     private int _selectedId = -1;
@@ -43,7 +43,7 @@ public class DifficultySelector : MonoBehaviour
     public void SelectDifficulty(int id)
     {
         _selectedId = id;
-        diffBar.SetDifficulty(id);
+        difficultyBackground.SetDifficulty(id);
     }
 
     public void SelectNext()

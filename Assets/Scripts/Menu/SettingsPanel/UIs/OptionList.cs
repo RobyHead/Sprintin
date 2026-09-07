@@ -24,8 +24,10 @@ public class OptionList : MonoBehaviour
     private float _snapTargetY;
     private bool _isSnapping;
 
-    private float _holdTimer;
-    private float _nextActionTime;
+    private enum NavKey { None, W, S, A, D }
+    private NavKey _heldKey = NavKey.None;
+    private float _holdStartTime;
+    private float _lastRepeatTime;
 
     private class OptionEntry
     {
@@ -66,8 +68,7 @@ public class OptionList : MonoBehaviour
             entry.Option.SetSelected(false);
 
         _selectedIndex = 0;
-        _holdTimer = 0f;
-        _nextActionTime = 0f;
+        _heldKey = NavKey.None;
         UpdateSelection();
         JumpToSelected();
         if (songList != null) songList.SetInteractable(false);
@@ -80,49 +81,68 @@ public class OptionList : MonoBehaviour
 
     private void Update()
     {
-        _holdTimer += Time.deltaTime;
-
-        if (Time.time >= _nextActionTime)
-            HandleInput();
-
+        HandleInput();
         UpdateSnapping();
     }
 
     private void HandleInput()
     {
         var kb = Keyboard.current;
-        if (kb == null) { _holdTimer = 0f; return; }
+        if (kb == null) return;
 
-        bool any = false;
+        if (_heldKey != NavKey.None)
+        {
+            if (!IsNavKeyPressed(kb, _heldKey))
+            {
+                _heldKey = NavKey.None;
+                return;
+            }
 
-        if (kb.wKey.isPressed)
-        {
-            SelectPrevious();
-            any = true;
-        }
-        else if (kb.sKey.isPressed)
-        {
-            SelectNext();
-            any = true;
-        }
-        else if (kb.aKey.isPressed)
-        {
-            _entries[_selectedIndex].Option.Decrease();
-            any = true;
-        }
-        else if (kb.dKey.isPressed)
-        {
-            _entries[_selectedIndex].Option.Increase();
-            any = true;
-        }
-
-        if (!any)
-        {
-            _holdTimer = 0f;
+            float holdDuration = Time.time - _holdStartTime;
+            float interval = holdDuration < 0.5f ? 0.2f : 0.05f;
+            if (Time.time - _lastRepeatTime >= interval)
+            {
+                _lastRepeatTime = Time.time;
+                DoNavAction(_heldKey);
+            }
             return;
         }
 
-        _nextActionTime = Time.time + (_holdTimer >= 0.5f ? 0.05f : 0.2f);
+        NavKey pressed = NavKey.None;
+        if (kb.wKey.wasPressedThisFrame) pressed = NavKey.W;
+        else if (kb.sKey.wasPressedThisFrame) pressed = NavKey.S;
+        else if (kb.aKey.wasPressedThisFrame) pressed = NavKey.A;
+        else if (kb.dKey.wasPressedThisFrame) pressed = NavKey.D;
+
+        if (pressed == NavKey.None) return;
+
+        _heldKey = pressed;
+        _holdStartTime = Time.time;
+        _lastRepeatTime = Time.time;
+        DoNavAction(pressed);
+    }
+
+    private bool IsNavKeyPressed(Keyboard kb, NavKey key)
+    {
+        return key switch
+        {
+            NavKey.W => kb.wKey.isPressed,
+            NavKey.S => kb.sKey.isPressed,
+            NavKey.A => kb.aKey.isPressed,
+            NavKey.D => kb.dKey.isPressed,
+            _ => false
+        };
+    }
+
+    private void DoNavAction(NavKey key)
+    {
+        switch (key)
+        {
+            case NavKey.W: SelectPrevious(); break;
+            case NavKey.S: SelectNext(); break;
+            case NavKey.A: _entries[_selectedIndex].Option.Decrease(); break;
+            case NavKey.D: _entries[_selectedIndex].Option.Increase(); break;
+        }
     }
 
     private void SelectPrevious()

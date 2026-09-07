@@ -33,25 +33,27 @@ public class SongListManager : MonoBehaviour
 
     private void LoadPacks()
     {
-        var packsPath = Path.Combine(SongsPath, "packs.json");
-        if (!File.Exists(packsPath))
+        var rootPath = Path.Combine(SongsPath, "root.json");
+        if (!File.Exists(rootPath))
         {
-            Debug.LogError($"packs.json not found at: {packsPath}");
+            Debug.LogError($"root.json not found at: {rootPath}");
             return;
         }
 
-        var json = File.ReadAllText(packsPath);
+        var json = File.ReadAllText(rootPath);
         var root = JsonUtility.FromJson<SongListRoot>(json);
 
         if (root == null || root.packs == null)
         {
-            Debug.LogError("Failed to parse packs.json");
+            Debug.LogError("Failed to parse root.json");
             return;
         }
 
         for (int p = 0; p < root.packs.Count; p++)
         {
-            var pack = root.packs[p];
+            var packId = root.packs[p];
+            var pack = LoadPackData(packId);
+            if (pack == null) continue;
 
             Items.Add(new SongListItem
             {
@@ -64,34 +66,54 @@ public class SongListManager : MonoBehaviour
         }
     }
 
+    private PackData LoadPackData(string packId)
+    {
+        var packPath = Path.Combine(SongsPath, packId, "pack.json");
+        if (!File.Exists(packPath))
+        {
+            Debug.LogWarning($"pack.json not found for pack: {packId}");
+            return null;
+        }
+
+        var json = File.ReadAllText(packPath);
+        var pack = JsonUtility.FromJson<PackData>(json);
+        pack.id = packId;
+        return pack;
+    }
+
     private void LoadSongs(PackData pack, int packIndex)
     {
-        var songsPath = Path.Combine(SongsPath, pack.id, "songs.json");
-        if (!File.Exists(songsPath))
-        {
-            Debug.LogWarning($"songs.json not found for pack: {pack.id}");
-            return;
-        }
+        if (pack.songs == null) return;
 
-        var json = File.ReadAllText(songsPath);
-        var packData = JsonUtility.FromJson<SongListPack>(json);
-
-        if (packData == null || packData.songs == null)
+        for (int s = 0; s < pack.songs.Count; s++)
         {
-            Debug.LogWarning($"Failed to parse songs.json for pack: {pack.id}");
-            return;
-        }
+            var songId = pack.songs[s];
+            var song = LoadSongData(pack.id, songId);
+            if (song == null) continue;
 
-        for (int s = 0; s < packData.songs.Count; s++)
-        {
             Items.Add(new SongListItem
             {
                 Type = SongListItem.ItemType.Song,
                 PackIndex = packIndex,
                 SongIndex = s,
                 Pack = pack,
-                Song = packData.songs[s]
+                Song = song
             });
         }
+    }
+
+    private SongData LoadSongData(string packId, string songId)
+    {
+        var songPath = Path.Combine(SongsPath, packId, songId, "song.json");
+        if (!File.Exists(songPath))
+        {
+            Debug.LogWarning($"song.json not found for: {packId}/{songId}");
+            return null;
+        }
+
+        var json = File.ReadAllText(songPath);
+        var song = JsonUtility.FromJson<SongData>(json);
+        song.id = songId;
+        return song;
     }
 }

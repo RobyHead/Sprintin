@@ -1,0 +1,15 @@
+{
+  "id": "example",
+  "name": "Example",
+  "artist": "example",
+  "difficulties": [
+    {
+      "id": 0,
+      "value": 1.0,
+      "charter": "rbhd"
+    }
+  ],
+  "bpm": 120,
+  "viewbegin": 10000,
+  "viewend": 20000
+}
