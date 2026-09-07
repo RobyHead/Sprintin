@@ -8,6 +8,8 @@ public class ScoreInfo : MonoBehaviour
     private int _currentScore;
     private int _maxScore;
 
+    public int FinalScore { get; private set; }
+
     private void Awake()
     {
         text.text = "";
@@ -18,6 +20,7 @@ public class ScoreInfo : MonoBehaviour
         int n = tapCount + groundCount + holdCount * 2;
         _maxScore = n * 3;
         _currentScore = 0;
+        FinalScore = 0;
         UpdateDisplay();
     }
 
@@ -39,14 +42,17 @@ public class ScoreInfo : MonoBehaviour
         if (_maxScore == 0)
         {
             text.text = "000000";
+            FinalScore = 0;
             return;
         }
         if (_currentScore >= _maxScore)
         {
             text.text = "1000000";
+            FinalScore = 1000000;
             return;
         }
         int display = Mathf.CeilToInt((float)_currentScore / _maxScore * 1000000f);
         text.text = display.ToString("D6");
+        FinalScore = display;
     }
 }

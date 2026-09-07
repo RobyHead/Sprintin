@@ -12,6 +12,7 @@ public class ComboInfo : MonoBehaviour
     [SerializeField] private float scaleSettleDuration = 0.05f;
 
     private int _combo;
+    public int MaxCombo { get; private set; }
     private Coroutine _animation;
     private Vector3 _baseScale;
 
@@ -33,6 +34,8 @@ public class ComboInfo : MonoBehaviour
         }
 
         _combo++;
+        if (_combo > MaxCombo)
+            MaxCombo = _combo;
 
         if (_combo < 10)
         {

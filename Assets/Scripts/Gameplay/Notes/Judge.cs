@@ -5,6 +5,14 @@ public class Judge : MonoBehaviour
 {
     public static Judge Instance { get; private set; }
 
+    public static int PerfectCount { get; private set; }
+    public static int GreatCount { get; private set; }
+    public static int BadCount { get; private set; }
+    public static int MissCount { get; private set; }
+
+    public int FinalScore => scoreInfo != null ? scoreInfo.FinalScore : 0;
+    public int MaxCombo => comboInfo != null ? comboInfo.MaxCombo : 0;
+
     [Header("Tap / Hold Head")]
     [SerializeField] private float perfectWindow = 50f;
     [SerializeField] private float greatWindow = 100f;
@@ -37,6 +45,11 @@ public class Judge : MonoBehaviour
 
     public void InitializeScore()
     {
+        PerfectCount = 0;
+        GreatCount = 0;
+        BadCount = 0;
+        MissCount = 0;
+
         if (scoreInfo == null)
             return;
 
@@ -175,6 +188,14 @@ public class Judge : MonoBehaviour
 
     private void HandleJudgement(Judgement judgement)
     {
+        switch (judgement)
+        {
+            case Judgement.Perfect: PerfectCount++; break;
+            case Judgement.Great:   GreatCount++;   break;
+            case Judgement.Bad:     BadCount++;     break;
+            case Judgement.Miss:    MissCount++;    break;
+        }
+
         if (judgementInfo != null)
             judgementInfo.Show(judgement);
         if (comboInfo != null)

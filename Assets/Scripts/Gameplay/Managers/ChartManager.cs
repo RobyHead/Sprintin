@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Networking;
 
 [RequireComponent(typeof(AudioSource))]
@@ -12,6 +11,7 @@ public class ChartManager : MonoBehaviour
     public static string SongFolder { get; private set; }
     public static string SongName { get; private set; }
     public static float CurrentJumpBpm { get; private set; } = 120f;
+    public static int LastNoteMs { get; private set; }
 
     [Header("References")]
     [SerializeField] private TapManager tapManager;
@@ -48,34 +48,28 @@ public class ChartManager : MonoBehaviour
 
         _audioSource = GetComponent<AudioSource>();
         _audioSource.playOnAwake = false;
-
-        LoadChart();
-        StartCoroutine(LoadAudio());
     }
 
     private static void ResetStatics()
     {
         IsReady = false;
         CurrentJumpBpm = 120f;
+        LastNoteMs = 0;
         GameTime.Reset();
         Player.ResetStatics();
     }
 
     private void Start()
     {
+        LoadChart();
         PreSpawnAllNotes();
+        StartCoroutine(LoadAudio());
         Judge.Instance.InitializeScore();
         IsReady = true;
     }
 
     private void Update()
     {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            StopAndReturnToMenu();
-            return;
-        }
-
         if (!GameTime.HasStarted)
             return;
 
@@ -84,13 +78,6 @@ public class ChartManager : MonoBehaviour
 
         UpdateVolumeFade();
         UpdateJumpBpm();
-    }
-
-    private void StopAndReturnToMenu()
-    {
-        _audioSource.Stop();
-        _playbackScheduled = false;
-        SceneTransition.GoToMenu(_packId, _songId, _difficultyId);
     }
 
     private void UpdateJumpBpm()
@@ -190,6 +177,14 @@ public class ChartManager : MonoBehaviour
         _taps.Sort((a, b) => a.ms.CompareTo(b.ms));
         _holds.Sort((a, b) => a.ms.CompareTo(b.ms));
         _grounds.Sort((a, b) => a.ms.CompareTo(b.ms));
+
+        LastNoteMs = 0;
+        foreach (var t in _taps)
+            if (t.ms > LastNoteMs) LastNoteMs = t.ms;
+        foreach (var h in _holds)
+            if (h.endMs > LastNoteMs) LastNoteMs = h.endMs;
+        foreach (var g in _grounds)
+            if (g.ms > LastNoteMs) LastNoteMs = g.ms;
     }
 
     private void PreSpawnAllNotes()

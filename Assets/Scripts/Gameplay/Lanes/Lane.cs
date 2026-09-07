@@ -32,22 +32,18 @@ public class Lane : MonoBehaviour
 
         bool isPressed = keyboard[key].isPressed;
 
-        if (isPressed && !_wasPressed)
+        if (keyboard[key].wasPressedThisFrame)
         {
             LaneGroup.Instance.OnLanePressed(_trackIndex);
+            ApplyMaterial(pressedMaterial);
         }
         else if (!isPressed && _wasPressed)
         {
             LaneGroup.Instance.OnLaneReleased(_trackIndex);
+            ApplyMaterial(normalMaterial);
         }
 
         _wasPressed = isPressed;
-
-        var targetMaterial = isPressed ? pressedMaterial : normalMaterial;
-        if (targetMaterial != _currentMaterial)
-        {
-            ApplyMaterial(targetMaterial);
-        }
     }
 
     private void ApplyMaterial(Material mat)
