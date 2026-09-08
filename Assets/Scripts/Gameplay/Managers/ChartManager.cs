@@ -116,11 +116,12 @@ public class ChartManager : MonoBehaviour
         if (!_playbackScheduled)
             return;
 
+        float master = gameConfig != null ? gameConfig.MusicVolume / 100f : 1f;
         float elapsedMs = GameTime.ElapsedMs;
         if (elapsedMs >= -gameConfig.MaxSkipMs && elapsedMs <= -gameConfig.FadeEndMs)
-            _audioSource.volume = (elapsedMs + gameConfig.MaxSkipMs) / (gameConfig.MaxSkipMs - gameConfig.FadeEndMs);
+            _audioSource.volume = master * (elapsedMs + gameConfig.MaxSkipMs) / (gameConfig.MaxSkipMs - gameConfig.FadeEndMs);
         else if (elapsedMs > -gameConfig.FadeEndMs)
-            _audioSource.volume = 1f;
+            _audioSource.volume = master;
         else
             _audioSource.volume = 0f;
     }
