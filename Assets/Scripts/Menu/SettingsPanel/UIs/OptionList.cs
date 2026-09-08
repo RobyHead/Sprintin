@@ -16,9 +16,6 @@ public class OptionList : MonoBehaviour
     [Header("Snapping")]
     [SerializeField] private float snapSpeed = 10f;
 
-    [Header("Block Input")]
-    [SerializeField] private SongList songList;
-
     private readonly List<OptionEntry> _entries = new();
     private int _selectedIndex;
     private float _snapTargetY;
@@ -71,12 +68,10 @@ public class OptionList : MonoBehaviour
         _heldKey = NavKey.None;
         UpdateSelection();
         JumpToSelected();
-        if (songList != null) songList.SetInteractable(false);
     }
 
     public void Close()
     {
-        if (songList != null) songList.SetInteractable(true);
     }
 
     private void Update()

@@ -48,6 +48,18 @@ public class SongList : MonoBehaviour
         _interactable = interactable;
     }
 
+    public void StopPreview()
+    {
+        if (songPreview != null)
+            songPreview.FadeOutAndStop();
+    }
+
+    public void RefreshPreview()
+    {
+        _previewStarted = false;
+        _stableTimer = 0f;
+    }
+
     private bool _interactable = true;
 
     private class SongListEntry
@@ -309,8 +321,7 @@ public class SongList : MonoBehaviour
     private void SnapToEntry(int index)
     {
         _snappedIndex = index;
-        _stableTimer = 0f;
-        _previewStarted = false;
+        RefreshPreview();
 
         var entry = _entries[index];
         if (entry.Data.Type == SongListItem.ItemType.Song && songInfo != null)

@@ -1,180 +1,113 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class MenuCanvas : MonoBehaviour
 {
-    [Header("Panels")]
-    [SerializeField] private CanvasGroup blackBackground;
-    [SerializeField] private CanvasGroup titlePanel;
-    [SerializeField] private CanvasGroup selectPanel;
-    [SerializeField] private CanvasGroup settingsPanel;
-
-    [Header("Timing")]
-    [SerializeField] private float blackScreenDuration = 0.5f;
-    [SerializeField] private float titleFadeInDuration = 2f;
-    [SerializeField] private float exitSlideDuration = 0.5f;
-    [SerializeField] private float exitFadeDuration = 1f;
-
-    [Header("Title Animation")]
-    [SerializeField] private TitlePanelAnimation titleAnimation;
-
-    private enum State { BlackScreen, TitleFadeIn, TitleSlideIn, WaitingInput, Exit, Done }
-    private enum Panel { Title, Select, Settings }
-
-    private State _state;
-    private Panel _currentPanel;
-    private float _timer;
-    private bool _exitSlideStarted;
+    [Header("Panel Managers")]
+    [SerializeField] private TitlePanelManager titleManager;
+    [SerializeField] private SelectPanelManager selectManager;
+    [SerializeField] private SettingsPanelManager settingsManager;
 
     private void Start()
     {
+        selectManager.gameObject.SetActive(false);
+        settingsManager.gameObject.SetActive(false);
+        titleManager.gameObject.SetActive(false);
+
+        titleManager.OnWaitingInput += OnTitleWaitingInput;
+        titleManager.OnExitStarted += OnTitleExitStarted;
+        titleManager.OnSequenceComplete += OnTitleSequenceComplete;
+        titleManager.OnQuitGame += OnTitleQuitGame;
+
+        selectManager.OnRequestBack += OnSelectRequestBack;
+        selectManager.OnRequestSettings += OnSelectRequestSettings;
+
+        settingsManager.OnRequestBack += OnSettingsRequestBack;
+
         if (SceneTransition.HasPendingReturn)
         {
             SkipToSelect();
             return;
         }
 
-        blackBackground.alpha = 1f;
-        blackBackground.gameObject.SetActive(true);
-        titlePanel.alpha = 0f;
-        titlePanel.gameObject.SetActive(true);
-        selectPanel.gameObject.SetActive(false);
-        selectPanel.interactable = false;
-        settingsPanel.gameObject.SetActive(false);
-
-        _state = State.BlackScreen;
+        ShowTitlePanel();
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        _timer += Time.deltaTime;
-
-        switch (_state)
+        if (titleManager != null)
         {
-            case State.BlackScreen:
-                if (_timer >= blackScreenDuration)
-                {
-                    ShowTitlePanel();
-                }
-                break;
+            titleManager.OnWaitingInput -= OnTitleWaitingInput;
+            titleManager.OnExitStarted -= OnTitleExitStarted;
+            titleManager.OnSequenceComplete -= OnTitleSequenceComplete;
+            titleManager.OnQuitGame -= OnTitleQuitGame;
+        }
 
-            case State.TitleFadeIn:
-            {
-                float t = Mathf.Clamp01(_timer / titleFadeInDuration);
-                titlePanel.alpha = t;
-                if (_timer >= titleFadeInDuration)
-                {
-                    blackBackground.gameObject.SetActive(false);
-                    selectPanel.gameObject.SetActive(false);
-                    _timer = 0f;
-                    _state = State.TitleSlideIn;
-                    titleAnimation.PlayTitleSlideIn();
-                }
-                break;
-            }
+        if (selectManager != null)
+        {
+            selectManager.OnRequestBack -= OnSelectRequestBack;
+            selectManager.OnRequestSettings -= OnSelectRequestSettings;
+        }
 
-            case State.TitleSlideIn:
-                if (titleAnimation.IsSlideInComplete)
-                {
-                    _state = State.WaitingInput;
-                }
-                break;
-
-            case State.WaitingInput:
-                if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
-                {
-                    _timer = 0f;
-                    _state = State.Exit;
-                    titleAnimation.PlayExit();
-                }
-                break;
-
-            case State.Exit:
-                if (!_exitSlideStarted)
-                {
-                    selectPanel.gameObject.SetActive(true);
-                }
-                if (!_exitSlideStarted && _timer >= exitSlideDuration)
-                {
-                    _exitSlideStarted = true;
-                }
-                float exitFadeT = _exitSlideStarted
-                    ? Mathf.Clamp01((_timer - exitSlideDuration) / exitFadeDuration)
-                    : 0f;
-                titlePanel.alpha = 1f - exitFadeT;
-                if (_timer >= exitSlideDuration + exitFadeDuration)
-                {
-                    titlePanel.gameObject.SetActive(false);
-                    selectPanel.interactable = true;
-                    _currentPanel = Panel.Select;
-                    _state = State.Done;
-                }
-                break;
-
-            case State.Done:
-                if (Keyboard.current != null)
-                {
-                    if (Keyboard.current.escapeKey.wasPressedThisFrame)
-                        HandleEscape();
-                    else if (Keyboard.current.tabKey.wasPressedThisFrame && _currentPanel == Panel.Select)
-                        OpenSettings();
-                }
-                break;
+        if (settingsManager != null)
+        {
+            settingsManager.OnRequestBack -= OnSettingsRequestBack;
         }
     }
 
-    private void HandleEscape()
+    private void OnTitleWaitingInput()
     {
-        switch (_currentPanel)
-        {
-            case Panel.Settings:
-                CloseSettings();
-                break;
-            case Panel.Select:
-                ReturnToTitle();
-                break;
-        }
+        selectManager.gameObject.SetActive(false);
     }
 
-    private void CloseSettings()
+    private void OnTitleExitStarted()
     {
-        settingsPanel.gameObject.SetActive(false);
-        selectPanel.interactable = true;
-        _currentPanel = Panel.Select;
+        selectManager.gameObject.SetActive(true);
+        selectManager.Show(false);
     }
 
-    private void OpenSettings()
+    private void OnTitleSequenceComplete()
     {
-        selectPanel.interactable = false;
-        settingsPanel.gameObject.SetActive(true);
-        _currentPanel = Panel.Settings;
+        titleManager.gameObject.SetActive(false);
+        selectManager.SetInteractable(true);
     }
 
-    private void SkipToSelect()
+    private void OnTitleQuitGame()
     {
-        blackBackground.gameObject.SetActive(false);
-        titlePanel.gameObject.SetActive(false);
-        settingsPanel.gameObject.SetActive(false);
-        selectPanel.gameObject.SetActive(true);
-        selectPanel.interactable = true;
-        _currentPanel = Panel.Select;
-        _state = State.Done;
+        Application.Quit();
     }
 
-    private void ReturnToTitle()
+    private void OnSelectRequestBack()
     {
         ShowTitlePanel();
     }
 
+    private void OnSelectRequestSettings()
+    {
+        selectManager.SetInteractable(false);
+        settingsManager.gameObject.SetActive(true);
+        settingsManager.Show();
+    }
+
+    private void OnSettingsRequestBack()
+    {
+        settingsManager.Hide();
+        settingsManager.gameObject.SetActive(false);
+        selectManager.SetInteractable(true);
+    }
+
+    private void SkipToSelect()
+    {
+        titleManager.Stop();
+        titleManager.gameObject.SetActive(false);
+        settingsManager.Hide();
+        settingsManager.gameObject.SetActive(false);
+        selectManager.gameObject.SetActive(true);
+        selectManager.Show(true);
+    }
+
     private void ShowTitlePanel()
     {
-        selectPanel.interactable = false;
-        titlePanel.alpha = 0f;
-        titlePanel.gameObject.SetActive(true);
-        titleAnimation.ResetToOffscreen();
-        _timer = 0f;
-        _exitSlideStarted = false;
-        _currentPanel = Panel.Title;
-        _state = State.TitleFadeIn;
+        titleManager.gameObject.SetActive(true);
+        titleManager.StartSequence();
     }
 }

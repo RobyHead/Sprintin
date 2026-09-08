@@ -2,27 +2,30 @@ using UnityEngine;
 
 public class TitlePanelAnimation : MonoBehaviour
 {
-    [Header("Ground")]
+    [Header("References")]
+    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private RectTransform titleRect;
     [SerializeField] private RectTransform groundRect;
 
-    [Header("Title")]
-    [SerializeField] private RectTransform titleRect;
-    [SerializeField] private float slideInDuration = 2f;
+    [Header("Fade")]
+    [SerializeField] private float fadeInDuration = 0.5f;
+    [SerializeField] private float fadeOutDuration = 0.5f;
 
-    [Header("Exit")]
-    [SerializeField] private float exitDuration = 0.5f;
+    [Header("Slide")]
+    [SerializeField] private float slideInDuration = 0.5f;
+    [SerializeField] private float slideOutDuration = 0.5f;
 
-    public bool IsSlideInComplete { get; private set; }
+    public bool IsIntroComplete { get; private set; }
+    public bool IsOutroComplete { get; private set; }
+
+    private enum Phase { Idle, FadeIn, SlideIn, SlideOut, FadeOut }
+    private Phase _phase;
+    private float _timer;
 
     private Vector2 _titleTargetPos;
     private Vector2 _titleOffscreenPos;
     private Vector2 _groundTargetPos;
     private Vector2 _groundOffscreenPos;
-
-    private bool _isSlidingIn;
-    private bool _isExiting;
-    private float _slideInTimer;
-    private float _exitTimer;
 
     private void Awake()
     {
@@ -37,26 +40,32 @@ public class TitlePanelAnimation : MonoBehaviour
             groundRect.anchoredPosition = _groundOffscreenPos;
         }
 
-        IsSlideInComplete = false;
+        canvasGroup.alpha = 0f;
     }
 
-    public void PlayTitleSlideIn()
+    public void PlayIntro()
     {
-        _isSlidingIn = true;
-        _slideInTimer = 0f;
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = true;
+        IsIntroComplete = false;
+        _timer = 0f;
+        _phase = Phase.FadeIn;
     }
 
-    public void PlayExit()
+    public void PlayOutro()
     {
-        _isExiting = true;
-        _exitTimer = 0f;
+        IsOutroComplete = false;
+        _timer = 0f;
+        _phase = Phase.SlideOut;
     }
 
     public void ResetToOffscreen()
     {
-        _isSlidingIn = false;
-        _isExiting = false;
-        IsSlideInComplete = false;
+        _phase = Phase.Idle;
+        IsIntroComplete = false;
+        IsOutroComplete = false;
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
         titleRect.anchoredPosition = _titleOffscreenPos;
         if (groundRect != null)
             groundRect.anchoredPosition = _groundOffscreenPos;
@@ -64,34 +73,71 @@ public class TitlePanelAnimation : MonoBehaviour
 
     private void Update()
     {
-        if (_isSlidingIn)
-        {
-            _slideInTimer += Time.deltaTime;
-            float t = Mathf.Clamp01(_slideInTimer / slideInDuration);
-            t = EaseOutQuad(t);
-            titleRect.anchoredPosition = Vector2.Lerp(_titleOffscreenPos, _titleTargetPos, t);
-            if (groundRect != null)
-                groundRect.anchoredPosition = Vector2.Lerp(_groundOffscreenPos, _groundTargetPos, t);
+        if (_phase == Phase.Idle)
+            return;
 
-            if (_slideInTimer >= slideInDuration)
+        _timer += Time.deltaTime;
+
+        switch (_phase)
+        {
+            case Phase.FadeIn:
             {
-                _isSlidingIn = false;
-                titleRect.anchoredPosition = _titleTargetPos;
-                if (groundRect != null)
-                    groundRect.anchoredPosition = _groundTargetPos;
-                IsSlideInComplete = true;
+                float t = Mathf.Clamp01(_timer / fadeInDuration);
+                canvasGroup.alpha = t;
+                if (_timer >= fadeInDuration)
+                {
+                    _timer = 0f;
+                    _phase = Phase.SlideIn;
+                }
+                break;
             }
-        }
 
-        if (_isExiting)
-        {
-            _exitTimer += Time.deltaTime;
-            float t = Mathf.Clamp01(_exitTimer / exitDuration);
-            t = EaseInQuad(t);
-            titleRect.anchoredPosition = Vector2.Lerp(_titleTargetPos, _titleOffscreenPos, t);
+            case Phase.SlideIn:
+            {
+                float t = Mathf.Clamp01(_timer / slideInDuration);
+                t = EaseOutQuad(t);
+                titleRect.anchoredPosition = Vector2.Lerp(_titleOffscreenPos, _titleTargetPos, t);
+                if (groundRect != null)
+                    groundRect.anchoredPosition = Vector2.Lerp(_groundOffscreenPos, _groundTargetPos, t);
+                if (_timer >= slideInDuration)
+                {
+                    titleRect.anchoredPosition = _titleTargetPos;
+                    if (groundRect != null)
+                        groundRect.anchoredPosition = _groundTargetPos;
+                    _phase = Phase.Idle;
+                    IsIntroComplete = true;
+                }
+                break;
+            }
 
-            if (groundRect != null)
-                groundRect.anchoredPosition = Vector2.Lerp(_groundTargetPos, _groundOffscreenPos, t);
+            case Phase.SlideOut:
+            {
+                float t = Mathf.Clamp01(_timer / slideOutDuration);
+                t = EaseInQuad(t);
+                titleRect.anchoredPosition = Vector2.Lerp(_titleTargetPos, _titleOffscreenPos, t);
+                if (groundRect != null)
+                    groundRect.anchoredPosition = Vector2.Lerp(_groundTargetPos, _groundOffscreenPos, t);
+                if (_timer >= slideOutDuration)
+                {
+                    _timer = 0f;
+                    _phase = Phase.FadeOut;
+                }
+                break;
+            }
+
+            case Phase.FadeOut:
+            {
+                float t = Mathf.Clamp01(_timer / fadeOutDuration);
+                canvasGroup.alpha = 1f - t;
+                if (_timer >= fadeOutDuration)
+                {
+                    canvasGroup.alpha = 0f;
+                    canvasGroup.blocksRaycasts = false;
+                    _phase = Phase.Idle;
+                    IsOutroComplete = true;
+                }
+                break;
+            }
         }
     }
 
