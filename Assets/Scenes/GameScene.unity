@@ -1706,7 +1706,6 @@ MonoBehaviour:
   greatText: {fileID: 1479711265}
   badText: {fileID: 1730166596}
   missText: {fileID: 1883636865}
-  defaultRecord: 1000000
 --- !u!1001 &528678586
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5143,6 +5142,10 @@ PrefabInstance:
     - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: speed
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: defaultSpeed
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4722278448619478701, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: m_LocalPosition.x

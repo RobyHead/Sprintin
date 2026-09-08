@@ -6429,7 +6429,7 @@ MonoBehaviour:
   step: 0.1
   format: F1
   persistKey: speed
-  defaultValue: 3
+  defaultValue: 1
   valueText: {fileID: 780122671}
 --- !u!1 &1623236783
 GameObject:

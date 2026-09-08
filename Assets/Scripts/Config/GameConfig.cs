@@ -1,13 +1,16 @@
+using System.Globalization;
 using UnityEngine;
 
 public class GameConfig : MonoBehaviour
 {
     [Header("Notes Movement")]
-    [SerializeField] private string speedKey = "GameConfig_Speed";
+    [SerializeField] private string speedKey = "speed";
+    [SerializeField] private float defaultSpeed = 1f;
     private float speed;
 
     [Header("Offset")]
-    [SerializeField] private string offsetKey = "GameConfig_Offset";
+    [SerializeField] private string offsetKey = "offset";
+    [SerializeField] private float defaultOffset = 0f;
     private float offset;
 
     [Header("Notes Visibility")]
@@ -34,7 +37,16 @@ public class GameConfig : MonoBehaviour
 
     private void Load()
     {
-        speed = float.Parse(PlayerPrefs.GetString(speedKey)) * 10;
-        offset = float.Parse(PlayerPrefs.GetString(offsetKey));
+        speed = SafeParseFloat(PlayerPrefs.GetString(speedKey), defaultSpeed) * 10;
+        offset = SafeParseFloat(PlayerPrefs.GetString(offsetKey), defaultOffset);
+    }
+
+    private static float SafeParseFloat(string s, float fallback)
+    {
+        if (string.IsNullOrEmpty(s))
+            return fallback;
+        if (float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float val))
+            return val;
+        return fallback;
     }
 }
