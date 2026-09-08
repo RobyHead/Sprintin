@@ -25,6 +25,10 @@ public class SongList : MonoBehaviour
 
     [Header("Info")]
     [SerializeField] private SongInfo songInfo;
+    [SerializeField] private float stableTime = 0.5f;
+
+    [Header("Preview")]
+    [SerializeField] private SongPreviewManager songPreview;
 
     private readonly List<SongListEntry> _entries = new();
     private int _snappedIndex = -1;
@@ -32,7 +36,7 @@ public class SongList : MonoBehaviour
     private bool _isSnapping;
     private string _songsPath;
     private float _stableTimer;
-    private int _lastNotifiedIndex = -1;
+    private bool _previewStarted;
 
     private enum NavKey { None, W, S, A, D }
     private NavKey _heldKey = NavKey.None;
@@ -110,30 +114,35 @@ public class SongList : MonoBehaviour
 
     private void Update()
     {
-        if (!_interactable) return;
-
-        HandleSongInput();
-        HandleDifficultyInput();
-        UpdateStableSelection();
+        if (_interactable)
+        {
+            HandleSongInput();
+            HandleDifficultyInput();
+        }
         UpdateScales();
         UpdateSnapping();
+        UpdateStableSelection();
     }
 
     private void UpdateStableSelection()
     {
-        if (_snappedIndex < 0 || _snappedIndex == _lastNotifiedIndex)
-            return;
-
-        _stableTimer += Time.deltaTime;
-        if (_stableTimer < 0.5f)
+        if (_snappedIndex < 0)
             return;
 
         var entry = _entries[_snappedIndex];
-        if (entry.Data.Type == SongListItem.ItemType.Song && songInfo != null)
-        {
-            songInfo.DisplayCover();
-            _lastNotifiedIndex = _snappedIndex;
-        }
+        if (entry.Data.Type != SongListItem.ItemType.Song)
+            return;
+
+        _stableTimer += Time.deltaTime;
+        if (_stableTimer < stableTime)
+            return;
+
+        if (_previewStarted)
+            return;
+
+        _previewStarted = true;
+        if (songPreview != null)
+            songPreview.OnSongSelected(entry.Data.Song, entry.Data.Pack.id, _songsPath);
     }
 
     private void HandleSongInput()
@@ -301,11 +310,17 @@ public class SongList : MonoBehaviour
     {
         _snappedIndex = index;
         _stableTimer = 0f;
-        _lastNotifiedIndex = -1;
+        _previewStarted = false;
 
         var entry = _entries[index];
         if (entry.Data.Type == SongListItem.ItemType.Song && songInfo != null)
+        {
             songInfo.DisplayMeta(entry.Data.Song, entry.Data.Pack.id, _songsPath);
+            songInfo.DisplayCover();
+        }
+
+        if (songPreview != null)
+            songPreview.FadeOutAndStop();
 
         float viewportHalf = scrollRect.viewport != null
             ? scrollRect.viewport.rect.height / 2f : 0f;
