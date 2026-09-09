@@ -15,6 +15,10 @@ public class TitlePanelAnimation : MonoBehaviour
     [SerializeField] private float slideInDuration = 0.5f;
     [SerializeField] private float slideOutDuration = 0.5f;
 
+    [Header("Size")]
+    [SerializeField] private float textureWidth = 1920f;
+    [SerializeField] private float textureHeight = 1080f;
+
     public bool IsIntroComplete { get; private set; }
     public bool IsOutroComplete { get; private set; }
 
@@ -29,14 +33,17 @@ public class TitlePanelAnimation : MonoBehaviour
 
     private void Awake()
     {
-        _titleTargetPos = titleRect.anchoredPosition;
-        _titleOffscreenPos = _titleTargetPos + new Vector2(0f, Screen.height);
-        titleRect.anchoredPosition = _titleOffscreenPos;
+        if (titleRect != null)
+        {
+            _titleTargetPos = titleRect.anchoredPosition;
+            _titleOffscreenPos = _titleTargetPos + new Vector2(0f, textureHeight);
+            titleRect.anchoredPosition = _titleOffscreenPos;
+        }
 
         if (groundRect != null)
         {
             _groundTargetPos = groundRect.anchoredPosition;
-            _groundOffscreenPos = _groundTargetPos + new Vector2(0f, -Screen.height);
+            _groundOffscreenPos = _groundTargetPos + new Vector2(0f, -textureHeight);
             groundRect.anchoredPosition = _groundOffscreenPos;
         }
 
@@ -81,63 +88,63 @@ public class TitlePanelAnimation : MonoBehaviour
         switch (_phase)
         {
             case Phase.FadeIn:
-            {
-                float t = Mathf.Clamp01(_timer / fadeInDuration);
-                canvasGroup.alpha = t;
-                if (_timer >= fadeInDuration)
                 {
-                    _timer = 0f;
-                    _phase = Phase.SlideIn;
+                    float t = Mathf.Clamp01(_timer / fadeInDuration);
+                    canvasGroup.alpha = t;
+                    if (_timer >= fadeInDuration)
+                    {
+                        _timer = 0f;
+                        _phase = Phase.SlideIn;
+                    }
+                    break;
                 }
-                break;
-            }
 
             case Phase.SlideIn:
-            {
-                float t = Mathf.Clamp01(_timer / slideInDuration);
-                t = EaseOutQuad(t);
-                titleRect.anchoredPosition = Vector2.Lerp(_titleOffscreenPos, _titleTargetPos, t);
-                if (groundRect != null)
-                    groundRect.anchoredPosition = Vector2.Lerp(_groundOffscreenPos, _groundTargetPos, t);
-                if (_timer >= slideInDuration)
                 {
-                    titleRect.anchoredPosition = _titleTargetPos;
+                    float t = Mathf.Clamp01(_timer / slideInDuration);
+                    t = EaseOutQuad(t);
+                    titleRect.anchoredPosition = Vector2.Lerp(_titleOffscreenPos, _titleTargetPos, t);
                     if (groundRect != null)
-                        groundRect.anchoredPosition = _groundTargetPos;
-                    _phase = Phase.Idle;
-                    IsIntroComplete = true;
+                        groundRect.anchoredPosition = Vector2.Lerp(_groundOffscreenPos, _groundTargetPos, t);
+                    if (_timer >= slideInDuration)
+                    {
+                        titleRect.anchoredPosition = _titleTargetPos;
+                        if (groundRect != null)
+                            groundRect.anchoredPosition = _groundTargetPos;
+                        _phase = Phase.Idle;
+                        IsIntroComplete = true;
+                    }
+                    break;
                 }
-                break;
-            }
 
             case Phase.SlideOut:
-            {
-                float t = Mathf.Clamp01(_timer / slideOutDuration);
-                t = EaseInQuad(t);
-                titleRect.anchoredPosition = Vector2.Lerp(_titleTargetPos, _titleOffscreenPos, t);
-                if (groundRect != null)
-                    groundRect.anchoredPosition = Vector2.Lerp(_groundTargetPos, _groundOffscreenPos, t);
-                if (_timer >= slideOutDuration)
                 {
-                    _timer = 0f;
-                    _phase = Phase.FadeOut;
+                    float t = Mathf.Clamp01(_timer / slideOutDuration);
+                    t = EaseInQuad(t);
+                    titleRect.anchoredPosition = Vector2.Lerp(_titleTargetPos, _titleOffscreenPos, t);
+                    if (groundRect != null)
+                        groundRect.anchoredPosition = Vector2.Lerp(_groundTargetPos, _groundOffscreenPos, t);
+                    if (_timer >= slideOutDuration)
+                    {
+                        _timer = 0f;
+                        _phase = Phase.FadeOut;
+                    }
+                    break;
                 }
-                break;
-            }
 
             case Phase.FadeOut:
-            {
-                float t = Mathf.Clamp01(_timer / fadeOutDuration);
-                canvasGroup.alpha = 1f - t;
-                if (_timer >= fadeOutDuration)
                 {
-                    canvasGroup.alpha = 0f;
-                    canvasGroup.blocksRaycasts = false;
-                    _phase = Phase.Idle;
-                    IsOutroComplete = true;
+                    float t = Mathf.Clamp01(_timer / fadeOutDuration);
+                    canvasGroup.alpha = 1f - t;
+                    if (_timer >= fadeOutDuration)
+                    {
+                        canvasGroup.alpha = 0f;
+                        canvasGroup.blocksRaycasts = false;
+                        _phase = Phase.Idle;
+                        IsOutroComplete = true;
+                    }
+                    break;
                 }
-                break;
-            }
         }
     }
 
