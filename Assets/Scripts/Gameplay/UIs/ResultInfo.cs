@@ -32,9 +32,9 @@ public class ResultInfo : MonoBehaviour
         if (RecordManager.Instance != null)
         {
             var diff = RecordManager.Instance.GetDiffRecord(
-                SceneTransition.PackId,
-                SceneTransition.SongId,
-                SceneTransition.DifficultyId);
+                SceneTransitionManager.Instance.PackId,
+                SceneTransitionManager.Instance.SongId,
+                SceneTransitionManager.Instance.DifficultyId);
             highestScore = diff.highestScore;
         }
 

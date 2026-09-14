@@ -40,13 +40,15 @@ public class ResultPanel : MonoBehaviour
 
     private IEnumerator FadeIn()
     {
+        ChartManager.FadeOutAndStopMusic();
+
         if (Judge.Instance != null && RecordManager.Instance != null)
         {
             bool fullCombo = Judge.BadCount == 0 && Judge.MissCount == 0;
             RecordManager.Instance.UpdateRecord(
-                SceneTransition.PackId,
-                SceneTransition.SongId,
-                SceneTransition.DifficultyId,
+                SceneTransitionManager.Instance.PackId,
+                SceneTransitionManager.Instance.SongId,
+                SceneTransitionManager.Instance.DifficultyId,
                 Judge.Instance.FinalScore,
                 Judge.Instance.MaxCombo,
                 fullCombo);

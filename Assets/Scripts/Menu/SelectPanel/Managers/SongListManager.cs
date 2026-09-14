@@ -21,13 +21,11 @@ public class SongListManager : MonoBehaviour
         if (songList != null)
             songList.Initialize(Items, SongsPath);
 
-        if (SceneTransition.HasPendingReturn)
+        if (SceneTransitionManager.Instance.ConsumePendingReturn())
         {
+            var manager = SceneTransitionManager.Instance;
             songList.RestoreSelection(
-                SceneTransition.PackId,
-                SceneTransition.SongId,
-                SceneTransition.DifficultyId);
-            SceneTransition.HasPendingReturn = false;
+                manager.PackId, manager.SongId, manager.DifficultyId);
         }
     }
 

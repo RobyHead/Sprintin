@@ -7,6 +7,9 @@ public class MenuCanvas : MonoBehaviour
     [SerializeField] private SelectPanelManager selectManager;
     [SerializeField] private SettingsPanelManager settingsManager;
 
+    private bool _pendingTitle;
+    private bool _pendingSelect;
+
     private void Start()
     {
         selectManager.gameObject.SetActive(false);
@@ -23,13 +26,36 @@ public class MenuCanvas : MonoBehaviour
 
         settingsManager.OnRequestBack += OnSettingsRequestBack;
 
-        if (SceneTransition.HasPendingReturn)
+        if (SceneTransitionManager.Instance.HasPendingReturn)
         {
-            SkipToSelect();
-            return;
+            _pendingSelect = true;
+        }
+        else
+        {
+            _pendingTitle = true;
         }
 
-        ShowTitlePanel();
+        ExecutePending();
+
+        if (SceneTransitionManager.Instance.IsTransitioning)
+        {
+            SceneTransitionManager.Instance.OnIntroComplete += OnTransitionIntroComplete;
+            SceneTransitionManager.Instance.RequestIntro();
+        }
+    }
+
+    private void ExecutePending()
+    {
+        if (_pendingSelect)
+        {
+            _pendingSelect = false;
+            SkipToSelect();
+        }
+        else if (_pendingTitle)
+        {
+            _pendingTitle = false;
+            ShowTitlePanel();
+        }
     }
 
     private void OnDestroy()
@@ -76,8 +102,16 @@ public class MenuCanvas : MonoBehaviour
         Application.Quit();
     }
 
+    private void OnTransitionIntroComplete()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.OnIntroComplete -= OnTransitionIntroComplete;
+        selectManager.SetInteractable(true);
+    }
+
     private void OnSelectRequestBack()
     {
+        selectManager.SetInteractable(false);
         ShowTitlePanel();
     }
 
@@ -102,7 +136,7 @@ public class MenuCanvas : MonoBehaviour
         settingsManager.Hide();
         settingsManager.gameObject.SetActive(false);
         selectManager.gameObject.SetActive(true);
-        selectManager.Show(true);
+        selectManager.Show(false);
     }
 
     private void ShowTitlePanel()

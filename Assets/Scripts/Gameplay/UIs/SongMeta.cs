@@ -45,7 +45,7 @@ public class SongMeta : MonoBehaviour
         if (songNameText != null) songNameText.text = song.name;
         if (artistText != null) artistText.text = song.artist;
 
-        int diffId = SceneTransition.DifficultyId;
+        int diffId = SceneTransitionManager.Instance.DifficultyId;
         if (difficultyText != null && song.difficulties != null)
         {
             foreach (var diff in song.difficulties)
@@ -73,27 +73,32 @@ public class SongMeta : MonoBehaviour
             : File.Exists(pngPath) ? pngPath
             : null;
 
-        if (coverPath == null)
+        if (coverPath != null)
+        {
+            var uri = new System.Uri(coverPath).AbsoluteUri;
+            using var request = UnityWebRequestTexture.GetTexture(uri);
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                var texture = DownloadHandlerTexture.GetContent(request);
+                coverImage.sprite = Sprite.Create(
+                    texture,
+                    new Rect(0, 0, texture.width, texture.height),
+                    new Vector2(0.5f, 0.5f)
+                );
+            }
+            else
+            {
+                Debug.LogWarning($"SongMeta: failed to load cover: {request.error}");
+            }
+        }
+        else
         {
             Debug.LogWarning($"SongMeta: cover not found in {folder}");
-            yield break;
         }
 
-        var uri = new System.Uri(coverPath).AbsoluteUri;
-        using var request = UnityWebRequestTexture.GetTexture(uri);
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogWarning($"SongMeta: failed to load cover: {request.error}");
-            yield break;
-        }
-
-        var texture = DownloadHandlerTexture.GetContent(request);
-        coverImage.sprite = Sprite.Create(
-            texture,
-            new Rect(0, 0, texture.width, texture.height),
-            new Vector2(0.5f, 0.5f)
-        );
+        ChartManager.CoverLoaded = true;
+        ChartManager.TryRequestIntro();
     }
 }

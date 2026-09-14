@@ -99,17 +99,11 @@ public class OperationBar : MonoBehaviour
         switch (op.action)
         {
             case OperationAction.Restart:
-                SceneTransition.GoToGame(
-                    SceneTransition.PackId,
-                    SceneTransition.SongId,
-                    SceneTransition.DifficultyId);
+                SceneTransitionManager.Instance.TransitionToGame();
                 break;
 
             case OperationAction.ExitToMenu:
-                SceneTransition.GoToMenu(
-                    SceneTransition.PackId,
-                    SceneTransition.SongId,
-                    SceneTransition.DifficultyId);
+                SceneTransitionManager.Instance.TransitionToMenu();
                 break;
 
             case OperationAction.Custom:

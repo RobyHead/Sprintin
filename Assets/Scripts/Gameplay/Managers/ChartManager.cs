@@ -12,6 +12,8 @@ public class ChartManager : MonoBehaviour
     public static string SongName { get; private set; }
     public static float CurrentJumpBpm { get; private set; } = 120f;
     public static int LastNoteMs { get; private set; }
+    public static bool AudioLoaded { get; private set; }
+    public static bool CoverLoaded { get; set; } = true;
 
     [Header("References")]
     [SerializeField] private TapManager tapManager;
@@ -19,6 +21,9 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private GroundManager groundManager;
     [SerializeField] private BarManager barManager;
     [SerializeField] private GameConfig gameConfig;
+
+    [Header("Fade")]
+    [SerializeField] private float fadeOutMs = 300f;
 
     private List<TapData> _taps = new List<TapData>();
     private List<HoldData> _holds = new List<HoldData>();
@@ -41,13 +46,21 @@ public class ChartManager : MonoBehaviour
     {
         ResetStatics();
 
-        _packId = SceneTransition.PackId;
-        _songId = SceneTransition.SongId;
-        _difficultyId = SceneTransition.DifficultyId;
-        SongFolder = SceneTransition.SongFolder;
+        _packId = SceneTransitionManager.Instance.PackId;
+        _songId = SceneTransitionManager.Instance.SongId;
+        _difficultyId = SceneTransitionManager.Instance.DifficultyId;
+        SongFolder = SceneTransitionManager.Instance.SongFolder;
 
         _audioSource = GetComponent<AudioSource>();
         _audioSource.playOnAwake = false;
+
+        SceneTransitionManager.Instance.OnOutroStarted += HandleOutroStarted;
+    }
+
+    private void OnDestroy()
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.OnOutroStarted -= HandleOutroStarted;
     }
 
     private static void ResetStatics()
@@ -55,6 +68,8 @@ public class ChartManager : MonoBehaviour
         IsReady = false;
         CurrentJumpBpm = 120f;
         LastNoteMs = 0;
+        AudioLoaded = false;
+        CoverLoaded = false;
         GameTime.Reset();
         Player.ResetStatics();
     }
@@ -137,15 +152,22 @@ public class ChartManager : MonoBehaviour
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"Failed to load audio: {request.error}");
-            yield break;
+        }
+        else
+        {
+            _songClip = DownloadHandlerAudioClip.GetContent(request);
+            if (_songClip == null)
+                Debug.LogError("DownloadHandlerAudioClip.GetContent returned null");
         }
 
-        _songClip = DownloadHandlerAudioClip.GetContent(request);
-        if (_songClip == null)
-        {
-            Debug.LogError("DownloadHandlerAudioClip.GetContent returned null");
-            yield break;
-        }
+        AudioLoaded = true;
+        TryRequestIntro();
+    }
+
+    public static void TryRequestIntro()
+    {
+        if (AudioLoaded && CoverLoaded && SceneTransitionManager.Instance.IsTransitioning)
+            SceneTransitionManager.Instance.RequestIntro();
     }
 
     private void LoadChart()
@@ -259,5 +281,32 @@ public class ChartManager : MonoBehaviour
         groundManager.Clear();
         barManager.Clear();
         IsReady = false;
+    }
+
+    private void HandleOutroStarted()
+    {
+        FadeOutAndStopMusic();
+    }
+
+    public static void FadeOutAndStopMusic()
+    {
+        var instance = FindFirstObjectByType<ChartManager>();
+        if (instance != null && instance._audioSource != null && instance._audioSource.isPlaying)
+            instance.StartCoroutine(instance.FadeOutRoutine(instance.fadeOutMs));
+    }
+
+    private IEnumerator FadeOutRoutine(float fadeOutMs)
+    {
+        float startVolume = _audioSource.volume;
+        float elapsed = 0f;
+        float duration = fadeOutMs / 1000f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            _audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+            yield return null;
+        }
+        _audioSource.Stop();
+        _audioSource.volume = 0f;
     }
 }

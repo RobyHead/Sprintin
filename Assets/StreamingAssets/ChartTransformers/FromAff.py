@@ -16,7 +16,7 @@ def transform(content):
             cur = f"({tmp[0]}, {tmp[1]}, {tmp[2]});\n"
         elif line.startswith("hold("):
             tmp = line[5:-2].split(",")
-            cur = f"[{tmp[0]}, -{tmp[2]}, {tmp[1]}];\n"
+            cur = f"[{tmp[0]}, {tmp[2]}, {tmp[1]}];\n"
         elif line.startswith("arc("):
             tmp = line[4:-2].split(",")
             cur = f"[{tmp[0]}, 0];\n"

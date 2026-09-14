@@ -46,6 +46,8 @@ public class SongList : MonoBehaviour
     public void SetInteractable(bool interactable)
     {
         _interactable = interactable;
+        if (!interactable)
+            _previewStarted = true;
     }
 
     public void StopPreview()
@@ -133,7 +135,8 @@ public class SongList : MonoBehaviour
         }
         UpdateScales();
         UpdateSnapping();
-        UpdateStableSelection();
+        if (_interactable)
+            UpdateStableSelection();
     }
 
     private void UpdateStableSelection()
@@ -235,8 +238,10 @@ public class SongList : MonoBehaviour
         var entry = _entries[_snappedIndex];
         if (entry.Data.Type != SongListItem.ItemType.Song) return;
 
+        StopPreview();
         int diffId = songInfo != null ? songInfo.SelectedDifficultyId : 0;
-        SceneTransition.GoToGame(entry.Data.Pack.id, entry.Data.Song.id, diffId);
+        SceneTransitionManager.Instance.TransitionToGame(
+            entry.Data.Pack.id, entry.Data.Song.id, diffId);
     }
 
     public void RestoreSelection(string packId, string songId, int difficultyId)

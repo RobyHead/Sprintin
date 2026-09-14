@@ -16,7 +16,7 @@ public class TitlePanelAnimation : MonoBehaviour
     [SerializeField] private float slideOutDuration = 0.5f;
 
     [Header("Size")]
-    [SerializeField] private float textureWidth = 1920f;
+    // [SerializeField] private float textureWidth = 1920f;
     [SerializeField] private float textureHeight = 1080f;
 
     public bool IsIntroComplete { get; private set; }
