@@ -8,7 +8,6 @@ public class ResultPanel : MonoBehaviour
     [SerializeField] private ResultInfo resultInfo;
 
     [Header("Timing")]
-    [SerializeField] private float delayMs = 3000f;
     [SerializeField] private float fadeDuration = 0.5f;
 
     private bool _shown;
@@ -23,25 +22,16 @@ public class ResultPanel : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void Show()
     {
         if (_shown)
             return;
-
-        if (!GameTime.HasStarted)
-            return;
-
-        if (GameTime.ElapsedMs >= ChartManager.LastNoteMs + delayMs)
-        {
-            _shown = true;
-            StartCoroutine(FadeIn());
-        }
+        _shown = true;
+        StartCoroutine(FadeIn());
     }
 
     private IEnumerator FadeIn()
     {
-        ChartManager.FadeOutAndStopMusic();
-
         if (Judge.Instance != null && RecordManager.Instance != null)
         {
             bool fullCombo = Judge.BadCount == 0 && Judge.MissCount == 0;

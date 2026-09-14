@@ -225,7 +225,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResultPanel
   canvasGroup: {fileID: 978337}
   resultInfo: {fileID: 455304070}
-  delayMs: 3000
   fadeDuration: 0.5
 --- !u!1 &6109260
 GameObject:
@@ -5207,6 +5206,10 @@ PrefabInstance:
       propertyPath: songFolder
       value: dev/bitterjuicy
       objectReference: {fileID: 0}
+    - target: {fileID: 9131032730402185134, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: resultPanel
+      value: 
+      objectReference: {fileID: 978338}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

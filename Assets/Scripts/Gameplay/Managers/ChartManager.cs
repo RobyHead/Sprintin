@@ -21,9 +21,11 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private GroundManager groundManager;
     [SerializeField] private BarManager barManager;
     [SerializeField] private GameConfig gameConfig;
+    [SerializeField] private ResultPanel resultPanel;
 
     [Header("Fade")]
     [SerializeField] private float fadeOutMs = 300f;
+    [SerializeField] private float resultDelayMs = 3000f;
 
     private List<TapData> _taps = new List<TapData>();
     private List<HoldData> _holds = new List<HoldData>();
@@ -32,6 +34,7 @@ public class ChartManager : MonoBehaviour
     private AudioSource _audioSource;
     private AudioClip _songClip;
     private bool _playbackScheduled;
+    private bool _resultShown;
     private int _chartOffset;
 
     private List<BpmData> _jumpBpms;
@@ -93,6 +96,14 @@ public class ChartManager : MonoBehaviour
 
         UpdateVolumeFade();
         UpdateJumpBpm();
+
+        if (!_resultShown && GameTime.ElapsedMs >= LastNoteMs + resultDelayMs)
+        {
+            _resultShown = true;
+            FadeOutAndStopMusic();
+            if (resultPanel != null)
+                resultPanel.Show();
+        }
     }
 
     private void UpdateJumpBpm()
@@ -288,11 +299,10 @@ public class ChartManager : MonoBehaviour
         FadeOutAndStopMusic();
     }
 
-    public static void FadeOutAndStopMusic()
+    public void FadeOutAndStopMusic()
     {
-        var instance = FindFirstObjectByType<ChartManager>();
-        if (instance != null && instance._audioSource != null && instance._audioSource.isPlaying)
-            instance.StartCoroutine(instance.FadeOutRoutine(instance.fadeOutMs));
+        if (_audioSource != null && _audioSource.isPlaying)
+            StartCoroutine(FadeOutRoutine(fadeOutMs));
     }
 
     private IEnumerator FadeOutRoutine(float fadeOutMs)
