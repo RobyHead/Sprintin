@@ -3,17 +3,23 @@ using UnityEngine;
 
 public class EnvironmentManager : MonoBehaviour
 {
+    [System.Serializable]
+    public struct WeightedPrefab
+    {
+        public GameObject prefab;
+        [Min(0)] public int pieceCount;
+    }
+
     [Header("Prefabs")]
-    [SerializeField] private List<GameObject> piecePrefabs;
+    [SerializeField] private List<WeightedPrefab> piecePrefabs;
 
     [Header("Spawning")]
     [SerializeField] private Transform spawnParent;
     [SerializeField] private float visibleBuffer = 20f;
 
     [Header("Pool")]
-    [SerializeField] private int prewarmCount = 10;
 
-    private readonly Queue<EnvironmentPiece> _pool = new();
+    private readonly List<EnvironmentPiece> _pool = new();
     private readonly List<EnvironmentPiece> _activePieces = new();
     private float _furthestSpawnZ;
     private bool _initialized;
@@ -26,11 +32,15 @@ public class EnvironmentManager : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < prewarmCount; i++)
+        foreach (var wp in piecePrefabs)
         {
-            var piece = InstantiateRandom();
-            piece.ReturnToPool();
-            _pool.Enqueue(piece);
+            int count = wp.pieceCount;
+            for (int i = 0; i < count; i++)
+            {
+                var piece = InstantiatePiece(wp.prefab);
+                piece.ReturnToPool();
+                _pool.Add(piece);
+            }
         }
 
         PrefillVisibleArea();
@@ -68,7 +78,7 @@ public class EnvironmentManager : MonoBehaviour
             if (_activePieces[i].FarEdgeZ < SpeedTimeline.Instance.VisibleRangeMin)
             {
                 _activePieces[i].ReturnToPool();
-                _pool.Enqueue(_activePieces[i]);
+                _pool.Add(_activePieces[i]);
                 _activePieces.RemoveAt(i);
             }
         }
@@ -105,14 +115,19 @@ public class EnvironmentManager : MonoBehaviour
     private EnvironmentPiece GetFromPool()
     {
         if (_pool.Count > 0)
-            return _pool.Dequeue();
+        {
+            int idx = Random.Range(0, _pool.Count);
+            var piece = _pool[idx];
+            _pool.RemoveAt(idx);
+            return piece;
+        }
 
-        return InstantiateRandom();
+        var fallbackPrefab = piecePrefabs[Random.Range(0, piecePrefabs.Count)].prefab;
+        return InstantiatePiece(fallbackPrefab);
     }
 
-    private EnvironmentPiece InstantiateRandom()
+    private EnvironmentPiece InstantiatePiece(GameObject prefab)
     {
-        var prefab = piecePrefabs[Random.Range(0, piecePrefabs.Count)];
         var go = Instantiate(prefab, spawnParent);
         go.name = prefab.name;
         var piece = go.GetComponent<EnvironmentPiece>();
