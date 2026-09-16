@@ -1,16 +1,18 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class ResultPanel : MonoBehaviour
+public class ResultPanelManager : MonoBehaviour
 {
     [Header("Panel")]
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private ResultInfo resultInfo;
 
-    [Header("Timing")]
-    [SerializeField] private float fadeDuration = 0.5f;
+    [Header("Input")]
+    [SerializeField] private Key restartKey = Key.R;
+    [SerializeField] private Key exitKey = Key.Escape;
 
     private bool _shown;
+    private bool _inputEnabled;
 
     private void Start()
     {
@@ -27,11 +29,7 @@ public class ResultPanel : MonoBehaviour
         if (_shown)
             return;
         _shown = true;
-        StartCoroutine(FadeIn());
-    }
 
-    private IEnumerator FadeIn()
-    {
         if (Judge.Instance != null && RecordManager.Instance != null)
         {
             bool fullCombo = Judge.BadCount == 0 && Judge.MissCount == 0;
@@ -49,16 +47,30 @@ public class ResultPanel : MonoBehaviour
 
         if (canvasGroup != null)
         {
-            float elapsed = 0f;
-            while (elapsed < fadeDuration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                canvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
-                yield return null;
-            }
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
         }
+    }
+
+    public void EnableInput()
+    {
+        _inputEnabled = true;
+    }
+
+    private void Update()
+    {
+        if (!_inputEnabled)
+            return;
+
+        var keyboard = Keyboard.current;
+        if (keyboard == null)
+            return;
+
+        if (keyboard[restartKey].wasPressedThisFrame)
+            SceneTransitionManager.Instance.TransitionToGame();
+
+        if (keyboard[exitKey].wasPressedThisFrame)
+            SceneTransitionManager.Instance.TransitionToMenu();
     }
 }

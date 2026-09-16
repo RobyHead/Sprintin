@@ -21,11 +21,12 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private GroundManager groundManager;
     [SerializeField] private BarManager barManager;
     [SerializeField] private GameConfig gameConfig;
-    [SerializeField] private ResultPanel resultPanel;
+    [SerializeField] private ResultPanelManager resultPanel;
+
+    public static event System.Action OnGameEnded;
 
     [Header("Fade")]
-    [SerializeField] private float fadeOutMs = 300f;
-    [SerializeField] private float resultDelayMs = 3000f;
+    [SerializeField] private float quickFadeOutMs = 300f;
 
     private List<TapData> _taps = new List<TapData>();
     private List<HoldData> _holds = new List<HoldData>();
@@ -64,6 +65,7 @@ public class ChartManager : MonoBehaviour
     {
         if (SceneTransitionManager.Instance != null)
             SceneTransitionManager.Instance.OnOutroStarted -= HandleOutroStarted;
+        OnGameEnded = null;
     }
 
     private static void ResetStatics()
@@ -97,12 +99,10 @@ public class ChartManager : MonoBehaviour
         UpdateVolumeFade();
         UpdateJumpBpm();
 
-        if (!_resultShown && GameTime.ElapsedMs >= LastNoteMs + resultDelayMs)
+        if (!_resultShown && GameTime.ElapsedMs >= LastNoteMs)
         {
             _resultShown = true;
-            FadeOutAndStopMusic();
-            if (resultPanel != null)
-                resultPanel.Show();
+            StartCoroutine(ResultSequence());
         }
     }
 
@@ -296,24 +296,47 @@ public class ChartManager : MonoBehaviour
 
     private void HandleOutroStarted()
     {
-        FadeOutAndStopMusic();
+        if (!_resultShown)
+            StartCoroutine(FadeOutAudioRoutine(quickFadeOutMs / 1000f));
     }
 
-    public void FadeOutAndStopMusic()
+    private IEnumerator ResultSequence()
     {
-        if (_audioSource != null && _audioSource.isPlaying)
-            StartCoroutine(FadeOutRoutine(fadeOutMs));
+        var config = gameConfig;
+        float startDelay = config.FadeOutStartDelayMs / 1000f;
+        float fadeDur = config.FadeOutDurationMs / 1000f;
+        float settleDelay = config.SettlementDelayMs / 1000f;
+
+        yield return new WaitForSeconds(startDelay);
+
+        yield return StartCoroutine(FadeOutAudioRoutine(fadeDur));
+
+        yield return new WaitForSeconds(settleDelay);
+
+        OnGameEnded?.Invoke();
+
+        yield return SceneTransitionManager.Instance.PlayOutroAndWait();
+
+        if (resultPanel != null)
+            resultPanel.Show();
+
+        yield return SceneTransitionManager.Instance.PlayIntroAndWait();
+
+        if (resultPanel != null)
+            resultPanel.EnableInput();
     }
 
-    private IEnumerator FadeOutRoutine(float fadeOutMs)
+    private IEnumerator FadeOutAudioRoutine(float durationSeconds)
     {
+        if (_audioSource == null || !_audioSource.isPlaying)
+            yield break;
+
         float startVolume = _audioSource.volume;
         float elapsed = 0f;
-        float duration = fadeOutMs / 1000f;
-        while (elapsed < duration)
+        while (elapsed < durationSeconds)
         {
             elapsed += Time.unscaledDeltaTime;
-            _audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+            _audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / durationSeconds);
             yield return null;
         }
         _audioSource.Stop();

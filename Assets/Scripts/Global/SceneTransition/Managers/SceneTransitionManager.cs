@@ -14,10 +14,13 @@ public class SceneTransitionManager : MonoBehaviour
     public int DifficultyId { get; private set; }
     public string SongFolder => $"{PackId}/{SongId}";
     public bool HasPendingReturn { get; private set; }
-    public bool IsTransitioning { get; private set; }
+    public bool IsTransitioning => _phase != Phase.Idle;
 
     public event System.Action OnOutroStarted;
     public event System.Action OnIntroComplete;
+
+    private enum Phase { Idle, Outro, Loading, Intro }
+    private Phase _phase;
 
     private string _pendingScene;
 
@@ -77,10 +80,10 @@ public class SceneTransitionManager : MonoBehaviour
 
     private void BeginTransition(string targetScene)
     {
-        if (IsTransitioning)
+        if (_phase != Phase.Idle)
             return;
 
-        IsTransitioning = true;
+        _phase = Phase.Outro;
         _pendingScene = targetScene;
 
         panelManager.gameObject.SetActive(true);
@@ -88,15 +91,49 @@ public class SceneTransitionManager : MonoBehaviour
         OnOutroStarted?.Invoke();
     }
 
+    public void RequestIntro()
+    {
+        if (_phase != Phase.Loading)
+            return;
+
+        _phase = Phase.Intro;
+        StartCoroutine(PlayIntroNextFrame());
+    }
+
+    public IEnumerator PlayOutroAndWait()
+    {
+        panelManager.gameObject.SetActive(true);
+        yield return panelManager.PlayOutroAndWait();
+    }
+
+    public IEnumerator PlayIntroAndWait()
+    {
+        yield return panelManager.PlayIntroAndWait();
+        panelManager.gameObject.SetActive(false);
+    }
+
+    private IEnumerator PlayIntroNextFrame()
+    {
+        yield return null;
+        panelManager.PlayIntro();
+    }
+
     private void HandleOutroComplete()
     {
+        if (_phase != Phase.Outro)
+            return;
+
+        _phase = Phase.Loading;
         StartCoroutine(LoadSceneRoutine());
     }
 
     private void HandleIntroComplete()
     {
+        if (_phase != Phase.Intro)
+            return;
+
+        _phase = Phase.Idle;
         panelManager.gameObject.SetActive(false);
-        IsTransitioning = false;
         OnIntroComplete?.Invoke();
     }
 
@@ -106,10 +143,5 @@ public class SceneTransitionManager : MonoBehaviour
         _pendingScene = null;
         while (!operation.isDone)
             yield return null;
-    }
-
-    public void RequestIntro()
-    {
-        panelManager.RequestIntro();
     }
 }

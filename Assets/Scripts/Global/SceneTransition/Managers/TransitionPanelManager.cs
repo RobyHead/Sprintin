@@ -9,51 +9,63 @@ public class TransitionPanelManager : MonoBehaviour
     public event System.Action OnOutroComplete;
     public event System.Action OnIntroComplete;
 
-    private enum State { Idle, Outro, SceneLoading, Intro }
-    private State _state;
-
     private void Awake()
     {
-        panelAnimation.OnOutroComplete += HandleAnimationOutroComplete;
-        panelAnimation.OnIntroComplete += HandleAnimationIntroComplete;
+        panelAnimation.OnOutroComplete += HandleOutroComplete;
+        panelAnimation.OnIntroComplete += HandleIntroComplete;
     }
 
     private void OnDestroy()
     {
-        panelAnimation.OnOutroComplete -= HandleAnimationOutroComplete;
-        panelAnimation.OnIntroComplete -= HandleAnimationIntroComplete;
+        panelAnimation.OnOutroComplete -= HandleOutroComplete;
+        panelAnimation.OnIntroComplete -= HandleIntroComplete;
     }
 
     public void PlayOutro()
     {
-        _state = State.Outro;
         panelAnimation.PlayOutro();
     }
 
-    public void RequestIntro()
+    public void PlayIntro()
     {
-        if (_state != State.SceneLoading)
-            return;
-
-        _state = State.Intro;
-        StartCoroutine(PlayIntroNextFrame());
-    }
-
-    private IEnumerator PlayIntroNextFrame()
-    {
-        yield return null;
         panelAnimation.PlayIntro();
     }
 
-    private void HandleAnimationOutroComplete()
+    public IEnumerator PlayOutroAndWait()
     {
-        _state = State.SceneLoading;
+        bool done = false;
+        System.Action handler = null;
+        handler = () =>
+        {
+            done = true;
+            OnOutroComplete -= handler;
+        };
+        OnOutroComplete += handler;
+        PlayOutro();
+        yield return new WaitUntil(() => done);
+    }
+
+    public IEnumerator PlayIntroAndWait()
+    {
+        bool done = false;
+        System.Action handler = null;
+        handler = () =>
+        {
+            done = true;
+            OnIntroComplete -= handler;
+        };
+        OnIntroComplete += handler;
+        PlayIntro();
+        yield return new WaitUntil(() => done);
+    }
+
+    private void HandleOutroComplete()
+    {
         OnOutroComplete?.Invoke();
     }
 
-    private void HandleAnimationIntroComplete()
+    private void HandleIntroComplete()
     {
-        _state = State.Idle;
         OnIntroComplete?.Invoke();
     }
 }

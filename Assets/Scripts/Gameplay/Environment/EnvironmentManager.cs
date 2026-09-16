@@ -37,6 +37,21 @@ public class EnvironmentManager : MonoBehaviour
         _initialized = true;
     }
 
+    private void OnEnable()
+    {
+        ChartManager.OnGameEnded += HandleGameEnded;
+    }
+
+    private void OnDisable()
+    {
+        ChartManager.OnGameEnded -= HandleGameEnded;
+    }
+
+    private void HandleGameEnded()
+    {
+        enabled = false;
+    }
+
     private void Update()
     {
         if (!_initialized || SpeedTimeline.Instance == null)

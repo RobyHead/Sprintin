@@ -53,9 +53,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
   speedKey: speed
+  defaultSpeed: 1
   offsetKey: offset
+  defaultOffset: 0
+  musicVolumeKey: music_volume
+  sfxVolumeKey: sfx_volume
+  defaultMusicVolume: 100
+  defaultSfxVolume: 100
   visibleRangeMax: 30
   visibleRangeMin: -5
+  blankMs: 3000
+  maxSkipMs: 2000
+  fadeEndMs: 1000
+  fadeOutStartDelayMs: 1000
+  fadeOutDurationMs: 1500
+  settlementDelayMs: 1000
 --- !u!114 &9131032730402185134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,6 +85,8 @@ MonoBehaviour:
   groundManager: {fileID: 2603272030079891455}
   barManager: {fileID: 5137567094460471255}
   gameConfig: {fileID: 1288237328917100798}
+  resultPanel: {fileID: 0}
+  quickFadeOutMs: 300
 --- !u!114 &2870739912697746325
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,6 +17,21 @@ public class GameTime : MonoBehaviour
         ElapsedMs = s_startOffsetMs;
     }
 
+    private void OnEnable()
+    {
+        ChartManager.OnGameEnded += HandleGameEnded;
+    }
+
+    private void OnDisable()
+    {
+        ChartManager.OnGameEnded -= HandleGameEnded;
+    }
+
+    private void HandleGameEnded()
+    {
+        enabled = false;
+    }
+
     public static void Reset()
     {
         ElapsedMs = s_startOffsetMs;

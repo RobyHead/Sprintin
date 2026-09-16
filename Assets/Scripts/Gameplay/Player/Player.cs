@@ -48,6 +48,21 @@ public class Player : MonoBehaviour
         CanOperate = true;
     }
 
+    private void OnEnable()
+    {
+        ChartManager.OnGameEnded += HandleGameEnded;
+    }
+
+    private void OnDisable()
+    {
+        ChartManager.OnGameEnded -= HandleGameEnded;
+    }
+
+    private void HandleGameEnded()
+    {
+        enabled = false;
+    }
+
     private void Update()
     {
         var keyboard = Keyboard.current;

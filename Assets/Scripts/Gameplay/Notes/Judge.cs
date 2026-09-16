@@ -43,6 +43,21 @@ public class Judge : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        ChartManager.OnGameEnded += HandleGameEnded;
+    }
+
+    private void OnDisable()
+    {
+        ChartManager.OnGameEnded -= HandleGameEnded;
+    }
+
+    private void HandleGameEnded()
+    {
+        enabled = false;
+    }
+
     public void InitializeScore()
     {
         PerfectCount = 0;
