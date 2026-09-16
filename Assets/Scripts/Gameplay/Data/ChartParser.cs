@@ -116,5 +116,16 @@ public static class ChartParser
             float multiplier = float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture);
             data.speeds.Add(new SpeedData(ms, multiplier));
         }
+        else if (effectName == "text" && parts.Length >= 6)
+        {
+            data.textEffects.Add(new TextEffectData
+            {
+                ms = ms,
+                fadeInMs = int.Parse(parts[2].Trim()),
+                holdMs = int.Parse(parts[3].Trim()),
+                fadeOutMs = int.Parse(parts[4].Trim()),
+                content = parts[5].Trim()
+            });
+        }
     }
 }

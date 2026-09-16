@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using TMPro;
 
 public class GameTime : MonoBehaviour
@@ -15,6 +14,7 @@ public class GameTime : MonoBehaviour
     {
         s_startOffsetMs = -gameConfig.BlankMs;
         ElapsedMs = s_startOffsetMs;
+        _waitElapsedMs = 0f;
     }
 
     private void OnEnable()
@@ -42,6 +42,7 @@ public class GameTime : MonoBehaviour
     [SerializeField] private TMP_Text timeText;
 
     private double _startTime;
+    private float _waitElapsedMs;
 
     private void Update()
     {
@@ -50,11 +51,12 @@ public class GameTime : MonoBehaviour
             if (!ChartManager.IsReady)
             {
                 ElapsedMs = s_startOffsetMs;
+                _waitElapsedMs = 0f;
                 return;
             }
 
-            var keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.anyKey.wasPressedThisFrame)
+            _waitElapsedMs += Time.deltaTime * 1000f;
+            if (_waitElapsedMs >= gameConfig.AutoStartDelayMs)
             {
                 HasStarted = true;
                 _startTime = AudioSettings.dspTime;

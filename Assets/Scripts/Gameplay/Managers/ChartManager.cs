@@ -22,6 +22,7 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private BarManager barManager;
     [SerializeField] private GameConfig gameConfig;
     [SerializeField] private ResultPanelManager resultPanel;
+    [SerializeField] private TextEffect textEffect;
 
     public static event System.Action OnGameEnded;
 
@@ -219,6 +220,9 @@ public class ChartManager : MonoBehaviour
             if (h.endMs > LastNoteMs) LastNoteMs = h.endMs;
         foreach (var g in _grounds)
             if (g.ms > LastNoteMs) LastNoteMs = g.ms;
+
+        if (textEffect != null)
+            textEffect.Initialize(chart.textEffects);
     }
 
     private void PreSpawnAllNotes()

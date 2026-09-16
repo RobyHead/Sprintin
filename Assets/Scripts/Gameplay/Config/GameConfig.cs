@@ -29,6 +29,7 @@ public class GameConfig : MonoBehaviour
     [SerializeField] private float blankMs = 3000f;
     [SerializeField] private float maxSkipMs = 2000f;
     [SerializeField] private float fadeEndMs = 1000f;
+    [SerializeField] private float autoStartDelayMs = 2000f;
 
     [Header("Result")]
     [SerializeField] private float fadeOutStartDelayMs = 1000f;
@@ -42,6 +43,7 @@ public class GameConfig : MonoBehaviour
     public float BlankMs => blankMs;
     public float MaxSkipMs => maxSkipMs;
     public float FadeEndMs => fadeEndMs;
+    public float AutoStartDelayMs => autoStartDelayMs;
     public float FadeOutStartDelayMs => fadeOutStartDelayMs;
     public float FadeOutDurationMs => fadeOutDurationMs;
     public float SettlementDelayMs => settlementDelayMs;
