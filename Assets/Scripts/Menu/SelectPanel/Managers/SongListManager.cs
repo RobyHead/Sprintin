@@ -21,7 +21,7 @@ public class SongListManager : MonoBehaviour
         if (songList != null)
             songList.Initialize(Items, SongsPath);
 
-        if (SceneTransitionManager.Instance.ConsumePendingReturn())
+        if (SceneTransitionManager.Instance != null && SceneTransitionManager.Instance.ConsumePendingReturn())
         {
             var manager = SceneTransitionManager.Instance;
             songList.RestoreSelection(
