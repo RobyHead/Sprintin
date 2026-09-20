@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class MenuCanvas : MonoBehaviour
@@ -6,6 +7,7 @@ public class MenuCanvas : MonoBehaviour
     [SerializeField] private TitlePanelManager titleManager;
     [SerializeField] private SelectPanelManager selectManager;
     [SerializeField] private SettingsPanelManager settingsManager;
+    [SerializeField] private CalibratePanelManager calibrateManager;
 
     private bool _pendingTitle;
     private bool _pendingSelect;
@@ -14,6 +16,7 @@ public class MenuCanvas : MonoBehaviour
     {
         selectManager.gameObject.SetActive(false);
         settingsManager.gameObject.SetActive(false);
+        calibrateManager.gameObject.SetActive(false);
         titleManager.gameObject.SetActive(false);
 
         titleManager.OnWaitingInput += OnTitleWaitingInput;
@@ -25,6 +28,9 @@ public class MenuCanvas : MonoBehaviour
         selectManager.OnRequestSettings += OnSelectRequestSettings;
 
         settingsManager.OnRequestBack += OnSettingsRequestBack;
+        settingsManager.OnRequestCalibrate += OnSettingsRequestCalibrate;
+
+        calibrateManager.OnRequestBack += OnCalibrateRequestBack;
 
         if (SceneTransitionManager.Instance.HasPendingReturn)
         {
@@ -77,6 +83,12 @@ public class MenuCanvas : MonoBehaviour
         if (settingsManager != null)
         {
             settingsManager.OnRequestBack -= OnSettingsRequestBack;
+            settingsManager.OnRequestCalibrate -= OnSettingsRequestCalibrate;
+        }
+
+        if (calibrateManager != null)
+        {
+            calibrateManager.OnRequestBack -= OnCalibrateRequestBack;
         }
     }
 
@@ -88,7 +100,6 @@ public class MenuCanvas : MonoBehaviour
     private void OnTitleExitStarted()
     {
         selectManager.gameObject.SetActive(true);
-        selectManager.Show(false);
     }
 
     private void OnTitleSequenceComplete()
@@ -118,25 +129,84 @@ public class MenuCanvas : MonoBehaviour
     private void OnSelectRequestSettings()
     {
         selectManager.SetInteractable(false);
-        settingsManager.gameObject.SetActive(true);
-        settingsManager.Show();
+        selectManager.StopPreview();
+        StartCoroutine(TransitionSelectToSettings());
     }
 
     private void OnSettingsRequestBack()
     {
-        settingsManager.Hide();
+        settingsManager.SetInteractable(false);
+        StartCoroutine(TransitionSettingsToSelect());
+    }
+
+    private void OnSettingsRequestCalibrate()
+    {
+        settingsManager.SetInteractable(false);
+        StartCoroutine(TransitionSettingsToCalibrate());
+    }
+
+    private void OnCalibrateRequestBack()
+    {
+        calibrateManager.SetInteractable(false);
+        StartCoroutine(TransitionCalibrateToSettings());
+    }
+
+    private IEnumerator TransitionSelectToSettings()
+    {
+        yield return SceneTransitionManager.Instance.PlayOutroAndWait();
+
+        selectManager.gameObject.SetActive(false);
+        settingsManager.gameObject.SetActive(true);
+
+        yield return SceneTransitionManager.Instance.PlayIntroAndWait();
+
+        settingsManager.SetInteractable(true);
+    }
+
+    private IEnumerator TransitionSettingsToSelect()
+    {
+        yield return SceneTransitionManager.Instance.PlayOutroAndWait();
+
         settingsManager.gameObject.SetActive(false);
+        selectManager.gameObject.SetActive(true);
+
+        yield return SceneTransitionManager.Instance.PlayIntroAndWait();
+
         selectManager.SetInteractable(true);
+    }
+
+    private IEnumerator TransitionSettingsToCalibrate()
+    {
+        yield return SceneTransitionManager.Instance.PlayOutroAndWait();
+
+        settingsManager.gameObject.SetActive(false);
+        calibrateManager.gameObject.SetActive(true);
+
+        yield return SceneTransitionManager.Instance.PlayIntroAndWait();
+
+        calibrateManager.SetInteractable(true);
+    }
+
+    private IEnumerator TransitionCalibrateToSettings()
+    {
+        yield return SceneTransitionManager.Instance.PlayOutroAndWait();
+
+        calibrateManager.gameObject.SetActive(false);
+        settingsManager.gameObject.SetActive(true);
+
+        yield return SceneTransitionManager.Instance.PlayIntroAndWait();
+
+        settingsManager.SetInteractable(true);
     }
 
     private void SkipToSelect()
     {
         titleManager.Stop();
         titleManager.gameObject.SetActive(false);
-        settingsManager.Hide();
         settingsManager.gameObject.SetActive(false);
+        calibrateManager.gameObject.SetActive(false);
         selectManager.gameObject.SetActive(true);
-        selectManager.Show(false);
+        selectManager.RefreshPreview();
     }
 
     private void ShowTitlePanel()

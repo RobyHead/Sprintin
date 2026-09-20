@@ -3,25 +3,24 @@ using UnityEngine.InputSystem;
 
 public class SettingsPanelManager : MonoBehaviour
 {
-    [SerializeField] private CanvasGroup canvasGroup;
-
     public event System.Action OnRequestBack;
+    public event System.Action OnRequestCalibrate;
 
-    public void Show()
+    private bool _acceptInput;
+
+    public void SetInteractable(bool interactable)
     {
-        canvasGroup.alpha = 1f;
-        canvasGroup.blocksRaycasts = true;
+        _acceptInput = interactable;
     }
 
-    public void Hide()
+    private void OnEnable()
     {
-        canvasGroup.alpha = 0f;
-        canvasGroup.blocksRaycasts = false;
+        _acceptInput = false;
     }
 
     private void Update()
     {
-        if (!gameObject.activeInHierarchy)
+        if (!gameObject.activeInHierarchy || !_acceptInput)
             return;
 
         if (Keyboard.current == null)
@@ -29,5 +28,7 @@ public class SettingsPanelManager : MonoBehaviour
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
             OnRequestBack?.Invoke();
+        else if (Keyboard.current.cKey.wasPressedThisFrame)
+            OnRequestCalibrate?.Invoke();
     }
 }

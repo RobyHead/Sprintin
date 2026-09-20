@@ -3,38 +3,43 @@ using UnityEngine.InputSystem;
 
 public class SelectPanelManager : MonoBehaviour
 {
-    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private SongList songList;
 
     public event System.Action OnRequestBack;
     public event System.Action OnRequestSettings;
 
-    public void Show(bool interactable)
-    {
-        canvasGroup.alpha = 1f;
-        canvasGroup.blocksRaycasts = true;
-        SetInteractable(interactable);
-        if (songList != null && !interactable)
-            songList.RefreshPreview();
-    }
-
-    public void Hide()
-    {
-        canvasGroup.alpha = 0f;
-        canvasGroup.blocksRaycasts = false;
-        SetInteractable(false);
-    }
+    private bool _acceptInput;
 
     public void SetInteractable(bool interactable)
     {
-        canvasGroup.interactable = interactable;
+        _acceptInput = interactable;
         if (songList != null)
             songList.SetInteractable(interactable);
     }
 
+    public void RefreshPreview()
+    {
+        if (songList != null)
+            songList.RefreshPreview();
+    }
+
+    public void StopPreview()
+    {
+        if (songList != null)
+            songList.StopPreview();
+    }
+
+    private void OnEnable()
+    {
+        _acceptInput = false;
+        RefreshPreview();
+        if (songList != null)
+            songList.SetInteractable(false);
+    }
+
     private void Update()
     {
-        if (!gameObject.activeInHierarchy || !canvasGroup.interactable)
+        if (!gameObject.activeInHierarchy || !_acceptInput)
             return;
 
         if (Keyboard.current == null)
@@ -42,8 +47,7 @@ public class SelectPanelManager : MonoBehaviour
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (songList != null)
-                songList.StopPreview();
+            StopPreview();
             OnRequestBack?.Invoke();
         }
         else if (Keyboard.current.tabKey.wasPressedThisFrame)

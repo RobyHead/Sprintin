@@ -94,7 +94,7 @@ public class OptionList : MonoBehaviour
             }
 
             float holdDuration = Time.time - _holdStartTime;
-            float interval = holdDuration < 0.5f ? 0.2f : 0.05f;
+            float interval = holdDuration < 0.5f ? 0.25f : 0.05f;
             if (Time.time - _lastRepeatTime >= interval)
             {
                 _lastRepeatTime = Time.time;

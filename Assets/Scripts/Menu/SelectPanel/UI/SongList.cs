@@ -46,8 +46,6 @@ public class SongList : MonoBehaviour
     public void SetInteractable(bool interactable)
     {
         _interactable = interactable;
-        if (!interactable)
-            _previewStarted = true;
     }
 
     public void StopPreview()
@@ -135,8 +133,7 @@ public class SongList : MonoBehaviour
         }
         UpdateScales();
         UpdateSnapping();
-        if (_interactable)
-            UpdateStableSelection();
+        UpdateStableSelection();
     }
 
     private void UpdateStableSelection()
