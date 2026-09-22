@@ -5,6 +5,8 @@ using UnityEngine;
 public class DifficultySelector : MonoBehaviour
 {
     [SerializeField] private GameObject[] diffOptions;
+    [SerializeField] private float selectedWidth = 100f;
+    [SerializeField] private float normalWidth = 90f;
     [SerializeField] private DifficultyBackground difficultyBackground;
 
     private List<DifficultyData> _difficulties;
@@ -44,6 +46,19 @@ public class DifficultySelector : MonoBehaviour
     {
         _selectedId = id;
         difficultyBackground.SetDifficulty(id);
+
+        for (int i = 0; i < diffOptions.Length; i++)
+        {
+            if (diffOptions[i] == null) continue;
+
+            var rect = diffOptions[i].GetComponent<RectTransform>();
+            if (rect == null) continue;
+
+            float targetWidth = (i == id) ? selectedWidth : normalWidth;
+            var size = rect.sizeDelta;
+            size.x = targetWidth;
+            rect.sizeDelta = size;
+        }
     }
 
     public void SelectNext()

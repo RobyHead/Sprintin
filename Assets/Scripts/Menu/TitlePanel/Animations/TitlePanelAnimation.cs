@@ -19,8 +19,8 @@ public class TitlePanelAnimation : MonoBehaviour
     // [SerializeField] private float textureWidth = 1920f;
     [SerializeField] private float textureHeight = 1080f;
 
-    public bool IsIntroComplete { get; private set; }
-    public bool IsOutroComplete { get; private set; }
+    public event System.Action OnIntroComplete;
+    public event System.Action OnOutroComplete;
 
     private enum Phase { Idle, FadeIn, SlideIn, SlideOut, FadeOut }
     private Phase _phase;
@@ -54,14 +54,12 @@ public class TitlePanelAnimation : MonoBehaviour
     {
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = true;
-        IsIntroComplete = false;
         _timer = 0f;
         _phase = Phase.FadeIn;
     }
 
     public void PlayOutro()
     {
-        IsOutroComplete = false;
         _timer = 0f;
         _phase = Phase.SlideOut;
     }
@@ -69,8 +67,6 @@ public class TitlePanelAnimation : MonoBehaviour
     public void ResetToOffscreen()
     {
         _phase = Phase.Idle;
-        IsIntroComplete = false;
-        IsOutroComplete = false;
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
         titleRect.anchoredPosition = _titleOffscreenPos;
@@ -112,7 +108,7 @@ public class TitlePanelAnimation : MonoBehaviour
                         if (groundRect != null)
                             groundRect.anchoredPosition = _groundTargetPos;
                         _phase = Phase.Idle;
-                        IsIntroComplete = true;
+                        OnIntroComplete?.Invoke();
                     }
                     break;
                 }
@@ -141,7 +137,7 @@ public class TitlePanelAnimation : MonoBehaviour
                         canvasGroup.alpha = 0f;
                         canvasGroup.blocksRaycasts = false;
                         _phase = Phase.Idle;
-                        IsOutroComplete = true;
+                        OnOutroComplete?.Invoke();
                     }
                     break;
                 }

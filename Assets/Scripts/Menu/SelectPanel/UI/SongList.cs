@@ -108,9 +108,9 @@ public class SongList : MonoBehaviour
                 entry.Rect = songUI.GetComponent<RectTransform>();
             }
 
-            entry.Rect.pivot = new Vector2(0.5f, 0.5f);
-            entry.Rect.anchorMin = new Vector2(0.5f, 1f);
-            entry.Rect.anchorMax = new Vector2(0.5f, 1f);
+            entry.Rect.pivot = new Vector2(1f, 0.5f);
+            entry.Rect.anchorMin = new Vector2(0f, 1f);
+            entry.Rect.anchorMax = new Vector2(1f, 1f);
 
             float h = item.Type == SongListItem.ItemType.Pack ? packHeight : songHeight;
             y -= h / 2f;

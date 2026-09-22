@@ -345,6 +345,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Arrows
       objectReference: {fileID: 0}
+    - target: {fileID: 4353434720816134155, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353434720816134155, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353434720816134155, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6957729682714281960, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -425,8 +437,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7803270953057004763, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7803270953057004763, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7803270953057004763, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5617093924437106800, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
+    - {fileID: 7110925078332896469, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70caa260b4a4a2746b2804a960a3ce46, type: 3}
