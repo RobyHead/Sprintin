@@ -7515,6 +7515,10 @@ PrefabInstance:
       propertyPath: acceleration
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 7042059156914270745, guid: ba2aab126c1d1fc46914e3eaab88bd9e, type: 3}
+      propertyPath: preLandWindow
+      value: 0.1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

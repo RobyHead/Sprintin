@@ -45,14 +45,10 @@ public static class ChartParser
         var key = line.Substring(0, eqIdx);
         var value = line.Substring(eqIdx + 1);
 
-        if (key == "name")
-            data.name = value;
-        else if (key == "bpm")
-        {
-            data.jumpBpm = float.Parse(value, CultureInfo.InvariantCulture);
-        }
-        else if (key == "offset")
+        if (key == "offset")
             data.offset = int.Parse(value, CultureInfo.InvariantCulture);
+        else if (key == "end")
+            data.end = int.Parse(value, CultureInfo.InvariantCulture);
     }
 
     private static void ParseBpm(string line, ChartData data)

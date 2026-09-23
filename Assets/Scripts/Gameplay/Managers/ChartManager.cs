@@ -25,6 +25,7 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private TextEffect textEffect;
 
     public static event System.Action OnGameEnded;
+    public static event System.Action<float> OnJumpBpmChanged;
 
     [Header("Fade")]
     [SerializeField] private float quickFadeOutMs = 300f;
@@ -42,6 +43,8 @@ public class ChartManager : MonoBehaviour
     private List<BpmData> _jumpBpms;
     private List<BpmData> _barBpms;
     private int _nextJumpBpmIndex;
+    private int _chartEndMs;
+    private float _resultTriggerMs;
 
     private string _packId;
     private string _songId;
@@ -67,6 +70,7 @@ public class ChartManager : MonoBehaviour
         if (SceneTransitionManager.Instance != null)
             SceneTransitionManager.Instance.OnOutroStarted -= HandleOutroStarted;
         OnGameEnded = null;
+        OnJumpBpmChanged = null;
     }
 
     private static void ResetStatics()
@@ -100,7 +104,7 @@ public class ChartManager : MonoBehaviour
         UpdateVolumeFade();
         UpdateJumpBpm();
 
-        if (!_resultShown && GameTime.ElapsedMs >= LastNoteMs)
+        if (!_resultShown && GameTime.ElapsedMs >= _resultTriggerMs)
         {
             _resultShown = true;
             StartCoroutine(ResultSequence());
@@ -113,6 +117,7 @@ public class ChartManager : MonoBehaviour
                && GameTime.ElapsedMs >= _jumpBpms[_nextJumpBpmIndex].ms)
         {
             CurrentJumpBpm = _jumpBpms[_nextJumpBpmIndex].bpm;
+            OnJumpBpmChanged?.Invoke(CurrentJumpBpm);
             _nextJumpBpmIndex++;
         }
     }
@@ -195,15 +200,16 @@ public class ChartManager : MonoBehaviour
         var text = File.ReadAllText(path);
         var chart = ChartParser.Parse(text);
 
-        SongName = chart.name;
         _chartOffset = chart.offset;
+        _chartEndMs = chart.end;
         SpeedTimeline.Instance.SetSpeeds(chart.speeds);
-        CurrentJumpBpm = chart.jumpBpm;
         _jumpBpms = new List<BpmData>(chart.jumpBpms);
         _jumpBpms.Sort((a, b) => a.ms.CompareTo(b.ms));
+        CurrentJumpBpm = _jumpBpms.Count > 0 ? _jumpBpms[0].bpm : 120f;
+        OnJumpBpmChanged?.Invoke(CurrentJumpBpm);
+        _nextJumpBpmIndex = 0;
         _barBpms = new List<BpmData>(chart.barBpms);
         _barBpms.Sort((a, b) => a.ms.CompareTo(b.ms));
-        _nextJumpBpmIndex = 0;
 
         _taps = new List<TapData>(chart.taps);
         _holds = new List<HoldData>(chart.holds);
@@ -223,6 +229,10 @@ public class ChartManager : MonoBehaviour
 
         if (textEffect != null)
             textEffect.Initialize(chart.textEffects);
+
+        _resultTriggerMs = _chartEndMs > 0
+            ? Mathf.Max(LastNoteMs, _chartEndMs - gameConfig.FadeOutStartDelayMs)
+            : LastNoteMs;
     }
 
     private void PreSpawnAllNotes()

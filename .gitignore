@@ -108,3 +108,7 @@ InitTestScene*.unity*
 
 # Songs for development
 Assets/StreamingAssets/Songs/Dev/
+
+# Transforming Charts
+Assets/StreamingAssets/ChartTransformers/*
+!Assets/StreamingAssets/ChartTransformers/FromAff.py

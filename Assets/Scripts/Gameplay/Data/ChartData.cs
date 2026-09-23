@@ -2,10 +2,8 @@ using System.Collections.Generic;
 
 public class ChartData
 {
-    public string name;
-    public float jumpBpm = 120f;
-    public float barBpm = 0f;
     public int offset = 0;
+    public int end = 0;
 
     public List<BpmData> jumpBpms = new List<BpmData>();
     public List<BpmData> barBpms = new List<BpmData>();

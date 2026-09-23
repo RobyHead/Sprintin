@@ -35,12 +35,17 @@ public class Player : MonoBehaviour
 
     private enum State { Idle, Rising, Holding, Falling }
     private State _state = State.Idle;
-    private float _stateTimer;
+
+    private float _jumpElapsed;
+    private float _fallStartTimeS;
+
     private float _groundY;
     private float _riseDuration;
-    private float _holdDuration;
     private float _fallDuration;
-    private float _peakHeight;
+
+    private float _airTime;
+    private float _cachedAirTime;
+    private float _jumpStartTimeS;
 
     private void Start()
     {
@@ -51,16 +56,43 @@ public class Player : MonoBehaviour
     private void OnEnable()
     {
         ChartManager.OnGameEnded += HandleGameEnded;
+        ChartManager.OnJumpBpmChanged += HandleJumpBpmChanged;
     }
 
     private void OnDisable()
     {
         ChartManager.OnGameEnded -= HandleGameEnded;
+        ChartManager.OnJumpBpmChanged -= HandleJumpBpmChanged;
     }
 
     private void HandleGameEnded()
     {
         enabled = false;
+    }
+
+    private void HandleJumpBpmChanged(float newBpm)
+    {
+        float newAirTime = 60000f / newBpm / 1000f;
+
+        if (_state == State.Falling)
+        {
+            _cachedAirTime = newAirTime;
+            return;
+        }
+
+        _airTime = Mathf.Max(_riseDuration + _fallDuration, newAirTime);
+        _cachedAirTime = 0f;
+
+        if (_state == State.Holding)
+        {
+            float jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
+            if (jumpElapsed >= _airTime - _fallDuration)
+            {
+                _state = State.Falling;
+                _fallStartTimeS = GameTime.ElapsedMs / 1000f;
+                _airTime = jumpElapsed + _fallDuration;
+            }
+        }
     }
 
     private void Update()
@@ -69,58 +101,51 @@ public class Player : MonoBehaviour
         if (keyboard == null)
             return;
 
+        if (_state != State.Idle)
+        {
+            _jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
+        }
+
+        if ((_state == State.Rising || _state == State.Holding)
+            && _jumpElapsed >= _airTime - _fallDuration)
+        {
+            _state = State.Falling;
+            _fallStartTimeS = GameTime.ElapsedMs / 1000f;
+            _airTime = _jumpElapsed + _fallDuration;
+        }
+
         switch (_state)
         {
             case State.Idle:
+                SetY(_groundY);
                 if (keyboard.spaceKey.wasPressedThisFrame)
-                {
                     StartJump();
-                }
                 break;
 
             case State.Rising:
-                _stateTimer += Time.deltaTime;
-                float riseT = Mathf.Clamp01(_stateTimer / _riseDuration);
-                SetY(ParabolaRise(riseT));
-
-                if (_stateTimer >= _riseDuration)
-                {
+                SetY(ParabolaRise(Mathf.Clamp01(_jumpElapsed / _riseDuration)));
+                if (_jumpElapsed >= _riseDuration)
                     _state = State.Holding;
-                    _stateTimer = 0f;
-                }
                 break;
 
             case State.Holding:
-                _stateTimer += Time.deltaTime;
-                SetY(_groundY + _peakHeight);
-
-                if (_stateTimer >= _holdDuration)
-                {
-                    _state = State.Falling;
-                    _stateTimer = 0f;
-                }
+                SetY(_groundY + maxHeight);
                 break;
 
             case State.Falling:
-                _stateTimer += Time.deltaTime;
-                float fallT = Mathf.Clamp01(_stateTimer / _fallDuration);
-                SetY(ParabolaFall(fallT));
-
-                float remaining = _fallDuration - _stateTimer;
+                float fallTimer = GameTime.ElapsedMs / 1000f - _fallStartTimeS;
+                SetY(ParabolaFall(Mathf.Clamp01(fallTimer / _fallDuration)));
+                float remaining = _airTime - _jumpElapsed;
                 if (remaining <= preLandWindow && !CanOperate)
-                {
                     CanOperate = true;
-                }
-
                 if (keyboard.spaceKey.wasPressedThisFrame && CanOperate)
                 {
                     StartJump();
+                    break;
                 }
-
-                if (_stateTimer >= _fallDuration)
+                if (remaining <= 0f)
                 {
                     _state = State.Idle;
-                    _stateTimer = 0f;
                     IsJumping = false;
                     CanOperate = true;
                     _jumpEndTime = GameTime.ElapsedMs;
@@ -131,42 +156,40 @@ public class Player : MonoBehaviour
 
     private void StartJump()
     {
-        float airTime = 60000f / ChartManager.CurrentJumpBpm / 1000f;
         float v0Max = Mathf.Sqrt(2f * acceleration * maxHeight);
-        float fullRiseFall = 2f * v0Max / acceleration;
+        _riseDuration = v0Max / acceleration;
+        _fallDuration = _riseDuration;
+        float physicsAir = _riseDuration + _fallDuration;
 
-        if (airTime >= fullRiseFall)
+        if (_cachedAirTime > 0)
         {
-            _riseDuration = v0Max / acceleration;
-            _fallDuration = _riseDuration;
-            _holdDuration = airTime - _riseDuration - _fallDuration;
-            _peakHeight = maxHeight;
+            _airTime = Mathf.Max(physicsAir, _cachedAirTime);
+            _cachedAirTime = 0f;
         }
         else
         {
-            _riseDuration = airTime / 2f;
-            _fallDuration = airTime / 2f;
-            _holdDuration = 0f;
-            float v0 = acceleration * _riseDuration;
-            _peakHeight = v0 * v0 / (2f * acceleration);
+            float bpmAir = 60000f / ChartManager.CurrentJumpBpm / 1000f;
+            _airTime = Mathf.Max(physicsAir, bpmAir);
         }
+
+        _jumpElapsed = 0f;
 
         IsJumping = true;
         CanOperate = false;
         _state = State.Rising;
-        _stateTimer = 0f;
+        _jumpStartTimeS = GameTime.ElapsedMs / 1000f;
         _jumpStartTime = GameTime.ElapsedMs;
         _jumpEndTime = float.MinValue;
     }
 
     private float ParabolaRise(float t)
     {
-        return _groundY + _peakHeight * (2f * t - t * t);
+        return _groundY + maxHeight * (2f * t - t * t);
     }
 
     private float ParabolaFall(float t)
     {
-        return _groundY + _peakHeight * (1f - t * t);
+        return _groundY + maxHeight * (1f - t * t);
     }
 
     private void SetY(float y)

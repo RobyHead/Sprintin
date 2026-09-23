@@ -1,0 +1,20 @@
+{
+  "id": "tutorial",
+  "name": "Tutorial",
+  "artist": "rbhd",
+  "difficulties": [
+    {
+      "id": 0,
+      "value": 1.0,
+      "charter": "rbhd"
+    },
+    {
+      "id": 1,
+      "value": 5.0,
+      "charter": "rbhd"
+    }
+  ],
+  "bpm": 140,
+  "viewbegin": 83000,
+  "viewend": 98000
+}

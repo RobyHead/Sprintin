@@ -38,8 +38,10 @@ public class DifficultySelector : MonoBehaviour
         _selectedId = preferredId;
         if (_difficulties.Exists(d => d.id == _selectedId))
             SelectDifficulty(_selectedId);
-        else
-            SelectPrevious();
+        else {
+            _selectedId = -1;
+            SelectNext();
+        }
     }
 
     public void SelectDifficulty(int id)
