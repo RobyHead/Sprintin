@@ -15,8 +15,6 @@ public class Lane : MonoBehaviour
 
     public int TrackIndex => _trackIndex;
     private int _trackIndex;
-    private Material _currentMaterial;
-    private bool _wasPressed;
 
     private void Start()
     {
@@ -45,25 +43,21 @@ public class Lane : MonoBehaviour
         if (keyboard == null)
             return;
 
-        bool isPressed = keyboard[key].isPressed;
-
         if (keyboard[key].wasPressedThisFrame)
         {
             LaneGroup.Instance.OnLanePressed(_trackIndex);
             ApplyMaterial(pressedMaterial);
         }
-        else if (!isPressed && _wasPressed)
+
+        if (keyboard[key].wasReleasedThisFrame)
         {
             LaneGroup.Instance.OnLaneReleased(_trackIndex);
             ApplyMaterial(normalMaterial);
         }
-
-        _wasPressed = isPressed;
     }
 
     private void ApplyMaterial(Material mat)
     {
-        _currentMaterial = mat;
         foreach (var renderer in meshRenderers)
         {
             if (renderer != null)
