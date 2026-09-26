@@ -101,6 +101,9 @@ public class Player : MonoBehaviour
         if (keyboard == null)
             return;
 
+        if (!GameTime.HasStarted)
+            return;
+
         if (_state != State.Idle)
         {
             _jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;

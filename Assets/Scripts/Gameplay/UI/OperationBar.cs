@@ -37,6 +37,7 @@ public class OperationBar : MonoBehaviour
     private int _activeIndex = -1;
     private float _holdTimer;
     private bool _isHolding;
+    private bool _blockInput;
 
     private void Start()
     {
@@ -48,17 +49,17 @@ public class OperationBar : MonoBehaviour
 
     private void OnEnable()
     {
-        ChartManager.OnGameEnded += HandleGameEnded;
+        ChartManager.OnFadeoutComplete += HandleFadeoutComplete;
     }
 
     private void OnDisable()
     {
-        ChartManager.OnGameEnded -= HandleGameEnded;
+        ChartManager.OnFadeoutComplete -= HandleFadeoutComplete;
     }
 
-    private void HandleGameEnded()
+    private void HandleFadeoutComplete()
     {
-        enabled = false;
+        _blockInput = true;
     }
 
     private void Update()
@@ -89,6 +90,9 @@ public class OperationBar : MonoBehaviour
         }
         else
         {
+            if (_blockInput)
+                return;
+
             for (int i = 0; i < operations.Length; i++)
             {
                 if (keyboard[operations[i].key].wasPressedThisFrame)

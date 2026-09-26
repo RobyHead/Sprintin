@@ -39,6 +39,9 @@ public class Lane : MonoBehaviour
 
     private void Update()
     {
+        if (!GameTime.HasStarted)
+            return;
+
         var keyboard = Keyboard.current;
         if (keyboard == null)
             return;

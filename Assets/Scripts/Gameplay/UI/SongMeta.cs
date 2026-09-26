@@ -99,6 +99,6 @@ public class SongMeta : MonoBehaviour
         }
 
         ChartManager.CoverLoaded = true;
-        ChartManager.TryRequestIntro();
+        ChartManager.TrySetReady();
     }
 }

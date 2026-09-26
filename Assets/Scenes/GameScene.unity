@@ -7629,6 +7629,10 @@ PrefabInstance:
       value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: blankMs
+      value: 4000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: defaultSpeed
       value: 2
       objectReference: {fileID: 0}
@@ -7641,8 +7645,16 @@ PrefabInstance:
       value: 1500
       objectReference: {fileID: 0}
     - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: fadeOutDurationMs
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: settlementDelayMs
+      value: 2100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: fadeOutStartDelayMs
-      value: 1500
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 2603272030079891455, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: groundPrefab

@@ -26,6 +26,8 @@ public class ChartManager : MonoBehaviour
 
     public static event System.Action OnGameEnded;
     public static event System.Action<float> OnJumpBpmChanged;
+    public static event System.Action OnFadeoutComplete;
+    public static event System.Action OnReady;
 
     [Header("Fade")]
     [SerializeField] private float quickFadeOutMs = 300f;
@@ -71,6 +73,7 @@ public class ChartManager : MonoBehaviour
             SceneTransitionManager.Instance.OnOutroStarted -= HandleOutroStarted;
         OnGameEnded = null;
         OnJumpBpmChanged = null;
+        OnFadeoutComplete = null;
     }
 
     private static void ResetStatics()
@@ -90,7 +93,6 @@ public class ChartManager : MonoBehaviour
         PreSpawnAllNotes();
         StartCoroutine(LoadAudio());
         Judge.Instance.InitializeScore();
-        IsReady = true;
     }
 
     private void Update()
@@ -178,12 +180,22 @@ public class ChartManager : MonoBehaviour
         }
 
         AudioLoaded = true;
-        TryRequestIntro();
+        TrySetReady();
+    }
+
+    public static void TrySetReady()
+    {
+        if (AudioLoaded && CoverLoaded && !IsReady)
+        {
+            IsReady = true;
+            OnReady?.Invoke();
+            TryRequestIntro();
+        }
     }
 
     public static void TryRequestIntro()
     {
-        if (AudioLoaded && CoverLoaded && SceneTransitionManager.Instance.IsTransitioning)
+        if (IsReady && SceneTransitionManager.Instance.IsTransitioning)
             SceneTransitionManager.Instance.RequestIntro();
     }
 
@@ -273,7 +285,7 @@ public class ChartManager : MonoBehaviour
             if (i == 0)
             {
                 float t = current.ms - interval;
-                while (t >= -3000f)
+                while (t >= -gameConfig.BlankMs)
                 {
                     barTimes.Add(Mathf.RoundToInt(t));
                     t -= interval;
@@ -325,11 +337,13 @@ public class ChartManager : MonoBehaviour
 
         yield return StartCoroutine(FadeOutAudioRoutine(fadeDur));
 
+        OnFadeoutComplete?.Invoke();
+
         yield return new WaitForSeconds(settleDelay);
 
-        OnGameEnded?.Invoke();
-
         yield return SceneTransitionManager.Instance.PlayOutroAndWait();
+
+        OnGameEnded?.Invoke();
 
         if (resultPanel != null)
             resultPanel.Show();
