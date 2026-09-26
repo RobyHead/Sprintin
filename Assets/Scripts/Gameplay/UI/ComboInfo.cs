@@ -7,9 +7,9 @@ public class ComboInfo : MonoBehaviour
     [SerializeField] private TMP_Text text;
 
     [Header("Animation")]
-    [SerializeField] private float scaleInDuration = 0.1f;
+    [SerializeField] private float scaleInDurationMs = 100f;
     [SerializeField] private float scaleOvershoot = 1f;
-    [SerializeField] private float scaleSettleDuration = 0.05f;
+    [SerializeField] private float scaleSettleDurationMs = 50f;
 
     private int _combo;
     public int MaxCombo { get; private set; }
@@ -57,20 +57,22 @@ public class ComboInfo : MonoBehaviour
     private IEnumerator Animate()
     {
         float elapsed = 0f;
-        while (elapsed < scaleInDuration)
+        float durationS = scaleInDurationMs / 1000f;
+        while (elapsed < durationS)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / scaleInDuration);
+            float t = Mathf.Clamp01(elapsed / durationS);
             float scale = Mathf.Lerp(0.5f, scaleOvershoot, t);
             transform.localScale = _baseScale * scale;
             yield return null;
         }
 
         elapsed = 0f;
-        while (elapsed < scaleSettleDuration)
+        durationS = scaleSettleDurationMs / 1000f;
+        while (elapsed < durationS)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / scaleSettleDuration);
+            float t = Mathf.Clamp01(elapsed / durationS);
             float scale = Mathf.Lerp(scaleOvershoot, 1f, t);
             transform.localScale = _baseScale * scale;
             yield return null;

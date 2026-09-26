@@ -23,8 +23,10 @@ public class CalibrateNote : MonoBehaviour
         _rectTransform = GetComponent<RectTransform>();
         _canvasGroup = GetComponent<CanvasGroup>();
         if (_canvasGroup == null)
+        {
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();
-            _canvasGroup.alpha = 0f;
+        }
+        _canvasGroup.alpha = 0f;
     }
 
     public void StartMoving(double targetDspTime)

@@ -2829,7 +2829,7 @@ MonoBehaviour:
   - {r: 0.92549026, g: 0.3803922, b: 0, a: 1}
   - {r: 0.64705884, g: 0, b: 0, a: 1}
   - {r: 0.19215688, g: 0, b: 0.2901961, a: 1}
-  difficultyAbbr:
+  difficultyAbbreviations:
   - EZ
   - NM
   - HD
@@ -3843,11 +3843,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JudgementInfo
   text: {fileID: 2024788629}
-  scaleInDuration: 0.1
+  scaleInDurationMs: 100
   scaleOvershoot: 1
-  scaleSettleDuration: 0.05
-  fadeDelay: 0.5
-  fadeDuration: 0.5
+  scaleSettleDurationMs: 50
+  fadeDelayMs: 500
+  fadeDurationMs: 500
 --- !u!1 &1094780462
 GameObject:
   m_ObjectHideFlags: 0
@@ -4872,7 +4872,7 @@ MonoBehaviour:
   bar: {fileID: 1094780463}
   operationText: {fileID: 1270741596}
   barMaxWidth: 360
-  holdDuration: 1.5
+  holdDurationMs: 1500
   operations:
   - key: 32
     displayName: RESTART
@@ -6084,7 +6084,7 @@ MonoBehaviour:
   - {r: 0.92549026, g: 0.3803922, b: 0, a: 1}
   - {r: 0.64705884, g: 0, b: 0, a: 1}
   - {r: 0.19215688, g: 0, b: 0.2901961, a: 1}
-  difficultyAbbr:
+  difficultyAbbreviations:
   - EZ
   - NM
   - HD
@@ -6973,9 +6973,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboInfo
   text: {fileID: 703494644}
-  scaleInDuration: 0.1
+  scaleInDurationMs: 100
   scaleOvershoot: 1
-  scaleSettleDuration: 0.05
+  scaleSettleDurationMs: 50
 --- !u!1 &2104354532
 GameObject:
   m_ObjectHideFlags: 0
@@ -7512,10 +7512,6 @@ PrefabInstance:
       value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 7042059156914270745, guid: ba2aab126c1d1fc46914e3eaab88bd9e, type: 3}
-      propertyPath: acceleration
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 7042059156914270745, guid: ba2aab126c1d1fc46914e3eaab88bd9e, type: 3}
       propertyPath: preLandWindow
       value: 0.1
       objectReference: {fileID: 0}
@@ -7629,32 +7625,8 @@ PrefabInstance:
       value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
-      propertyPath: blankMs
-      value: 4000
-      objectReference: {fileID: 0}
-    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
-      propertyPath: defaultSpeed
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
-      propertyPath: visibleRangeMax
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: autoStartDelayMs
       value: 1500
-      objectReference: {fileID: 0}
-    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
-      propertyPath: fadeOutDurationMs
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
-      propertyPath: settlementDelayMs
-      value: 2100
-      objectReference: {fileID: 0}
-    - target: {fileID: 1288237328917100798, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
-      propertyPath: fadeOutStartDelayMs
-      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 2603272030079891455, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: groundPrefab

@@ -25,7 +25,7 @@ public class SongList : MonoBehaviour
 
     [Header("Info")]
     [SerializeField] private SongInfo songInfo;
-    [SerializeField] private float stableTime = 0.5f;
+    [SerializeField] private float stableTimeMs = 800f;
 
     [Header("Preview")]
     [SerializeField] private SongPreviewManager songPreview;
@@ -34,6 +34,7 @@ public class SongList : MonoBehaviour
     private int _snappedIndex = -1;
     private float _snapTargetY;
     private bool _isSnapping;
+    private bool _interactable = true;
     private string _songsPath;
     private float _stableTimer;
     private bool _previewStarted;
@@ -61,8 +62,6 @@ public class SongList : MonoBehaviour
         _stableTimer = 0f;
     }
 
-    private bool _interactable = true;
-
     private class SongListEntry
     {
         public SongListItem Data;
@@ -78,14 +77,14 @@ public class SongList : MonoBehaviour
         scrollRect.enabled = false;
         scrollRect.vertical = false;
         scrollRect.horizontal = false;
-        BuildList(items, songsPath);
+        BuildList(items);
 
         var songs = GetSongIndices();
         if (songs.Count > 0)
             SnapToEntry(songs[0]);
     }
 
-    private void BuildList(List<SongListItem> items, string songsPath)
+    private void BuildList(List<SongListItem> items)
     {
         float y = 0;
 
@@ -96,15 +95,14 @@ public class SongList : MonoBehaviour
             if (item.Type == SongListItem.ItemType.Pack)
             {
                 var packUI = Instantiate(packPrefab, content);
-                packUI.Setup(item.PackIndex, item.Pack.name);
+                packUI.Setup(item.Pack.name);
                 entry.PackUI = packUI;
                 entry.Rect = packUI.GetComponent<RectTransform>();
             }
             else
             {
                 var songUI = Instantiate(songPrefab, content);
-                songUI.Setup(item.PackIndex, item.SongIndex, item.Song,
-                    item.Pack.id, songsPath);
+                songUI.Setup(item.Pack.id, item.Song.id, item.Song);
                 entry.SongUI = songUI;
                 entry.Rect = songUI.GetComponent<RectTransform>();
             }
@@ -150,7 +148,7 @@ public class SongList : MonoBehaviour
             return;
 
         _stableTimer += Time.deltaTime;
-        if (_stableTimer < stableTime)
+        if (_stableTimer < stableTimeMs / 1000f)
             return;
 
         _previewStarted = true;
@@ -311,11 +309,11 @@ public class SongList : MonoBehaviour
 
     private int GetFirstSongIndexOfPack(int packEntryIndex)
     {
-        int packIdx = _entries[packEntryIndex].Data.PackIndex;
         for (int i = packEntryIndex + 1; i < _entries.Count; i++)
         {
-            if (_entries[i].Data.Type == SongListItem.ItemType.Song &&
-                _entries[i].Data.PackIndex == packIdx)
+            if (_entries[i].Data.Type == SongListItem.ItemType.Pack)
+                return -1;
+            if (_entries[i].Data.Type == SongListItem.ItemType.Song)
                 return i;
         }
         return -1;

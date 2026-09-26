@@ -14,15 +14,15 @@ public class Judge : MonoBehaviour
     public int MaxCombo => comboInfo != null ? comboInfo.MaxCombo : 0;
 
     [Header("Tap / Hold Head")]
-    [SerializeField] private float perfectWindow = 50f;
-    [SerializeField] private float greatWindow = 100f;
-    [SerializeField] private float badWindow = 150f;
+    [SerializeField] private float perfectWindowMs = 50f;
+    [SerializeField] private float greatWindowMs = 100f;
+    [SerializeField] private float badWindowMs = 150f;
 
     [Header("Hold Tail")]
-    [SerializeField] private float tailEarlyWindow = 100f;
+    [SerializeField] private float tailEarlyWindowMs = 100f;
 
     [Header("Ground")]
-    [SerializeField] private float groundWindow = 50f;
+    [SerializeField] private float groundWindowMs = 50f;
 
     [Header("Info")]
     [SerializeField] private ScoreInfo scoreInfo;
@@ -127,7 +127,7 @@ public class Judge : MonoBehaviour
         foreach (var tap in _taps[trackIndex])
         {
             float diff = GameTime.ElapsedMs - tap.Ms;
-            if (Mathf.Abs(diff) <= badWindow && tap.Ms < earliestTapMs)
+            if (Mathf.Abs(diff) <= badWindowMs && tap.Ms < earliestTapMs)
             {
                 earliestTapMs = tap.Ms;
                 earliestTap = tap;
@@ -142,7 +142,7 @@ public class Judge : MonoBehaviour
             if (!hold.HeadJudged)
             {
                 float diff = GameTime.ElapsedMs - hold.Ms;
-                if (Mathf.Abs(diff) <= badWindow && hold.Ms < earliestHoldMs)
+                if (Mathf.Abs(diff) <= badWindowMs && hold.Ms < earliestHoldMs)
                 {
                     earliestHoldMs = hold.Ms;
                     earliestHold = hold;
@@ -174,7 +174,7 @@ public class Judge : MonoBehaviour
             if (hold.HeadJudged && !hold.TailJudged && !hold.HeadWasMiss)
             {
                 float diff = GameTime.ElapsedMs - hold.EndMs;
-                var judgement = diff >= -tailEarlyWindow ? Judgement.Perfect : Judgement.Bad;
+                var judgement = diff >= -tailEarlyWindowMs ? Judgement.Perfect : Judgement.Bad;
                 HandleJudgement(judgement);
                 hold.JudgeTail(judgement, diff);
                 return;
@@ -221,9 +221,9 @@ public class Judge : MonoBehaviour
 
     private Judgement GetJudgement(float absDiff)
     {
-        if (absDiff <= perfectWindow) return Judgement.Perfect;
-        if (absDiff <= greatWindow) return Judgement.Great;
-        if (absDiff <= badWindow) return Judgement.Bad;
+        if (absDiff <= perfectWindowMs) return Judgement.Perfect;
+        if (absDiff <= greatWindowMs) return Judgement.Great;
+        if (absDiff <= badWindowMs) return Judgement.Bad;
         return Judgement.Miss;
     }
 
@@ -235,9 +235,9 @@ public class Judge : MonoBehaviour
             if (ground.IsJudged)
                 continue;
 
-            if (GameTime.ElapsedMs >= ground.Ms + groundWindow)
+            if (GameTime.ElapsedMs >= ground.Ms + groundWindowMs)
             {
-                float judgeTime = ground.Ms + groundWindow;
+                float judgeTime = ground.Ms + groundWindowMs;
                 var judgement = Judgement.Miss;
                 if (Player.WasJumpingAt(judgeTime)) judgement = Judgement.Perfect;
                 HandleJudgement(judgement);
@@ -252,7 +252,7 @@ public class Judge : MonoBehaviour
         {
             for (int j = _taps[i].Count - 1; j >= 0; j--)
             {
-                if (GameTime.ElapsedMs > _taps[i][j].Ms + badWindow)
+                if (GameTime.ElapsedMs > _taps[i][j].Ms + badWindowMs)
                 {
                     HandleJudgement(Judgement.Miss);
                     _taps[i][j].OnJudged(Judgement.Miss, GameTime.ElapsedMs - _taps[i][j].Ms);
@@ -261,7 +261,7 @@ public class Judge : MonoBehaviour
 
             for (int j = _holds[i].Count - 1; j >= 0; j--)
             {
-                if (!_holds[i][j].HeadJudged && GameTime.ElapsedMs > _holds[i][j].Ms + badWindow)
+                if (!_holds[i][j].HeadJudged && GameTime.ElapsedMs > _holds[i][j].Ms + badWindowMs)
                 {
                     HandleJudgement(Judgement.Miss);
                     _holds[i][j].JudgeHead(Judgement.Miss, GameTime.ElapsedMs - _holds[i][j].Ms);

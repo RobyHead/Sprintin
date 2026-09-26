@@ -29,7 +29,7 @@ public class OperationBar : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float barMaxWidth = 200f;
-    [SerializeField] private float holdDuration = 1.5f;
+    [SerializeField] private float holdDurationMs = 1500f;
 
     [Header("Operations")]
     [SerializeField] private OperationEntry[] operations;
@@ -74,10 +74,11 @@ public class OperationBar : MonoBehaviour
             if (keyboard[activeOp.key].isPressed)
             {
                 _holdTimer += Time.unscaledDeltaTime;
-                float progress = Mathf.Clamp01(_holdTimer / holdDuration);
+                float durationS = holdDurationMs / 1000f;
+                float progress = Mathf.Clamp01(_holdTimer / durationS);
                 UpdateBar(progress);
 
-                if (_holdTimer >= holdDuration)
+                if (_holdTimer >= durationS)
                 {
                     ExecuteOperation(activeOp);
                     ResetOperation();

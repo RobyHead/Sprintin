@@ -158,9 +158,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77858ffa91a28594d9b2f3fd9037da68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
-  maxHeight: 0.8
-  acceleration: 20
-  preLandWindow: 0.05
+  maxJumpHeight: 0.8
+  acceleration: 100
+  preLandWindowMs: 100
 --- !u!1 &7512691393441132883
 GameObject:
   m_ObjectHideFlags: 0

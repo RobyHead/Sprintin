@@ -22,7 +22,7 @@ public class GameConfig : MonoBehaviour
     private float sfxVolume = 100f;
 
     [Header("Notes Visibility")]
-    [SerializeField] private float visibleRangeMax = 30f;
+    [SerializeField] private float visibleRangeMax = 40f;
     [SerializeField] private float visibleRangeMin = -5f;
 
     [Header("Begin Timing")]
@@ -32,8 +32,8 @@ public class GameConfig : MonoBehaviour
 
     [Header("Result Timing")]
     [SerializeField] private float fadeOutStartDelayMs = 1000f;
-    [SerializeField] private float fadeOutDurationMs = 2000f;
-    [SerializeField] private float settlementDelayMs = 500f;
+    [SerializeField] private float fadeOutDurationMs = 1000f;
+    [SerializeField] private float settlementDelayMs = 2100f;
 
     public float Speed => speed;
     public float Offset => offset;

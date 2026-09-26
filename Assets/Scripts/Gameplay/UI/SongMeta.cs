@@ -20,7 +20,7 @@ public class SongMeta : MonoBehaviour
         new(0.7f, 0.4f, 0.9f),
     };
 
-    [SerializeField] private string[] difficultyAbbr = { "EZ", "NM", "HD", "RS" };
+    [SerializeField] private string[] difficultyAbbreviations = { "EZ", "NM", "HD", "RS" };
 
     private void Start()
     {
@@ -52,10 +52,7 @@ public class SongMeta : MonoBehaviour
             {
                 if (diff.id == diffId)
                 {
-                    difficultyText.text = $"{difficultyAbbr[diffId]} {diff.value.ToString("F1")}";
-                    // difficultyText.color = diffId < difficultyColors.Length
-                    //     ? difficultyColors[diffId]
-                    //     : Color.white;
+                    difficultyText.text = $"{difficultyAbbreviations[diffId]} {diff.value.ToString("F1")}";
                     break;
                 }
             }

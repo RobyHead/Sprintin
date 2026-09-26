@@ -7,8 +7,8 @@ public class TransitionPanelAnimation : MonoBehaviour
     [SerializeField] private RectTransform panelRect;
 
     [Header("Timing")]
-    [SerializeField] private float outroDuration = 0.4f;
-    [SerializeField] private float introDuration = 0.4f;
+    [SerializeField] private float outroDurationMs = 500f;
+    [SerializeField] private float introDurationMs = 500f;
 
     [Header("Layout")]
     [SerializeField] private float slideDistance = 1080f;
@@ -68,10 +68,10 @@ public class TransitionPanelAnimation : MonoBehaviour
         {
             case Phase.Outro:
             {
-                float t = Mathf.Clamp01(_timer / outroDuration);
+                float t = Mathf.Clamp01(_timer * 1000f / outroDurationMs);
                 t = EaseOutQuad(t);
                 panelRect.anchoredPosition = Vector2.Lerp(_topOffscreenPos, _centerPos, t);
-                if (_timer >= outroDuration)
+                if (_timer >= outroDurationMs / 1000f)
                 {
                     panelRect.anchoredPosition = _centerPos;
                     _phase = Phase.Idle;
@@ -82,10 +82,10 @@ public class TransitionPanelAnimation : MonoBehaviour
 
             case Phase.Intro:
             {
-                float t = Mathf.Clamp01(_timer / introDuration);
+                float t = Mathf.Clamp01(_timer * 1000f / introDurationMs);
                 t = EaseInQuad(t);
                 panelRect.anchoredPosition = Vector2.Lerp(_centerPos, _bottomOffscreenPos, t);
-                if (_timer >= introDuration)
+                if (_timer >= introDurationMs / 1000f)
                 {
                     panelRect.anchoredPosition = _bottomOffscreenPos;
                     canvasGroup.blocksRaycasts = false;

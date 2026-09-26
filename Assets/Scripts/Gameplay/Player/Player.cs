@@ -29,9 +29,9 @@ public class Player : MonoBehaviour
     }
 
     [Header("Jump")]
-    [SerializeField] private float maxHeight = 0.8f;
-    [SerializeField] private float acceleration = 20f;
-    [SerializeField] private float preLandWindow = 0.05f;
+    [SerializeField] private float maxJumpHeight = 0.8f;
+    [SerializeField] private float acceleration = 100f;
+    [SerializeField] private float preLandWindowMs = 100f;
 
     private enum State { Idle, Rising, Holding, Falling }
     private State _state = State.Idle;
@@ -132,14 +132,14 @@ public class Player : MonoBehaviour
                 break;
 
             case State.Holding:
-                SetY(_groundY + maxHeight);
+                SetY(_groundY + maxJumpHeight);
                 break;
 
             case State.Falling:
                 float fallTimer = GameTime.ElapsedMs / 1000f - _fallStartTimeS;
                 SetY(ParabolaFall(Mathf.Clamp01(fallTimer / _fallDuration)));
                 float remaining = _airTime - _jumpElapsed;
-                if (remaining <= preLandWindow && !CanOperate)
+                if (remaining <= preLandWindowMs / 1000f && !CanOperate)
                     CanOperate = true;
                 if (keyboard.spaceKey.wasPressedThisFrame && CanOperate)
                 {
@@ -159,7 +159,7 @@ public class Player : MonoBehaviour
 
     private void StartJump()
     {
-        float v0Max = Mathf.Sqrt(2f * acceleration * maxHeight);
+        float v0Max = Mathf.Sqrt(2f * acceleration * maxJumpHeight);
         _riseDuration = v0Max / acceleration;
         _fallDuration = _riseDuration;
         float physicsAir = _riseDuration + _fallDuration;
@@ -187,12 +187,12 @@ public class Player : MonoBehaviour
 
     private float ParabolaRise(float t)
     {
-        return _groundY + maxHeight * (2f * t - t * t);
+        return _groundY + maxJumpHeight * (2f * t - t * t);
     }
 
     private float ParabolaFall(float t)
     {
-        return _groundY + maxHeight * (1f - t * t);
+        return _groundY + maxJumpHeight * (1f - t * t);
     }
 
     private void SetY(float y)

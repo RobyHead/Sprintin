@@ -8,12 +8,12 @@ public class TitlePanelAnimation : MonoBehaviour
     [SerializeField] private RectTransform groundRect;
 
     [Header("Fade")]
-    [SerializeField] private float fadeInDuration = 0.5f;
-    [SerializeField] private float fadeOutDuration = 0.5f;
+    [SerializeField] private float fadeInDurationMs = 500f;
+    [SerializeField] private float fadeOutDurationMs = 500f;
 
     [Header("Slide")]
-    [SerializeField] private float slideInDuration = 0.5f;
-    [SerializeField] private float slideOutDuration = 0.5f;
+    [SerializeField] private float slideInDurationMs = 1000f;
+    [SerializeField] private float slideOutDurationMs = 500f;
 
     [Header("Size")]
     // [SerializeField] private float textureWidth = 1920f;
@@ -85,9 +85,9 @@ public class TitlePanelAnimation : MonoBehaviour
         {
             case Phase.FadeIn:
                 {
-                    float t = Mathf.Clamp01(_timer / fadeInDuration);
+                    float t = Mathf.Clamp01(_timer * 1000f / fadeInDurationMs);
                     canvasGroup.alpha = t;
-                    if (_timer >= fadeInDuration)
+                    if (_timer >= fadeInDurationMs / 1000f)
                     {
                         _timer = 0f;
                         _phase = Phase.SlideIn;
@@ -97,12 +97,12 @@ public class TitlePanelAnimation : MonoBehaviour
 
             case Phase.SlideIn:
                 {
-                    float t = Mathf.Clamp01(_timer / slideInDuration);
+                    float t = Mathf.Clamp01(_timer * 1000f / slideInDurationMs);
                     t = EaseOutQuad(t);
                     titleRect.anchoredPosition = Vector2.Lerp(_titleOffscreenPos, _titleTargetPos, t);
                     if (groundRect != null)
                         groundRect.anchoredPosition = Vector2.Lerp(_groundOffscreenPos, _groundTargetPos, t);
-                    if (_timer >= slideInDuration)
+                    if (_timer >= slideInDurationMs / 1000f)
                     {
                         titleRect.anchoredPosition = _titleTargetPos;
                         if (groundRect != null)
@@ -115,12 +115,12 @@ public class TitlePanelAnimation : MonoBehaviour
 
             case Phase.SlideOut:
                 {
-                    float t = Mathf.Clamp01(_timer / slideOutDuration);
+                    float t = Mathf.Clamp01(_timer * 1000f / slideOutDurationMs);
                     t = EaseInQuad(t);
                     titleRect.anchoredPosition = Vector2.Lerp(_titleTargetPos, _titleOffscreenPos, t);
                     if (groundRect != null)
                         groundRect.anchoredPosition = Vector2.Lerp(_groundTargetPos, _groundOffscreenPos, t);
-                    if (_timer >= slideOutDuration)
+                    if (_timer >= slideOutDurationMs / 1000f)
                     {
                         _timer = 0f;
                         _phase = Phase.FadeOut;
@@ -130,9 +130,9 @@ public class TitlePanelAnimation : MonoBehaviour
 
             case Phase.FadeOut:
                 {
-                    float t = Mathf.Clamp01(_timer / fadeOutDuration);
+                    float t = Mathf.Clamp01(_timer * 1000f / fadeOutDurationMs);
                     canvasGroup.alpha = 1f - t;
-                    if (_timer >= fadeOutDuration)
+                    if (_timer >= fadeOutDurationMs / 1000f)
                     {
                         canvasGroup.alpha = 0f;
                         canvasGroup.blocksRaycasts = false;

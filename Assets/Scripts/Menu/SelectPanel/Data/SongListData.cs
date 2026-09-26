@@ -40,8 +40,6 @@ public class SongListItem
     public enum ItemType { Pack, Song }
 
     public ItemType Type;
-    public int PackIndex;
-    public int SongIndex;
     public PackData Pack;
     public SongData Song;
 }

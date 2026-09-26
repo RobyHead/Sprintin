@@ -53,21 +53,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
   speedKey: speed
-  defaultSpeed: 1
+  defaultSpeed: 2
   offsetKey: offset
   defaultOffset: 0
   musicVolumeKey: music_volume
   sfxVolumeKey: sfx_volume
   defaultMusicVolume: 100
   defaultSfxVolume: 100
-  visibleRangeMax: 30
+  visibleRangeMax: 40
   visibleRangeMin: -5
-  blankMs: 3000
+  blankMs: 4000
   maxSkipMs: 2000
   fadeEndMs: 1000
   fadeOutStartDelayMs: 1000
-  fadeOutDurationMs: 1500
-  settlementDelayMs: 1000
+  fadeOutDurationMs: 1000
+  settlementDelayMs: 2100
 --- !u!114 &9131032730402185134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,6 +86,7 @@ MonoBehaviour:
   barManager: {fileID: 5137567094460471255}
   gameConfig: {fileID: 1288237328917100798}
   resultPanel: {fileID: 0}
+  textEffect: {fileID: 0}
   quickFadeOutMs: 300
 --- !u!114 &2870739912697746325
 MonoBehaviour:
@@ -112,11 +113,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb216843b286af04e85155b5b34e1b3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Judge
-  perfectWindow: 50
-  greatWindow: 100
-  badWindow: 150
-  tailEarlyWindow: 100
-  groundWindow: 50
+  perfectWindowMs: 50
+  greatWindowMs: 100
+  badWindowMs: 150
+  tailEarlyWindowMs: 100
+  groundWindowMs: 50
   scoreInfo: {fileID: 0}
   judgementInfo: {fileID: 0}
   comboInfo: {fileID: 0}

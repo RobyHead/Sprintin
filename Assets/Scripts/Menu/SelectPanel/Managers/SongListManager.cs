@@ -56,11 +56,10 @@ public class SongListManager : MonoBehaviour
             Items.Add(new SongListItem
             {
                 Type = SongListItem.ItemType.Pack,
-                PackIndex = p,
                 Pack = pack
             });
 
-            LoadSongs(pack, p);
+            LoadSongs(pack);
         }
     }
 
@@ -79,21 +78,18 @@ public class SongListManager : MonoBehaviour
         return pack;
     }
 
-    private void LoadSongs(PackData pack, int packIndex)
+    private void LoadSongs(PackData pack)
     {
         if (pack.songs == null) return;
 
-        for (int s = 0; s < pack.songs.Count; s++)
+        foreach (var songId in pack.songs)
         {
-            var songId = pack.songs[s];
             var song = LoadSongData(pack.id, songId);
             if (song == null) continue;
 
             Items.Add(new SongListItem
             {
                 Type = SongListItem.ItemType.Song,
-                PackIndex = packIndex,
-                SongIndex = s,
                 Pack = pack,
                 Song = song
             });
