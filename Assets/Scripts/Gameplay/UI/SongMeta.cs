@@ -53,9 +53,9 @@ public class SongMeta : MonoBehaviour
                 if (diff.id == diffId)
                 {
                     difficultyText.text = $"{difficultyAbbr[diffId]} {diff.value.ToString("F1")}";
-                    difficultyText.color = diffId < difficultyColors.Length
-                        ? difficultyColors[diffId]
-                        : Color.white;
+                    // difficultyText.color = diffId < difficultyColors.Length
+                    //     ? difficultyColors[diffId]
+                    //     : Color.white;
                     break;
                 }
             }
