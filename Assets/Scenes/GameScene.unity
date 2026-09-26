@@ -208,7 +208,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 978333}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -7644,6 +7644,10 @@ PrefabInstance:
       propertyPath: fadeOutStartDelayMs
       value: 1500
       objectReference: {fileID: 0}
+    - target: {fileID: 2603272030079891455, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: groundPrefab
+      value: 
+      objectReference: {fileID: 312262880377884722, guid: 3f2f7b1aeedd8974e9bbc815bcdcff3d, type: 3}
     - target: {fileID: 4722278448619478701, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

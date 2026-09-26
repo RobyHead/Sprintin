@@ -11,6 +11,7 @@ public class MenuCanvas : MonoBehaviour
 
     private bool _pendingTitle;
     private bool _pendingSelect;
+    private bool _firstTimeSetup;
 
     private void Start()
     {
@@ -99,13 +100,29 @@ public class MenuCanvas : MonoBehaviour
 
     private void OnTitleExitStarted()
     {
-        selectManager.gameObject.SetActive(true);
+        if (!PlayerPrefs.HasKey("offset"))
+        {
+            _firstTimeSetup = true;
+            calibrateManager.gameObject.SetActive(true);
+        }
+        else
+        {
+            selectManager.gameObject.SetActive(true);
+        }
     }
 
     private void OnTitleSequenceComplete()
     {
         titleManager.gameObject.SetActive(false);
-        selectManager.SetInteractable(true);
+
+        if (_firstTimeSetup)
+        {
+            calibrateManager.SetInteractable(true);
+        }
+        else
+        {
+            selectManager.SetInteractable(true);
+        }
     }
 
     private void OnTitleQuitGame()
@@ -148,7 +165,16 @@ public class MenuCanvas : MonoBehaviour
     private void OnCalibrateRequestBack()
     {
         calibrateManager.SetInteractable(false);
-        StartCoroutine(TransitionCalibrateToSettings());
+
+        if (_firstTimeSetup)
+        {
+            SaveDefaultSettings();
+            SceneTransitionManager.Instance.TransitionToGame("default", "tutorial", 0);
+        }
+        else
+        {
+            StartCoroutine(TransitionCalibrateToSettings());
+        }
     }
 
     private IEnumerator TransitionSelectToSettings()
@@ -213,5 +239,17 @@ public class MenuCanvas : MonoBehaviour
     {
         titleManager.gameObject.SetActive(true);
         titleManager.StartSequence();
+    }
+
+    private void SaveDefaultSettings()
+    {
+        if (!PlayerPrefs.HasKey("speed"))
+            PlayerPrefs.SetString("speed", "2");
+        if (!PlayerPrefs.HasKey("music_volume"))
+            PlayerPrefs.SetString("music_volume", "100");
+        if (!PlayerPrefs.HasKey("sfx_volume"))
+            PlayerPrefs.SetString("sfx_volume", "100");
+        PlayerPrefs.Save();
+        _firstTimeSetup = false;
     }
 }
