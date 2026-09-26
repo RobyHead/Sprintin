@@ -50,6 +50,7 @@ public class SongList : MonoBehaviour
 
     public void StopPreview()
     {
+        _previewStarted = true;
         if (songPreview != null)
             songPreview.FadeOutAndStop();
     }
@@ -138,6 +139,9 @@ public class SongList : MonoBehaviour
 
     private void UpdateStableSelection()
     {
+        if (_previewStarted)
+            return;
+
         if (_snappedIndex < 0)
             return;
 
@@ -147,9 +151,6 @@ public class SongList : MonoBehaviour
 
         _stableTimer += Time.deltaTime;
         if (_stableTimer < stableTime)
-            return;
-
-        if (_previewStarted)
             return;
 
         _previewStarted = true;
