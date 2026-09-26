@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using UnityEngine;
 
 public static class ChartParser
@@ -8,39 +11,41 @@ public static class ChartParser
         var data = new ChartData();
         var lines = text.Split('\n');
 
-        foreach (var rawLine in lines)
+        for (int i = 0; i < lines.Length; i++)
         {
-            var line = rawLine.Trim();
+            var line = lines[i].Trim();
             if (string.IsNullOrEmpty(line))
                 continue;
 
-            if (line.StartsWith("@"))
+            int lineNum = i + 1;
+
+            try
             {
-                ParseMeta(line, data);
+                if (line.StartsWith("@"))
+                    ParseMeta(line, lineNum, data);
+                else if (line.StartsWith("("))
+                    ParseBpm(line, lineNum, data);
+                else if (line.StartsWith("["))
+                    ParseNote(line, lineNum, data);
+                else if (line.StartsWith("{"))
+                    ParseEffect(line, lineNum, data);
+                else
+                    LogError(lineNum, $"unrecognized statement: '{line}'");
             }
-            else if (line.StartsWith("("))
+            catch (Exception ex) when (ex is FormatException || ex is OverflowException)
             {
-                ParseBpm(line, data);
-            }
-            else if (line.StartsWith("["))
-            {
-                ParseNote(line, data);
-            }
-            else if (line.StartsWith("{"))
-            {
-                ParseEffect(line, data);
+                LogError(lineNum, $"numeric parse failed: {ex.Message}");
             }
         }
 
         return data;
     }
 
-    private static void ParseMeta(string line, ChartData data)
+    private static void ParseMeta(string line, int lineNum, ChartData data)
     {
         line = line.TrimStart('@').TrimEnd(';');
         var eqIdx = line.IndexOf('=');
-        if (eqIdx < 0)
-            return;
+        if (eqIdx < 0) { LogError(lineNum, "missing '='"); return; }
 
         var key = line.Substring(0, eqIdx);
         var value = line.Substring(eqIdx + 1);
@@ -49,19 +54,18 @@ public static class ChartParser
             data.offset = int.Parse(value, CultureInfo.InvariantCulture);
         else if (key == "end")
             data.end = int.Parse(value, CultureInfo.InvariantCulture);
+        else
+            LogError(lineNum, $"unknown meta key: '{key}'");
     }
 
-    private static void ParseBpm(string line, ChartData data)
+    private static void ParseBpm(string line, int lineNum, ChartData data)
     {
-        line = line.Trim('(', ')', ';');
-        var parts = line.Split(',');
+        var parts = Tokenize(line.Trim('(', ')', ';'));
+        if (parts.Count != 3) { LogError(lineNum, $"bpm needs 3 values, got {parts.Count}"); return; }
 
-        if (parts.Length < 3)
-            return;
-
-        int ms = int.Parse(parts[0].Trim());
-        float bpm = float.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
-        float beatsPerBar = float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture);
+        int ms = int.Parse(parts[0]);
+        float bpm = float.Parse(parts[1], CultureInfo.InvariantCulture);
+        float beatsPerBar = float.Parse(parts[2], CultureInfo.InvariantCulture);
 
         var entry = new BpmData(ms, bpm, beatsPerBar);
         if (beatsPerBar == 0f)
@@ -70,58 +74,95 @@ public static class ChartParser
             data.barBpms.Add(entry);
     }
 
-    private static void ParseNote(string line, ChartData data)
+    private static void ParseNote(string line, int lineNum, ChartData data)
     {
-        line = line.Trim('[', ']', ';');
-        var parts = line.Split(',');
+        var parts = Tokenize(line.Trim('[', ']', ';'));
+        if (parts.Count != 2 && parts.Count != 3) { LogError(lineNum, $"note needs 2 or 3 values, got {parts.Count}"); return; }
 
-        if (parts.Length < 2)
-            return;
-
-        int ms = int.Parse(parts[0].Trim());
-        int key = int.Parse(parts[1].Trim());
+        int ms = int.Parse(parts[0]);
+        int key = int.Parse(parts[1]);
 
         if (key == 0)
         {
             data.grounds.Add(new GroundData(ms));
         }
-        else if (parts.Length >= 3)
+        else if (key >= 1 && key <= 4)
         {
-            int endMs = int.Parse(parts[2].Trim());
-            data.holds.Add(new HoldData(ms, key, endMs));
+            if (parts.Count == 3)
+                data.holds.Add(new HoldData(ms, key, int.Parse(parts[2])));
+            else
+                data.taps.Add(new TapData(ms, key));
         }
         else
         {
-            data.taps.Add(new TapData(ms, key));
+            LogError(lineNum, $"note key out of range (0-4): {key}");
         }
     }
 
-    private static void ParseEffect(string line, ChartData data)
+    private static void ParseEffect(string line, int lineNum, ChartData data)
     {
-        line = line.Trim('{', '}', ';');
-        var parts = line.Split(',');
+        var parts = Tokenize(line.Trim('{', '}', ';'));
+        if (parts.Count < 2) { LogError(lineNum, $"effect needs 2+ values, got {parts.Count}"); return; }
 
-        if (parts.Length < 2)
-            return;
+        int ms = int.Parse(parts[0]);
+        string effectName = parts[1];
 
-        int ms = int.Parse(parts[0].Trim());
-        string effectName = parts[1].Trim();
-
-        if (effectName == "speed" && parts.Length >= 3)
+        if (effectName == "speed")
         {
-            float multiplier = float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture);
-            data.speeds.Add(new SpeedData(ms, multiplier));
+            if (parts.Count != 3) { LogError(lineNum, $"speed effect needs 3 values, got {parts.Count}"); return; }
+            data.speeds.Add(new SpeedData(ms, float.Parse(parts[2], CultureInfo.InvariantCulture)));
         }
-        else if (effectName == "text" && parts.Length >= 6)
+        else if (effectName == "text")
         {
+            if (parts.Count != 6) { LogError(lineNum, $"text effect needs 6 values, got {parts.Count}"); return; }
             data.textEffects.Add(new TextEffectData
             {
                 ms = ms,
-                fadeInMs = int.Parse(parts[2].Trim()),
-                holdMs = int.Parse(parts[3].Trim()),
-                fadeOutMs = int.Parse(parts[4].Trim()),
-                content = parts[5].Trim()
+                fadeInMs = int.Parse(parts[2]),
+                holdMs = int.Parse(parts[3]),
+                fadeOutMs = int.Parse(parts[4]),
+                content = parts[5]
             });
         }
+        else
+        {
+            LogError(lineNum, $"unknown effect name: '{effectName}'");
+        }
+    }
+
+    private static List<string> Tokenize(string input)
+    {
+        var tokens = new List<string>();
+        var current = new StringBuilder();
+        bool inQuotes = false;
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            char c = input[i];
+
+            if (c == '"')
+            {
+                inQuotes = !inQuotes;
+            }
+            else if (c == ',' && !inQuotes)
+            {
+                tokens.Add(current.ToString().Trim());
+                current.Clear();
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+
+        if (current.Length > 0)
+            tokens.Add(current.ToString().Trim());
+
+        return tokens;
+    }
+
+    private static void LogError(int lineNum, string message)
+    {
+        Debug.LogError($"ChartParser [line {lineNum}]: {message}");
     }
 }
