@@ -64,6 +64,9 @@ public class ChartManager : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _audioSource.playOnAwake = false;
 
+        if (resultPanel != null)
+            resultPanel.gameObject.SetActive(false);
+
         SceneTransitionManager.Instance.OnOutroStarted += HandleOutroStarted;
     }
 
@@ -346,7 +349,10 @@ public class ChartManager : MonoBehaviour
         OnGameEnded?.Invoke();
 
         if (resultPanel != null)
+        {
+            resultPanel.gameObject.SetActive(true);
             resultPanel.Show();
+        }
 
         yield return SceneTransitionManager.Instance.PlayIntroAndWait();
 

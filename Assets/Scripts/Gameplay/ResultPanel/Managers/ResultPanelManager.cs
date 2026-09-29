@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 public class ResultPanelManager : MonoBehaviour
 {
     [Header("Panel")]
-    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private ResultInfo resultInfo;
 
     [Header("Input")]
@@ -13,16 +12,6 @@ public class ResultPanelManager : MonoBehaviour
 
     private bool _shown;
     private bool _inputEnabled;
-
-    private void Start()
-    {
-        if (canvasGroup != null)
-        {
-            canvasGroup.alpha = 0f;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
-        }
-    }
 
     public void Show()
     {
@@ -44,13 +33,6 @@ public class ResultPanelManager : MonoBehaviour
 
         if (resultInfo != null)
             resultInfo.Populate();
-
-        if (canvasGroup != null)
-        {
-            canvasGroup.alpha = 1f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
-        }
     }
 
     public void EnableInput()
