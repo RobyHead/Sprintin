@@ -52,7 +52,7 @@ public class SongMeta : MonoBehaviour
             {
                 if (diff.id == diffId)
                 {
-                    difficultyText.text = $"{difficultyAbbreviations[diffId]} {diff.value.ToString("F1")}";
+                    difficultyText.text = $"{difficultyAbbreviations[diffId]} {diff.value.ToString("F0")}";
                     break;
                 }
             }

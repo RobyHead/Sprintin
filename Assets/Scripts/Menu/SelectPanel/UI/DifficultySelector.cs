@@ -8,6 +8,7 @@ public class DifficultySelector : MonoBehaviour
     [SerializeField] private float selectedWidth = 100f;
     [SerializeField] private float normalWidth = 90f;
     [SerializeField] private DifficultyBackground difficultyBackground;
+    [SerializeField] private string[] difficultyAbbreviations = { "EZ", "NM", "HD", "RS" };
 
     private List<DifficultyData> _difficulties;
     private int _selectedId = -1;
@@ -27,7 +28,7 @@ public class DifficultySelector : MonoBehaviour
             {
                 diffOptions[i].SetActive(true);
                 var text = diffOptions[i].GetComponentInChildren<TMP_Text>();
-                if (text != null) text.text = data.value.ToString("F1");
+                if (text != null) text.text = $"<size=24>{difficultyAbbreviations[i]}</size>\n{data.value.ToString("F0")}";
             }
             else
             {

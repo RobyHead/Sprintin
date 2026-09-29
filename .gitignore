@@ -112,3 +112,6 @@ Assets/StreamingAssets/Songs/Dev/
 # Transforming Charts
 Assets/StreamingAssets/ChartTransformers/*
 !Assets/StreamingAssets/ChartTransformers/FromAff.py
+
+# Characters for font
+Assets/Art/Font/chars.txt

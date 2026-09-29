@@ -33,7 +33,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float acceleration = 100f;
     [SerializeField] private float preLandWindowMs = 100f;
 
-    private enum State { Idle, Rising, Holding, Falling }
+    private enum State { Idle, Rising, Holding, Conflicting, Falling }
     private State _state = State.Idle;
 
     private float _jumpElapsed;
@@ -80,9 +80,23 @@ public class Player : MonoBehaviour
             return;
         }
 
-        _airTime = Mathf.Max(_riseDuration + _fallDuration, newAirTime);
-        _cachedAirTime = 0f;
+        _airTime = Mathf.Max(_fallDuration, newAirTime);
 
+        if (_state == State.Conflicting)
+        {
+            float jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
+            if (jumpElapsed < _airTime - _fallDuration)
+            {
+                _state = State.Rising;
+            }
+            else
+            {
+                _cachedAirTime = newAirTime;
+            }
+            return;
+        }
+
+        _cachedAirTime = 0f;
         if (_state == State.Holding)
         {
             float jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
@@ -109,12 +123,20 @@ public class Player : MonoBehaviour
             _jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
         }
 
-        if ((_state == State.Rising || _state == State.Holding)
-            && _jumpElapsed >= _airTime - _fallDuration)
+        if (_jumpElapsed >= _airTime - _fallDuration)
         {
-            _state = State.Falling;
-            _fallStartTimeS = GameTime.ElapsedMs / 1000f;
-            _airTime = _jumpElapsed + _fallDuration;
+            if (_state == State.Rising)
+            {
+                _state = State.Conflicting;
+                _fallStartTimeS = GameTime.ElapsedMs / 1000f;
+                _airTime = _jumpElapsed + _fallDuration;
+            }
+            else if (_state == State.Holding)
+            {
+                _state = State.Falling;
+                _fallStartTimeS = GameTime.ElapsedMs / 1000f;
+                _airTime = _jumpElapsed + _fallDuration;
+            }
         }
 
         switch (_state)
@@ -133,6 +155,14 @@ public class Player : MonoBehaviour
 
             case State.Holding:
                 SetY(_groundY + maxJumpHeight);
+                break;
+
+            case State.Conflicting:
+                float riseY = ParabolaRise(Mathf.Clamp01(_jumpElapsed / _riseDuration));
+                float fallY = ParabolaFall(Mathf.Clamp01(_jumpElapsed / _fallDuration));
+                SetY(Mathf.Min(riseY, fallY));
+                if (fallY <= riseY)
+                    _state = State.Falling;
                 break;
 
             case State.Falling:
@@ -162,17 +192,16 @@ public class Player : MonoBehaviour
         float v0Max = Mathf.Sqrt(2f * acceleration * maxJumpHeight);
         _riseDuration = v0Max / acceleration;
         _fallDuration = _riseDuration;
-        float physicsAir = _riseDuration + _fallDuration;
 
         if (_cachedAirTime > 0)
         {
-            _airTime = Mathf.Max(physicsAir, _cachedAirTime);
+            _airTime = Mathf.Max(_fallDuration, _cachedAirTime);
             _cachedAirTime = 0f;
         }
         else
         {
             float bpmAir = 60000f / ChartManager.CurrentJumpBpm / 1000f;
-            _airTime = Mathf.Max(physicsAir, bpmAir);
+            _airTime = Mathf.Max(_fallDuration, bpmAir);
         }
 
         _jumpElapsed = 0f;
