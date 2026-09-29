@@ -253,10 +253,10 @@ public class ChartManager : MonoBehaviour
     private void PreSpawnAllNotes()
     {
         foreach (var t in _taps)
-            tapManager.Spawn(t.key, t.ms);
+            tapManager.Spawn(t.key, t.ms, t.isDual);
 
         foreach (var h in _holds)
-            holdManager.Spawn(h.key, h.ms, h.endMs);
+            holdManager.Spawn(h.key, h.ms, h.endMs, h.isDual);
 
         foreach (var g in _grounds)
             groundManager.Spawn(g.ms);

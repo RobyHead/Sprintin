@@ -38,7 +38,40 @@ public static class ChartParser
             }
         }
 
+        MarkDualNotes(data);
+
         return data;
+    }
+
+    private static void MarkDualNotes(ChartData data)
+    {
+        var msCount = new Dictionary<int, int>();
+
+        foreach (var t in data.taps)
+        {
+            if (!msCount.ContainsKey(t.ms))
+                msCount[t.ms] = 0;
+            msCount[t.ms]++;
+        }
+
+        foreach (var h in data.holds)
+        {
+            if (!msCount.ContainsKey(h.ms))
+                msCount[h.ms] = 0;
+            msCount[h.ms]++;
+        }
+
+        foreach (var t in data.taps)
+        {
+            if (msCount.TryGetValue(t.ms, out int count) && count >= 2)
+                t.isDual = true;
+        }
+
+        foreach (var h in data.holds)
+        {
+            if (msCount.TryGetValue(h.ms, out int count) && count >= 2)
+                h.isDual = true;
+        }
     }
 
     private static void ParseMeta(string line, int lineNum, ChartData data)

@@ -2,6 +2,7 @@ public class TapData
 {
     public int ms;
     public int key;
+    public bool isDual;
 
     public TapData(int ms, int key)
     {

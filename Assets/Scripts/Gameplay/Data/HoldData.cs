@@ -3,6 +3,7 @@ public class HoldData
     public int ms;
     public int key;
     public int endMs;
+    public bool isDual;
 
     public HoldData(int ms, int key, int endMs)
     {

@@ -84,7 +84,7 @@ MonoBehaviour:
   tail: {fileID: 8178365803498611992}
   tapOutMaterial: {fileID: 2100000, guid: ef4abe903ea6ad046ad31210a0906ca9, type: 2}
   tapInMaterial: {fileID: 2100000, guid: 100abc275c59f4d4382e84ca7b6159bc, type: 2}
-  bodyMaterial: {fileID: 0}
+  tapDualMaterial: {fileID: 2100000, guid: 914c55d3dd979d64baf8c476778867a2, type: 2}
   headRenderers:
   - {fileID: 4525814339865661994}
   - {fileID: 6824759303606149679}

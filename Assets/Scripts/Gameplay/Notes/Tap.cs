@@ -5,6 +5,7 @@ public class Tap : MonoBehaviour
     [Header("Materials")]
     [SerializeField] private Material tapOutMaterial;
     [SerializeField] private Material tapInMaterial;
+    [SerializeField] private Material tapDualMaterial;
 
     [Header("Renderers")]
     [SerializeField] private MeshRenderer[] meshRenderers;
@@ -15,6 +16,7 @@ public class Tap : MonoBehaviour
 
     private int _key;
     private int _ms;
+    private bool _isDual;
 
     private void Update()
     {
@@ -36,10 +38,11 @@ public class Tap : MonoBehaviour
         SetRenderersVisible(visible);
     }
 
-    public void Initialize(int trackKey, int ms)
+    public void Initialize(int trackKey, int ms, bool isDual = false)
     {
         _key = trackKey;
         _ms = ms;
+        _isDual = isDual;
         ApplyMaterial();
         ApplyStaticTransform();
         SetRenderersVisible(false);
@@ -65,7 +68,12 @@ public class Tap : MonoBehaviour
 
     private void ApplyMaterial()
     {
-        var mat = (_key == 1 || _key == 4) ? tapOutMaterial : tapInMaterial;
+        Material mat;
+        if (_isDual)
+            mat = tapDualMaterial;
+        else
+            mat = (_key == 1 || _key == 4) ? tapOutMaterial : tapInMaterial;
+
         foreach (var renderer in meshRenderers)
         {
             if (renderer != null) renderer.material = mat;

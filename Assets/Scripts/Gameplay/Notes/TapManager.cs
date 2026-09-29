@@ -8,10 +8,10 @@ public class TapManager : MonoBehaviour
     [Header("Spawn")]
     [SerializeField] private Transform spawnParent;
 
-    public void Spawn(int trackKey, int ms)
+    public void Spawn(int trackKey, int ms, bool isDual = false)
     {
         var tap = Instantiate(tapPrefab, spawnParent);
-        tap.Initialize(trackKey, ms);
+        tap.Initialize(trackKey, ms, isDual);
     }
 
     public void Clear()

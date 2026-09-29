@@ -8,10 +8,10 @@ public class HoldManager : MonoBehaviour
     [Header("Spawn")]
     [SerializeField] private Transform spawnParent;
 
-    public void Spawn(int trackKey, int ms, int endMs)
+    public void Spawn(int trackKey, int ms, int endMs, bool isDual = false)
     {
         var hold = Instantiate(holdPrefab, spawnParent);
-        hold.Initialize(trackKey, ms, endMs);
+        hold.Initialize(trackKey, ms, endMs, isDual);
     }
 
     public void Clear()
