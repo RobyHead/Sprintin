@@ -51,7 +51,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PackEntryUI
   nameText: {fileID: 8696020107674027212}
-  buttonsContainer: {fileID: 0}
 --- !u!1 &8252752407420392522
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,8 +190,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PackName
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7d73e19d234d07141867bb13a6b10b06, type: 2}
-  m_sharedMaterial: {fileID: -8939074273930963199, guid: 7d73e19d234d07141867bb13a6b10b06, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f1945082f3f6c8b4ebf0426fa138d51e, type: 2}
+  m_sharedMaterial: {fileID: 709217141347571949, guid: f1945082f3f6c8b4ebf0426fa138d51e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -216,8 +215,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 48
-  m_fontSizeBase: 48
+  m_fontSize: 42
+  m_fontSizeBase: 42
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

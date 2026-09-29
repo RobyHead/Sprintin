@@ -28,7 +28,7 @@ public class DifficultySelector : MonoBehaviour
             {
                 diffOptions[i].SetActive(true);
                 var text = diffOptions[i].GetComponentInChildren<TMP_Text>();
-                if (text != null) text.text = $"<size=24>{difficultyAbbreviations[i]}</size>\n{data.value.ToString("F0")}";
+                if (text != null) text.text = $"<size=32>{difficultyAbbreviations[i]}</size>\n{data.value.ToString("F0")}";
             }
             else
             {
