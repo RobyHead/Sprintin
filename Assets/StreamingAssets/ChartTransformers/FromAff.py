@@ -11,7 +11,9 @@ def transform(content):
     lines = content.splitlines()
     for line in lines:
         cur = ""
-        if line.startswith("timing("):
+        if line.startswith("AudioOffset:"):
+            cur = f"@offset={line[12:]};\n"
+        elif line.startswith("timing("):
             tmp = line[7:-2].split(",")
             cur = f"({tmp[0]}, {tmp[1]}, {tmp[2]});\n"
         elif line.startswith("hold("):

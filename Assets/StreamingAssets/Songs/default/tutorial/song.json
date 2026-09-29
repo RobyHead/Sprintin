@@ -5,12 +5,17 @@
   "difficulties": [
     {
       "id": 0,
-      "value": 1.0,
+      "value": 2.0,
       "charter": "rbhd"
     },
     {
       "id": 1,
       "value": 5.0,
+      "charter": "rbhd"
+    },
+    {
+      "id": 2,
+      "value": 9.0,
       "charter": "rbhd"
     }
   ],
