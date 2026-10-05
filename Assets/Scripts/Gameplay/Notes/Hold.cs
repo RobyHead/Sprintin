@@ -135,7 +135,7 @@ public class Hold : MonoBehaviour
     private void ApplyMaterial()
     {
         Material mat;
-        if (_isDual)
+        if (_isDual && tapDualMaterial != null)
             mat = tapDualMaterial;
         else
             mat = (_key == 1 || _key == 4) ? tapOutMaterial : tapInMaterial;
