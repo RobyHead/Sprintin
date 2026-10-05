@@ -26,6 +26,8 @@ public class SongInfo : MonoBehaviour
     private int _selectedDifficultyId = -1;
     public int SelectedDifficultyId => _selectedDifficultyId;
 
+    private Coroutine _coverRoutine;
+
     public void SetPendingDifficulty(int id)
     {
         _selectedDifficultyId = id;
@@ -57,7 +59,9 @@ public class SongInfo : MonoBehaviour
     public void DisplayCover()
     {
         if (_pendingSong == null) return;
-        StartCoroutine(LoadCover(_pendingPackId, _pendingSong.id, _pendingSongsPath));
+        if (_coverRoutine != null)
+            StopCoroutine(_coverRoutine);
+        _coverRoutine = StartCoroutine(LoadCover(_pendingPackId, _pendingSong.id, _pendingSongsPath));
     }
 
     public void SelectNextDifficulty()
@@ -82,7 +86,11 @@ public class SongInfo : MonoBehaviour
         var pngPath = Path.Combine(songsPath, packId, songId, "cover.png");
         var path = File.Exists(jpgPath) ? jpgPath : pngPath;
 
-        if (!File.Exists(path)) yield break;
+        if (!File.Exists(path))
+        {
+            coverImage.texture = null;
+            yield break;
+        }
 
         var uri = new Uri(path).AbsoluteUri;
         using var request = UnityWebRequestTexture.GetTexture(uri);
@@ -92,6 +100,10 @@ public class SongInfo : MonoBehaviour
         {
             var tex = DownloadHandlerTexture.GetContent(request);
             coverImage.texture = tex;
+        }
+        else
+        {
+            coverImage.texture = null;
         }
     }
 

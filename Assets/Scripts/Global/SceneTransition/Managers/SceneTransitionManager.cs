@@ -13,7 +13,16 @@ public class SceneTransitionManager : MonoBehaviour
     public string SongId { get; private set; }
     public int DifficultyId { get; private set; }
     public string SongFolder => $"{PackId}/{SongId}";
-    public bool HasPendingReturn { get; private set; }
+    private bool _coldStart = true;
+    public bool IsColdStart
+    {
+        get
+        {
+            if (!_coldStart) return false;
+            _coldStart = false;
+            return true;
+        }
+    }
     public bool IsTransitioning => _phase != Phase.Idle;
 
     public event System.Action OnOutroStarted;
@@ -55,27 +64,17 @@ public class SceneTransitionManager : MonoBehaviour
         PackId = packId;
         SongId = songId;
         DifficultyId = difficultyId;
-        HasPendingReturn = false;
         BeginTransition("GameScene");
     }
 
     public void TransitionToGame()
     {
-        HasPendingReturn = false;
         BeginTransition("GameScene");
     }
 
     public void TransitionToMenu()
     {
-        HasPendingReturn = true;
         BeginTransition("MenuScene");
-    }
-
-    public bool ConsumePendingReturn()
-    {
-        bool had = HasPendingReturn;
-        HasPendingReturn = false;
-        return had;
     }
 
     private void BeginTransition(string targetScene)

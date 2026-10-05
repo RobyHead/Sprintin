@@ -62,6 +62,8 @@ public class SongList : MonoBehaviour
         _stableTimer = 0f;
     }
 
+    public event System.Action<string, string, int> OnRequestStartGame;
+
     private class SongListEntry
     {
         public SongListItem Data;
@@ -71,7 +73,8 @@ public class SongList : MonoBehaviour
         public float BaseY;
     }
 
-    public void Initialize(List<SongListItem> items, string songsPath)
+    public void Initialize(List<SongListItem> items, string songsPath,
+        string restorePackId = null, string restoreSongId = null, int restoreDifficultyId = -1)
     {
         _songsPath = songsPath;
         scrollRect.enabled = false;
@@ -79,6 +82,14 @@ public class SongList : MonoBehaviour
         scrollRect.horizontal = false;
         BuildList(items);
 
+        if (!string.IsNullOrEmpty(restorePackId))
+            RestoreSelection(restorePackId, restoreSongId, restoreDifficultyId);
+        else
+            SnapToFirstSong();
+    }
+
+    public void SnapToFirstSong()
+    {
         var songs = GetSongIndices();
         if (songs.Count > 0)
             SnapToEntry(songs[0]);
@@ -236,8 +247,7 @@ public class SongList : MonoBehaviour
 
         StopPreview();
         int diffId = songInfo != null ? songInfo.SelectedDifficultyId : 0;
-        SceneTransitionManager.Instance.TransitionToGame(
-            entry.Data.Pack.id, entry.Data.Song.id, diffId);
+        OnRequestStartGame?.Invoke(entry.Data.Pack.id, entry.Data.Song.id, diffId);
     }
 
     public void RestoreSelection(string packId, string songId, int difficultyId)

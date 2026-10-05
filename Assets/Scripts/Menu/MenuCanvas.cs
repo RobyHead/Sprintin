@@ -33,13 +33,13 @@ public class MenuCanvas : MonoBehaviour
 
         calibrateManager.OnRequestBack += OnCalibrateRequestBack;
 
-        if (SceneTransitionManager.Instance.HasPendingReturn)
+        if (SceneTransitionManager.Instance.IsColdStart)
         {
-            _pendingSelect = true;
+            _pendingTitle = true;
         }
         else
         {
-            _pendingTitle = true;
+            _pendingSelect = true;
         }
 
         ExecutePending();

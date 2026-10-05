@@ -16,17 +16,38 @@ public class SongListManager : MonoBehaviour
         LoadPacks();
     }
 
-    private void Start()
+    private void OnEnable()
     {
         if (songList != null)
-            songList.Initialize(Items, SongsPath);
+            songList.OnRequestStartGame += HandleStartGame;
+    }
 
-        if (SceneTransitionManager.Instance != null && SceneTransitionManager.Instance.ConsumePendingReturn())
+    private void OnDisable()
+    {
+        if (songList != null)
+            songList.OnRequestStartGame -= HandleStartGame;
+    }
+
+    private void Start()
+    {
+        if (songList == null) return;
+
+        var path = PlayerPrefs.GetString("songpath", "");
+        var parts = path.Split('/');
+        if (parts.Length >= 3 && int.TryParse(parts[2], out var diffId))
         {
-            var manager = SceneTransitionManager.Instance;
-            songList.RestoreSelection(
-                manager.PackId, manager.SongId, manager.DifficultyId);
+            songList.Initialize(Items, SongsPath, parts[0], parts[1], diffId);
         }
+        else
+        {
+            songList.Initialize(Items, SongsPath);
+        }
+    }
+
+    private void HandleStartGame(string packId, string songId, int diffId)
+    {
+        PlayerPrefs.SetString("songpath", $"{packId}/{songId}/{diffId}");
+        SceneTransitionManager.Instance.TransitionToGame(packId, songId, diffId);
     }
 
     private void LoadPacks()
