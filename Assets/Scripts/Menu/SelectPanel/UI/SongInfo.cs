@@ -66,15 +66,21 @@ public class SongInfo : MonoBehaviour
 
     public void SelectNextDifficulty()
     {
-        difficultySelector?.SelectNext();
-        _selectedDifficultyId = difficultySelector?.SelectedId ?? -1;
+        if (difficultySelector != null)
+        {
+            difficultySelector.SelectNext();
+            _selectedDifficultyId = difficultySelector.SelectedId;
+        }
         UpdateRecordDisplay();
     }
 
     public void SelectPreviousDifficulty()
     {
-        difficultySelector?.SelectPrevious();
-        _selectedDifficultyId = difficultySelector?.SelectedId ?? -1;
+        if (difficultySelector != null)
+        {
+            difficultySelector.SelectPrevious();
+            _selectedDifficultyId = difficultySelector.SelectedId;
+        }
         UpdateRecordDisplay();
     }
 

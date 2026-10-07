@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class SettingsPanelManager : MonoBehaviour
 {
@@ -11,24 +10,40 @@ public class SettingsPanelManager : MonoBehaviour
     public void SetInteractable(bool interactable)
     {
         _acceptInput = interactable;
+        if (MenuInputManager.Instance != null)
+            MenuInputManager.Instance.SetInteractable(interactable);
     }
 
     private void OnEnable()
     {
         _acceptInput = false;
+        if (MenuInputManager.Instance != null)
+        {
+            MenuInputManager.Instance.OnBack += HandleBack;
+            MenuInputManager.Instance.OnCalibrate += HandleCalibrate;
+        }
     }
 
-    private void Update()
+    private void OnDisable()
     {
-        if (!gameObject.activeInHierarchy || !_acceptInput)
-            return;
+        if (MenuInputManager.Instance != null)
+        {
+            MenuInputManager.Instance.OnBack -= HandleBack;
+            MenuInputManager.Instance.OnCalibrate -= HandleCalibrate;
+        }
+    }
 
-        if (Keyboard.current == null)
+    private void HandleBack()
+    {
+        if (!_acceptInput)
             return;
+        OnRequestBack?.Invoke();
+    }
 
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            OnRequestBack?.Invoke();
-        else if (Keyboard.current.cKey.wasPressedThisFrame)
-            OnRequestCalibrate?.Invoke();
+    private void HandleCalibrate()
+    {
+        if (!_acceptInput)
+            return;
+        OnRequestCalibrate?.Invoke();
     }
 }

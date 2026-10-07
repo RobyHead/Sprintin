@@ -2910,6 +2910,7 @@ GameObject:
   - component: {fileID: 595342993}
   - component: {fileID: 595342992}
   - component: {fileID: 595342996}
+  - component: {fileID: 595342997}
   m_Layer: 5
   m_Name: MenuCanvas
   m_TagString: Untagged
@@ -3013,13 +3014,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 595342991}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbbf0edc7dd01f4d804f89b33a67fa3, type: 3}
+  m_Script: {fileID: 11500000, guid: 28af259e1fdeecf4684cff30a29299f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuCanvas
-  titleManager: {fileID: 1815856956}
   selectManager: {fileID: 2056369176}
   settingsManager: {fileID: 43906613}
   calibrateManager: {fileID: 718046001}
+  titleManager: {fileID: 1815856956}
+--- !u!114 &595342997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595342991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0719e6f6c7944a42a1c94903e1f48c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuInputManager
+  _holdRepeatInitialDelay: 0.5
+  _holdRepeatInitialRate: 0.25
+  _holdRepeatFastRate: 0.05
 --- !u!1 &595790406
 GameObject:
   m_ObjectHideFlags: 0

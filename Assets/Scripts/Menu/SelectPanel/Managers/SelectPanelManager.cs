@@ -1,8 +1,8 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class SelectPanelManager : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private SongList songList;
 
     public event System.Action OnRequestBack;
@@ -13,8 +13,8 @@ public class SelectPanelManager : MonoBehaviour
     public void SetInteractable(bool interactable)
     {
         _acceptInput = interactable;
-        if (songList != null)
-            songList.SetInteractable(interactable);
+        if (MenuInputManager.Instance != null)
+            MenuInputManager.Instance.SetInteractable(interactable);
     }
 
     public void RefreshPreview()
@@ -33,24 +33,34 @@ public class SelectPanelManager : MonoBehaviour
     {
         _acceptInput = false;
         RefreshPreview();
-        if (songList != null)
-            songList.SetInteractable(false);
+        if (MenuInputManager.Instance != null)
+        {
+            MenuInputManager.Instance.OnBack += HandleBack;
+            MenuInputManager.Instance.OnSettings += HandleSettings;
+        }
     }
 
-    private void Update()
+    private void OnDisable()
     {
-        if (!gameObject.activeInHierarchy || !_acceptInput)
-            return;
-
-        if (Keyboard.current == null)
-            return;
-
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (MenuInputManager.Instance != null)
         {
-            StopPreview();
-            OnRequestBack?.Invoke();
+            MenuInputManager.Instance.OnBack -= HandleBack;
+            MenuInputManager.Instance.OnSettings -= HandleSettings;
         }
-        else if (Keyboard.current.tabKey.wasPressedThisFrame)
-            OnRequestSettings?.Invoke();
+    }
+
+    private void HandleBack()
+    {
+        if (!_acceptInput)
+            return;
+        StopPreview();
+        OnRequestBack?.Invoke();
+    }
+
+    private void HandleSettings()
+    {
+        if (!_acceptInput)
+            return;
+        OnRequestSettings?.Invoke();
     }
 }

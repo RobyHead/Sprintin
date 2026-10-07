@@ -13,16 +13,8 @@ public class SceneTransitionManager : MonoBehaviour
     public string SongId { get; private set; }
     public int DifficultyId { get; private set; }
     public string SongFolder => $"{PackId}/{SongId}";
-    private bool _coldStart = true;
-    public bool IsColdStart
-    {
-        get
-        {
-            if (!_coldStart) return false;
-            _coldStart = false;
-            return true;
-        }
-    }
+    private bool _isColdStart = true;
+    public bool IsColdStart => _isColdStart;
     public bool IsTransitioning => _phase != Phase.Idle;
 
     public event System.Action OnOutroStarted;
@@ -134,6 +126,14 @@ public class SceneTransitionManager : MonoBehaviour
         _phase = Phase.Idle;
         panelManager.gameObject.SetActive(false);
         OnIntroComplete?.Invoke();
+    }
+
+    public bool ConsumeColdStart()
+    {
+        if (!_isColdStart)
+            return false;
+        _isColdStart = false;
+        return true;
     }
 
     private IEnumerator LoadSceneRoutine()

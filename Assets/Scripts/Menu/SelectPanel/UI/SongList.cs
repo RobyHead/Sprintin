@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class SongList : MonoBehaviour
@@ -34,20 +33,9 @@ public class SongList : MonoBehaviour
     private int _snappedIndex = -1;
     private float _snapTargetY;
     private bool _isSnapping;
-    private bool _interactable = true;
     private string _songsPath;
     private float _stableTimer;
     private bool _previewStarted;
-
-    private enum NavKey { None, W, S, A, D }
-    private NavKey _heldKey = NavKey.None;
-    private float _holdStartTime;
-    private float _lastRepeatTime;
-
-    public void SetInteractable(bool interactable)
-    {
-        _interactable = interactable;
-    }
 
     public void StopPreview()
     {
@@ -134,16 +122,53 @@ public class SongList : MonoBehaviour
         content.sizeDelta = new Vector2(content.sizeDelta.x, -y);
     }
 
+    private void OnEnable()
+    {
+        if (MenuInputManager.Instance != null)
+        {
+            var input = MenuInputManager.Instance;
+            input.OnUp += SelectPreviousSong;
+            input.OnDown += SelectNextSong;
+            input.OnLeft += SelectPreviousPack;
+            input.OnRight += SelectNextPack;
+            input.OnConfirm += StartGame;
+            input.OnDifficultyPrev += HandleDifficultyPrev;
+            input.OnDifficultyNext += HandleDifficultyNext;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (MenuInputManager.Instance != null)
+        {
+            var input = MenuInputManager.Instance;
+            input.OnUp -= SelectPreviousSong;
+            input.OnDown -= SelectNextSong;
+            input.OnLeft -= SelectPreviousPack;
+            input.OnRight -= SelectNextPack;
+            input.OnConfirm -= StartGame;
+            input.OnDifficultyPrev -= HandleDifficultyPrev;
+            input.OnDifficultyNext -= HandleDifficultyNext;
+        }
+    }
+
     private void Update()
     {
-        if (_interactable)
-        {
-            HandleSongInput();
-            HandleDifficultyInput();
-        }
         UpdateScales();
         UpdateSnapping();
         UpdateStableSelection();
+    }
+
+    private void HandleDifficultyPrev()
+    {
+        if (songInfo != null)
+            songInfo.SelectPreviousDifficulty();
+    }
+
+    private void HandleDifficultyNext()
+    {
+        if (songInfo != null)
+            songInfo.SelectNextDifficulty();
     }
 
     private void UpdateStableSelection()
@@ -165,79 +190,6 @@ public class SongList : MonoBehaviour
         _previewStarted = true;
         if (songPreview != null)
             songPreview.OnSongSelected(entry.Data.Song, entry.Data.Pack.id, _songsPath);
-    }
-
-    private void HandleSongInput()
-    {
-        var kb = Keyboard.current;
-        if (kb == null) return;
-
-        if (_heldKey != NavKey.None)
-        {
-            if (!IsNavKeyPressed(kb, _heldKey))
-            {
-                _heldKey = NavKey.None;
-                return;
-            }
-
-            float holdDuration = Time.time - _holdStartTime;
-            float interval = holdDuration < 0.5f ? 0.3f : 0.1f;
-            if (Time.time - _lastRepeatTime >= interval)
-            {
-                _lastRepeatTime = Time.time;
-                DoNavAction(_heldKey);
-            }
-            return;
-        }
-
-        NavKey pressed = NavKey.None;
-        if (kb.wKey.wasPressedThisFrame) pressed = NavKey.W;
-        else if (kb.sKey.wasPressedThisFrame) pressed = NavKey.S;
-        else if (kb.aKey.wasPressedThisFrame) pressed = NavKey.A;
-        else if (kb.dKey.wasPressedThisFrame) pressed = NavKey.D;
-
-        if (pressed == NavKey.None) return;
-
-        _heldKey = pressed;
-        _holdStartTime = Time.time;
-        _lastRepeatTime = Time.time;
-        DoNavAction(pressed);
-    }
-
-    private bool IsNavKeyPressed(Keyboard kb, NavKey key)
-    {
-        return key switch
-        {
-            NavKey.W => kb.wKey.isPressed,
-            NavKey.S => kb.sKey.isPressed,
-            NavKey.A => kb.aKey.isPressed,
-            NavKey.D => kb.dKey.isPressed,
-            _ => false
-        };
-    }
-
-    private void DoNavAction(NavKey key)
-    {
-        switch (key)
-        {
-            case NavKey.W: SelectPreviousSong(); break;
-            case NavKey.S: SelectNextSong(); break;
-            case NavKey.A: SelectPreviousPack(); break;
-            case NavKey.D: SelectNextPack(); break;
-        }
-    }
-
-    private void HandleDifficultyInput()
-    {
-        var kb = Keyboard.current;
-        if (kb == null || songInfo == null) return;
-
-        if (kb.qKey.wasPressedThisFrame)
-            songInfo.SelectPreviousDifficulty();
-        else if (kb.eKey.wasPressedThisFrame)
-            songInfo.SelectNextDifficulty();
-        else if (kb.enterKey.wasPressedThisFrame)
-            StartGame();
     }
 
     private void StartGame()

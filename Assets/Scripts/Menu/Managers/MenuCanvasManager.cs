@@ -1,13 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
-public class MenuCanvas : MonoBehaviour
+public class MenuCanvasManager : MonoBehaviour
 {
     [Header("Panel Managers")]
-    [SerializeField] private TitlePanelManager titleManager;
     [SerializeField] private SelectPanelManager selectManager;
     [SerializeField] private SettingsPanelManager settingsManager;
     [SerializeField] private CalibratePanelManager calibrateManager;
+    [SerializeField] private TitlePanelManager titleManager;
 
     private bool _pendingTitle;
     private bool _pendingSelect;
@@ -33,7 +33,7 @@ public class MenuCanvas : MonoBehaviour
 
         calibrateManager.OnRequestBack += OnCalibrateRequestBack;
 
-        if (SceneTransitionManager.Instance.IsColdStart)
+        if (SceneTransitionManager.Instance.ConsumeColdStart())
         {
             _pendingTitle = true;
         }

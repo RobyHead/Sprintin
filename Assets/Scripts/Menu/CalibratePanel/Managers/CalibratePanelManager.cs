@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class CalibratePanelManager : MonoBehaviour
 {
@@ -40,15 +39,12 @@ public class CalibratePanelManager : MonoBehaviour
     private bool _scheduled;
     private Coroutine _fadeRoutine;
     private bool _acceptInput;
-
-    private enum OffsetKey { None, Decrease, Increase }
-    private OffsetKey _heldKey = OffsetKey.None;
-    private float _holdStartTime;
-    private float _lastRepeatTime;
+    private bool _calibrateHitRequested;
 
     private void OnEnable()
     {
         _acceptInput = false;
+        _calibrateHitRequested = false;
         LoadOffsetFromPrefs();
         UpdateOffsetDisplay();
         calibrateNote.Stop();
@@ -59,6 +55,14 @@ public class CalibratePanelManager : MonoBehaviour
 
         _state = State.WaitingToStart;
         _stateTimer = 0f;
+
+        if (MenuInputManager.Instance != null)
+        {
+            MenuInputManager.Instance.OnBack += HandleBack;
+            MenuInputManager.Instance.OnLeft += HandleDecreaseOffset;
+            MenuInputManager.Instance.OnRight += HandleIncreaseOffset;
+            MenuInputManager.Instance.OnCalibrateHit += HandleCalibrateHit;
+        }
     }
 
     private void OnDisable()
@@ -71,11 +75,21 @@ public class CalibratePanelManager : MonoBehaviour
         StopAudioImmediate();
         calibrateNote.Stop();
         SaveOffsetToPrefs();
+
+        if (MenuInputManager.Instance != null)
+        {
+            MenuInputManager.Instance.OnBack -= HandleBack;
+            MenuInputManager.Instance.OnLeft -= HandleDecreaseOffset;
+            MenuInputManager.Instance.OnRight -= HandleIncreaseOffset;
+            MenuInputManager.Instance.OnCalibrateHit -= HandleCalibrateHit;
+        }
     }
 
     public void SetInteractable(bool interactable)
     {
         _acceptInput = interactable;
+        if (MenuInputManager.Instance != null)
+            MenuInputManager.Instance.SetInteractable(interactable);
     }
 
     private void Update()
@@ -83,73 +97,39 @@ public class CalibratePanelManager : MonoBehaviour
         if (!gameObject.activeInHierarchy || !_acceptInput)
             return;
 
-        var kb = Keyboard.current;
-        if (kb == null)
+        HandleState();
+    }
+
+    private void HandleBack()
+    {
+        if (!_acceptInput)
             return;
 
-        HandleADInput(kb);
-        HandleEscape(kb);
-        HandleState(kb);
+        SaveOffsetToPrefs();
+        calibrateNote.Stop();
+        _state = State.Idle;
+        FadeOutAndExit();
     }
 
-    private void HandleEscape(Keyboard kb)
+    private void HandleDecreaseOffset()
     {
-        if (kb.escapeKey.wasPressedThisFrame)
-        {
-            SaveOffsetToPrefs();
-            calibrateNote.Stop();
-            _state = State.Idle;
-            FadeOutAndExit();
-        }
-    }
-
-    private void HandleADInput(Keyboard kb)
-    {
-        if (_heldKey != OffsetKey.None)
-        {
-            if (!IsOffsetKeyPressed(kb, _heldKey))
-            {
-                _heldKey = OffsetKey.None;
-                return;
-            }
-
-            float holdDuration = Time.time - _holdStartTime;
-            float interval = holdDuration < 0.5f ? 0.25f : 0.05f;
-            if (Time.time - _lastRepeatTime >= interval)
-            {
-                _lastRepeatTime = Time.time;
-                DoOffsetAction(_heldKey);
-            }
+        if (!_acceptInput)
             return;
-        }
+        AdjustOffset(-offsetStep);
+    }
 
-        OffsetKey pressed = OffsetKey.None;
-        if (kb.aKey.wasPressedThisFrame) pressed = OffsetKey.Decrease;
-        else if (kb.dKey.wasPressedThisFrame) pressed = OffsetKey.Increase;
-
-        if (pressed == OffsetKey.None)
+    private void HandleIncreaseOffset()
+    {
+        if (!_acceptInput)
             return;
-
-        _heldKey = pressed;
-        _holdStartTime = Time.time;
-        _lastRepeatTime = Time.time;
-        DoOffsetAction(pressed);
+        AdjustOffset(offsetStep);
     }
 
-    private bool IsOffsetKeyPressed(Keyboard kb, OffsetKey key)
+    private void HandleCalibrateHit()
     {
-        return key switch
-        {
-            OffsetKey.Decrease => kb.aKey.isPressed,
-            OffsetKey.Increase => kb.dKey.isPressed,
-            _ => false
-        };
-    }
-
-    private void DoOffsetAction(OffsetKey key)
-    {
-        float delta = key == OffsetKey.Decrease ? -offsetStep : offsetStep;
-        AdjustOffset(delta);
+        if (!_acceptInput)
+            return;
+        _calibrateHitRequested = true;
     }
 
     private void AdjustOffset(float delta)
@@ -162,7 +142,7 @@ public class CalibratePanelManager : MonoBehaviour
         UpdateNoteTarget();
     }
 
-    private void HandleState(Keyboard kb)
+    private void HandleState()
     {
         switch (_state)
         {
@@ -176,7 +156,7 @@ public class CalibratePanelManager : MonoBehaviour
                 break;
 
             case State.Running:
-                HandleRunning(kb);
+                HandleRunning();
                 break;
         }
     }
@@ -189,7 +169,7 @@ public class CalibratePanelManager : MonoBehaviour
         _state = State.Running;
     }
 
-    private void HandleRunning(Keyboard kb)
+    private void HandleRunning()
     {
         if (!_scheduled && AudioSettings.dspTime >= _nextSoundDspTime - scheduleAheadMs / 1000.0)
         {
@@ -207,12 +187,10 @@ public class CalibratePanelManager : MonoBehaviour
             _scheduled = false;
         }
 
-        if (_hasHitThisRound)
+        if (_hasHitThisRound || !_calibrateHitRequested)
             return;
 
-        if (!kb.spaceKey.wasPressedThisFrame)
-            return;
-
+        _calibrateHitRequested = false;
         double pressDspTime = AudioSettings.dspTime;
         float attemptOffset = (float)((pressDspTime - _targetDspTime) * 1000.0);
 
