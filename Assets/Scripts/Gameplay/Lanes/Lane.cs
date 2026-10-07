@@ -20,16 +20,13 @@ public class Lane : MonoBehaviour
     {
         _trackIndex = transform.GetSiblingIndex();
         ApplyMaterial(normalMaterial);
-    }
-
-    private void OnEnable()
-    {
         ChartManager.Instance.OnGameEnded += HandleGameEnded;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
+        if (ChartManager.Instance != null)
+            ChartManager.Instance.OnGameEnded -= HandleGameEnded;
     }
 
     private void HandleGameEnded()

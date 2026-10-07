@@ -48,6 +48,11 @@ public class Player : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (ChartManager.Instance != null)
+        {
+            ChartManager.Instance.OnGameEnded -= HandleGameEnded;
+            ChartManager.Instance.OnJumpBpmChanged -= HandleJumpBpmChanged;
+        }
         if (Instance == this)
             Instance = null;
     }
@@ -56,18 +61,8 @@ public class Player : MonoBehaviour
     {
         _groundY = transform.position.y;
         CanOperate = true;
-    }
-
-    private void OnEnable()
-    {
         ChartManager.Instance.OnGameEnded += HandleGameEnded;
         ChartManager.Instance.OnJumpBpmChanged += HandleJumpBpmChanged;
-    }
-
-    private void OnDisable()
-    {
-        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
-        ChartManager.Instance.OnJumpBpmChanged -= HandleJumpBpmChanged;
     }
 
     private void HandleGameEnded()

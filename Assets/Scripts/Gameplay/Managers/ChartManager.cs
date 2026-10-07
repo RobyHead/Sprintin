@@ -69,8 +69,6 @@ public class ChartManager : MonoBehaviour
 
         if (resultPanel != null)
             resultPanel.gameObject.SetActive(false);
-
-        SceneTransitionManager.Instance.OnOutroStarted += HandleOutroStarted;
     }
 
     private void OnDestroy()
@@ -104,6 +102,7 @@ public class ChartManager : MonoBehaviour
         PreSpawnAllNotes();
         StartCoroutine(LoadAudio());
         Judge.Instance.InitializeScore();
+        SceneTransitionManager.Instance.OnOutroStarted += HandleOutroStarted;
     }
 
     private void Update()

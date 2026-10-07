@@ -21,14 +21,15 @@ public class ComboInfo : MonoBehaviour
         SetAlpha(0f);
     }
 
-    private void OnEnable()
+    private void Start()
     {
         Judge.Instance.OnJudged += OnJudged;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        Judge.Instance.OnJudged -= OnJudged;
+        if (Judge.Instance != null)
+            Judge.Instance.OnJudged -= OnJudged;
     }
 
     private void OnJudged(Judgement judgement)

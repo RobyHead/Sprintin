@@ -45,16 +45,13 @@ public class OperationBar : MonoBehaviour
 
         if (background != null)
             background.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, barMaxWidth);
-    }
-
-    private void OnEnable()
-    {
         ChartManager.Instance.OnFadeoutComplete += HandleFadeoutComplete;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        ChartManager.Instance.OnFadeoutComplete -= HandleFadeoutComplete;
+        if (ChartManager.Instance != null)
+            ChartManager.Instance.OnFadeoutComplete -= HandleFadeoutComplete;
     }
 
     private void HandleFadeoutComplete()

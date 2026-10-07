@@ -24,20 +24,19 @@ public class GameTime : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (ChartManager.Instance != null)
+        {
+            ChartManager.Instance.OnGameEnded -= HandleGameEnded;
+            ChartManager.Instance.OnReady -= HandleReady;
+        }
         if (Instance == this)
             Instance = null;
     }
 
-    private void OnEnable()
+    private void Start()
     {
         ChartManager.Instance.OnGameEnded += HandleGameEnded;
         ChartManager.Instance.OnReady += HandleReady;
-    }
-
-    private void OnDisable()
-    {
-        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
-        ChartManager.Instance.OnReady -= HandleReady;
     }
 
     private void HandleGameEnded()
