@@ -30,7 +30,7 @@ public class SongMeta : MonoBehaviour
 
     private void LoadSongData()
     {
-        var folder = Path.Combine(Application.streamingAssetsPath, "Songs", ChartManager.SongFolder);
+        var folder = Path.Combine(Application.streamingAssetsPath, "Songs", ChartManager.Instance.SongFolder);
         var songPath = Path.Combine(folder, "song.json");
         if (!File.Exists(songPath))
         {
@@ -61,7 +61,7 @@ public class SongMeta : MonoBehaviour
 
     private IEnumerator LoadCover()
     {
-        var folder = Path.Combine(Application.streamingAssetsPath, "Songs", ChartManager.SongFolder);
+        var folder = Path.Combine(Application.streamingAssetsPath, "Songs", ChartManager.Instance.SongFolder);
 
         var jpgPath = Path.Combine(folder, "cover.jpg");
         var pngPath = Path.Combine(folder, "cover.png");
@@ -95,7 +95,6 @@ public class SongMeta : MonoBehaviour
             Debug.LogWarning($"SongMeta: cover not found in {folder}");
         }
 
-        ChartManager.CoverLoaded = true;
-        ChartManager.TrySetReady();
+        ChartManager.Instance.NotifyCoverLoaded();
     }
 }

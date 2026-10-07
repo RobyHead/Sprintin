@@ -20,7 +20,7 @@ public class Tap : MonoBehaviour
 
     private void Update()
     {
-        if (!GameTime.HasStarted)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         if (IsJudged)
@@ -29,7 +29,7 @@ public class Tap : MonoBehaviour
             return;
         }
 
-        float z = SpeedTimeline.Instance.GetDistance(GameTime.ElapsedMs, _ms);
+        float z = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _ms);
         var pos = transform.position;
         pos.z = z;
         transform.position = pos;

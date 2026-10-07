@@ -48,15 +48,15 @@ public class ResultInfo : MonoBehaviour
             comboText.text = $"Combo:\n{maxCombo}";
 
         if (perfectText != null)
-            perfectText.text = Judge.PerfectCount.ToString();
+            perfectText.text = judge.PerfectCount.ToString();
 
         if (greatText != null)
-            greatText.text = Judge.GreatCount.ToString();
+            greatText.text = judge.GreatCount.ToString();
 
         if (badText != null)
-            badText.text = Judge.BadCount.ToString();
+            badText.text = judge.BadCount.ToString();
 
         if (missText != null)
-            missText.text = Judge.MissCount.ToString();
+            missText.text = judge.MissCount.ToString();
     }
 }

@@ -24,12 +24,12 @@ public class Lane : MonoBehaviour
 
     private void OnEnable()
     {
-        ChartManager.OnGameEnded += HandleGameEnded;
+        ChartManager.Instance.OnGameEnded += HandleGameEnded;
     }
 
     private void OnDisable()
     {
-        ChartManager.OnGameEnded -= HandleGameEnded;
+        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
     }
 
     private void HandleGameEnded()
@@ -39,7 +39,7 @@ public class Lane : MonoBehaviour
 
     private void Update()
     {
-        if (!GameTime.HasStarted)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         var keyboard = Keyboard.current;

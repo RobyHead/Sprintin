@@ -46,7 +46,7 @@ public class LaneGroup : MonoBehaviour
 
     public void OnLanePressed(int trackIndex)
     {
-        if (Judge.Instance == null || !GameTime.HasStarted)
+        if (Judge.Instance == null || !GameTime.Instance.HasStarted)
             return;
 
         Judge.Instance.JudgePress(trackIndex);
@@ -54,7 +54,7 @@ public class LaneGroup : MonoBehaviour
 
     public void OnLaneReleased(int trackIndex)
     {
-        if (Judge.Instance == null || !GameTime.HasStarted)
+        if (Judge.Instance == null || !GameTime.Instance.HasStarted)
             return;
 
         Judge.Instance.JudgeRelease(trackIndex);

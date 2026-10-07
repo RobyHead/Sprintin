@@ -21,7 +21,7 @@ public class ResultPanelManager : MonoBehaviour
 
         if (Judge.Instance != null && RecordManager.Instance != null)
         {
-            bool fullCombo = Judge.BadCount == 0 && Judge.MissCount == 0;
+            bool fullCombo = Judge.Instance.BadCount == 0 && Judge.Instance.MissCount == 0;
             RecordManager.Instance.UpdateRecord(
                 SceneTransitionManager.Instance.PackId,
                 SceneTransitionManager.Instance.SongId,

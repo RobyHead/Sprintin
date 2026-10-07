@@ -32,10 +32,10 @@ public class TextEffect : MonoBehaviour
 
     private void Update()
     {
-        if (_effects == null || !GameTime.HasStarted)
+        if (_effects == null || !GameTime.Instance.HasStarted)
             return;
 
-        float elapsed = GameTime.ElapsedMs;
+        float elapsed = GameTime.Instance.ElapsedMs;
 
         while (_currentIndex < _effects.Count)
         {

@@ -3,21 +3,15 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    public static bool IsJumping { get; private set; }
-    public static bool CanOperate { get; private set; }
+    public static Player Instance { get; private set; }
 
-    private static float _jumpStartTime = float.MinValue;
-    private static float _jumpEndTime = float.MinValue;
+    public bool IsJumping { get; private set; }
+    public bool CanOperate { get; private set; }
 
-    public static void ResetStatics()
-    {
-        IsJumping = false;
-        CanOperate = false;
-        _jumpStartTime = float.MinValue;
-        _jumpEndTime = float.MinValue;
-    }
+    private float _jumpStartTime = float.MinValue;
+    private float _jumpEndTime = float.MinValue;
 
-    public static bool WasJumpingAt(float elapsedMs)
+    public bool WasJumpingAt(float elapsedMs)
     {
         if (_jumpStartTime == float.MinValue)
             return false;
@@ -47,6 +41,17 @@ public class Player : MonoBehaviour
     private float _cachedAirTime;
     private float _jumpStartTimeS;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     private void Start()
     {
         _groundY = transform.position.y;
@@ -55,14 +60,14 @@ public class Player : MonoBehaviour
 
     private void OnEnable()
     {
-        ChartManager.OnGameEnded += HandleGameEnded;
-        ChartManager.OnJumpBpmChanged += HandleJumpBpmChanged;
+        ChartManager.Instance.OnGameEnded += HandleGameEnded;
+        ChartManager.Instance.OnJumpBpmChanged += HandleJumpBpmChanged;
     }
 
     private void OnDisable()
     {
-        ChartManager.OnGameEnded -= HandleGameEnded;
-        ChartManager.OnJumpBpmChanged -= HandleJumpBpmChanged;
+        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
+        ChartManager.Instance.OnJumpBpmChanged -= HandleJumpBpmChanged;
     }
 
     private void HandleGameEnded()
@@ -84,7 +89,7 @@ public class Player : MonoBehaviour
 
         if (_state == State.Conflicting)
         {
-            float jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
+            float jumpElapsed = GameTime.Instance.ElapsedMs / 1000f - _jumpStartTimeS;
             if (jumpElapsed < _airTime - _fallDuration)
             {
                 _state = State.Rising;
@@ -99,11 +104,11 @@ public class Player : MonoBehaviour
         _cachedAirTime = 0f;
         if (_state == State.Holding)
         {
-            float jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
+            float jumpElapsed = GameTime.Instance.ElapsedMs / 1000f - _jumpStartTimeS;
             if (jumpElapsed >= _airTime - _fallDuration)
             {
                 _state = State.Falling;
-                _fallStartTimeS = GameTime.ElapsedMs / 1000f;
+                _fallStartTimeS = GameTime.Instance.ElapsedMs / 1000f;
                 _airTime = jumpElapsed + _fallDuration;
             }
         }
@@ -115,12 +120,12 @@ public class Player : MonoBehaviour
         if (keyboard == null)
             return;
 
-        if (!GameTime.HasStarted)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         if (_state != State.Idle)
         {
-            _jumpElapsed = GameTime.ElapsedMs / 1000f - _jumpStartTimeS;
+            _jumpElapsed = GameTime.Instance.ElapsedMs / 1000f - _jumpStartTimeS;
         }
 
         if (_jumpElapsed >= _airTime - _fallDuration)
@@ -128,13 +133,13 @@ public class Player : MonoBehaviour
             if (_state == State.Rising)
             {
                 _state = State.Conflicting;
-                _fallStartTimeS = GameTime.ElapsedMs / 1000f;
+                _fallStartTimeS = GameTime.Instance.ElapsedMs / 1000f;
                 _airTime = _jumpElapsed + _fallDuration;
             }
             else if (_state == State.Holding)
             {
                 _state = State.Falling;
-                _fallStartTimeS = GameTime.ElapsedMs / 1000f;
+                _fallStartTimeS = GameTime.Instance.ElapsedMs / 1000f;
                 _airTime = _jumpElapsed + _fallDuration;
             }
         }
@@ -166,7 +171,7 @@ public class Player : MonoBehaviour
                 break;
 
             case State.Falling:
-                float fallTimer = GameTime.ElapsedMs / 1000f - _fallStartTimeS;
+                float fallTimer = GameTime.Instance.ElapsedMs / 1000f - _fallStartTimeS;
                 SetY(ParabolaFall(Mathf.Clamp01(fallTimer / _fallDuration)));
                 float remaining = _airTime - _jumpElapsed;
                 if (remaining <= preLandWindowMs / 1000f && !CanOperate)
@@ -181,7 +186,7 @@ public class Player : MonoBehaviour
                     _state = State.Idle;
                     IsJumping = false;
                     CanOperate = true;
-                    _jumpEndTime = GameTime.ElapsedMs;
+                    _jumpEndTime = GameTime.Instance.ElapsedMs;
                 }
                 break;
         }
@@ -200,7 +205,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            float bpmAir = 60000f / ChartManager.CurrentJumpBpm / 1000f;
+            float bpmAir = 60000f / ChartManager.Instance.CurrentJumpBpm / 1000f;
             _airTime = Mathf.Max(_fallDuration, bpmAir);
         }
 
@@ -209,8 +214,8 @@ public class Player : MonoBehaviour
         IsJumping = true;
         CanOperate = false;
         _state = State.Rising;
-        _jumpStartTimeS = GameTime.ElapsedMs / 1000f;
-        _jumpStartTime = GameTime.ElapsedMs;
+        _jumpStartTimeS = GameTime.Instance.ElapsedMs / 1000f;
+        _jumpStartTime = GameTime.Instance.ElapsedMs;
         _jumpEndTime = float.MinValue;
     }
 

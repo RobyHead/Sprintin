@@ -49,12 +49,12 @@ public class EnvironmentManager : MonoBehaviour
 
     private void OnEnable()
     {
-        ChartManager.OnGameEnded += HandleGameEnded;
+        ChartManager.Instance.OnGameEnded += HandleGameEnded;
     }
 
     private void OnDisable()
     {
-        ChartManager.OnGameEnded -= HandleGameEnded;
+        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
     }
 
     private void HandleGameEnded()
@@ -67,7 +67,7 @@ public class EnvironmentManager : MonoBehaviour
         if (!_initialized || SpeedTimeline.Instance == null)
             return;
 
-        float distanceTraveled = SpeedTimeline.Instance.GetDistance(0, GameTime.ElapsedMs);
+        float distanceTraveled = SpeedTimeline.Instance.GetDistance(0, GameTime.Instance.ElapsedMs);
         float visibleFront = SpeedTimeline.Instance.VisibleRangeMax + distanceTraveled + visibleBuffer;
 
         while (_furthestSpawnZ < visibleFront)
@@ -92,7 +92,7 @@ public class EnvironmentManager : MonoBehaviour
 
         if (SpeedTimeline.Instance != null)
         {
-            distanceTraveled = SpeedTimeline.Instance.GetDistance(0, GameTime.ElapsedMs);
+            distanceTraveled = SpeedTimeline.Instance.GetDistance(0, GameTime.Instance.ElapsedMs);
             rangeMin = SpeedTimeline.Instance.VisibleRangeMin;
             rangeMax = SpeedTimeline.Instance.VisibleRangeMax;
         }

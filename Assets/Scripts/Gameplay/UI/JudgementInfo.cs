@@ -23,6 +23,21 @@ public class JudgementInfo : MonoBehaviour
         SetAlpha(0f);
     }
 
+    private void OnEnable()
+    {
+        Judge.Instance.OnJudged += OnJudged;
+    }
+
+    private void OnDisable()
+    {
+        Judge.Instance.OnJudged -= OnJudged;
+    }
+
+    private void OnJudged(Judgement judgement)
+    {
+        Show(judgement);
+    }
+
     public void Show(Judgement judgement)
     {
         if (_animation != null)

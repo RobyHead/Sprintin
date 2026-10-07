@@ -11,8 +11,6 @@ public class ComboInfo : MonoBehaviour
     [SerializeField] private float scaleOvershoot = 1f;
     [SerializeField] private float scaleSettleDurationMs = 50f;
 
-    private int _combo;
-    public int MaxCombo { get; private set; }
     private Coroutine _animation;
     private Vector3 _baseScale;
 
@@ -23,28 +21,32 @@ public class ComboInfo : MonoBehaviour
         SetAlpha(0f);
     }
 
-    public void UpdateCombo(Judgement judgement)
+    private void OnEnable()
     {
-        if (judgement == Judgement.Bad || judgement == Judgement.Miss)
+        Judge.Instance.OnJudged += OnJudged;
+    }
+
+    private void OnDisable()
+    {
+        Judge.Instance.OnJudged -= OnJudged;
+    }
+
+    private void OnJudged(Judgement judgement)
+    {
+        var judge = Judge.Instance;
+        if (judge == null)
+            return;
+
+        int combo = judge.Combo;
+
+        if (combo < 10)
         {
-            _combo = 0;
             SetAlpha(0f);
             text.text = "";
             return;
         }
 
-        _combo++;
-        if (_combo > MaxCombo)
-            MaxCombo = _combo;
-
-        if (_combo < 10)
-        {
-            SetAlpha(0f);
-            text.text = "";
-            return;
-        }
-
-        text.text = _combo.ToString();
+        text.text = combo.ToString();
 
         if (_animation != null)
             StopCoroutine(_animation);

@@ -5,13 +5,14 @@ public class Judge : MonoBehaviour
 {
     public static Judge Instance { get; private set; }
 
-    public static int PerfectCount { get; private set; }
-    public static int GreatCount { get; private set; }
-    public static int BadCount { get; private set; }
-    public static int MissCount { get; private set; }
+    public int PerfectCount { get; private set; }
+    public int GreatCount { get; private set; }
+    public int BadCount { get; private set; }
+    public int MissCount { get; private set; }
 
-    public int FinalScore => scoreInfo != null ? scoreInfo.FinalScore : 0;
-    public int MaxCombo => comboInfo != null ? comboInfo.MaxCombo : 0;
+    public int Combo { get; private set; }
+    public int MaxCombo { get; private set; }
+    public int FinalScore { get; private set; }
 
     [Header("Tap / Hold Head")]
     [SerializeField] private float perfectWindowMs = 50f;
@@ -24,10 +25,10 @@ public class Judge : MonoBehaviour
     [Header("Ground")]
     [SerializeField] private float groundWindowMs = 50f;
 
-    [Header("Info")]
-    [SerializeField] private ScoreInfo scoreInfo;
-    [SerializeField] private JudgementInfo judgementInfo;
-    [SerializeField] private ComboInfo comboInfo;
+    public event System.Action<Judgement> OnJudged;
+
+    private int _currentScore;
+    private int _maxScore;
 
     private readonly List<Tap>[] _taps = new List<Tap>[4];
     private readonly List<Hold>[] _holds = new List<Hold>[4];
@@ -45,12 +46,12 @@ public class Judge : MonoBehaviour
 
     private void OnEnable()
     {
-        ChartManager.OnGameEnded += HandleGameEnded;
+        ChartManager.Instance.OnGameEnded += HandleGameEnded;
     }
 
     private void OnDisable()
     {
-        ChartManager.OnGameEnded -= HandleGameEnded;
+        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
     }
 
     private void HandleGameEnded()
@@ -64,9 +65,9 @@ public class Judge : MonoBehaviour
         GreatCount = 0;
         BadCount = 0;
         MissCount = 0;
-
-        if (scoreInfo == null)
-            return;
+        Combo = 0;
+        MaxCombo = 0;
+        FinalScore = 0;
 
         int tapCount = 0;
         int holdCount = 0;
@@ -75,14 +76,14 @@ public class Judge : MonoBehaviour
             tapCount += _taps[i].Count;
             holdCount += _holds[i].Count;
         }
-        int groundCount = _grounds.Count;
-
-        scoreInfo.CalculateMaxScore(tapCount, groundCount, holdCount);
+        int n = tapCount + _grounds.Count + holdCount * 2;
+        _maxScore = n * 3;
+        _currentScore = 0;
     }
 
     private void Update()
     {
-        if (!GameTime.HasStarted)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         CheckGround();
@@ -126,7 +127,7 @@ public class Judge : MonoBehaviour
 
         foreach (var tap in _taps[trackIndex])
         {
-            float diff = GameTime.ElapsedMs - tap.Ms;
+            float diff = GameTime.Instance.ElapsedMs - tap.Ms;
             if (Mathf.Abs(diff) <= badWindowMs && tap.Ms < earliestTapMs)
             {
                 earliestTapMs = tap.Ms;
@@ -141,7 +142,7 @@ public class Judge : MonoBehaviour
         {
             if (!hold.HeadJudged)
             {
-                float diff = GameTime.ElapsedMs - hold.Ms;
+                float diff = GameTime.Instance.ElapsedMs - hold.Ms;
                 if (Mathf.Abs(diff) <= badWindowMs && hold.Ms < earliestHoldMs)
                 {
                     earliestHoldMs = hold.Ms;
@@ -173,7 +174,7 @@ public class Judge : MonoBehaviour
         {
             if (hold.HeadJudged && !hold.TailJudged && !hold.HeadWasMiss)
             {
-                float diff = GameTime.ElapsedMs - hold.EndMs;
+                float diff = GameTime.Instance.ElapsedMs - hold.EndMs;
                 var judgement = diff >= -tailEarlyWindowMs ? Judgement.Perfect : Judgement.Bad;
                 HandleJudgement(judgement);
                 hold.JudgeTail(judgement, diff);
@@ -184,7 +185,7 @@ public class Judge : MonoBehaviour
 
     private void JudgeTap(Tap tap)
     {
-        float diff = GameTime.ElapsedMs - tap.Ms;
+        float diff = GameTime.Instance.ElapsedMs - tap.Ms;
         var judgement = GetJudgement(Mathf.Abs(diff));
         HandleJudgement(judgement);
         tap.OnJudged(judgement, diff);
@@ -192,7 +193,7 @@ public class Judge : MonoBehaviour
 
     private void JudgeHoldHead(Hold hold)
     {
-        float diff = GameTime.ElapsedMs - hold.Ms;
+        float diff = GameTime.Instance.ElapsedMs - hold.Ms;
         var judgement = GetJudgement(Mathf.Abs(diff));
         HandleJudgement(judgement);
         hold.JudgeHead(judgement, diff);
@@ -211,12 +212,24 @@ public class Judge : MonoBehaviour
             case Judgement.Miss:    MissCount++;    break;
         }
 
-        if (judgementInfo != null)
-            judgementInfo.Show(judgement);
-        if (comboInfo != null)
-            comboInfo.UpdateCombo(judgement);
-        if (scoreInfo != null)
-            scoreInfo.AddScore(judgement);
+        if (judgement == Judgement.Bad || judgement == Judgement.Miss)
+            Combo = 0;
+        else
+            Combo++;
+        if (Combo > MaxCombo)
+            MaxCombo = Combo;
+
+        _currentScore += judgement switch
+        {
+            Judgement.Perfect => 3,
+            Judgement.Great => 2,
+            Judgement.Bad => 1,
+            _ => 0,
+        };
+        FinalScore = _maxScore == 0 ? 0
+            : Mathf.CeilToInt((float)_currentScore / _maxScore * 1000000f);
+
+        OnJudged?.Invoke(judgement);
     }
 
     private Judgement GetJudgement(float absDiff)
@@ -235,13 +248,13 @@ public class Judge : MonoBehaviour
             if (ground.IsJudged)
                 continue;
 
-            if (GameTime.ElapsedMs >= ground.Ms + groundWindowMs)
+            if (GameTime.Instance.ElapsedMs >= ground.Ms + groundWindowMs)
             {
                 float judgeTime = ground.Ms + groundWindowMs;
                 var judgement = Judgement.Miss;
-                if (Player.WasJumpingAt(judgeTime)) judgement = Judgement.Perfect;
+                if (Player.Instance.WasJumpingAt(judgeTime)) judgement = Judgement.Perfect;
                 HandleJudgement(judgement);
-                ground.OnJudged(judgement, GameTime.ElapsedMs - ground.Ms);
+                ground.OnJudged(judgement, GameTime.Instance.ElapsedMs - ground.Ms);
             }
         }
     }
@@ -252,28 +265,28 @@ public class Judge : MonoBehaviour
         {
             for (int j = _taps[i].Count - 1; j >= 0; j--)
             {
-                if (GameTime.ElapsedMs > _taps[i][j].Ms + badWindowMs)
+                if (GameTime.Instance.ElapsedMs > _taps[i][j].Ms + badWindowMs)
                 {
                     HandleJudgement(Judgement.Miss);
-                    _taps[i][j].OnJudged(Judgement.Miss, GameTime.ElapsedMs - _taps[i][j].Ms);
+                    _taps[i][j].OnJudged(Judgement.Miss, GameTime.Instance.ElapsedMs - _taps[i][j].Ms);
                 }
             }
 
             for (int j = _holds[i].Count - 1; j >= 0; j--)
             {
-                if (!_holds[i][j].HeadJudged && GameTime.ElapsedMs > _holds[i][j].Ms + badWindowMs)
+                if (!_holds[i][j].HeadJudged && GameTime.Instance.ElapsedMs > _holds[i][j].Ms + badWindowMs)
                 {
                     HandleJudgement(Judgement.Miss);
-                    _holds[i][j].JudgeHead(Judgement.Miss, GameTime.ElapsedMs - _holds[i][j].Ms);
+                    _holds[i][j].JudgeHead(Judgement.Miss, GameTime.Instance.ElapsedMs - _holds[i][j].Ms);
                     HandleJudgement(Judgement.Miss);
                     continue;
                 }
 
                 if (_holds[i][j].HeadJudged && !_holds[i][j].TailJudged && !_holds[i][j].HeadWasMiss
-                    && GameTime.ElapsedMs > _holds[i][j].EndMs)
+                    && GameTime.Instance.ElapsedMs > _holds[i][j].EndMs)
                 {
                     HandleJudgement(Judgement.Perfect);
-                    _holds[i][j].JudgeTail(Judgement.Perfect, GameTime.ElapsedMs - _holds[i][j].EndMs);
+                    _holds[i][j].JudgeTail(Judgement.Perfect, GameTime.Instance.ElapsedMs - _holds[i][j].EndMs);
                 }
             }
         }

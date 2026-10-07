@@ -49,12 +49,12 @@ public class OperationBar : MonoBehaviour
 
     private void OnEnable()
     {
-        ChartManager.OnFadeoutComplete += HandleFadeoutComplete;
+        ChartManager.Instance.OnFadeoutComplete += HandleFadeoutComplete;
     }
 
     private void OnDisable()
     {
-        ChartManager.OnFadeoutComplete -= HandleFadeoutComplete;
+        ChartManager.Instance.OnFadeoutComplete -= HandleFadeoutComplete;
     }
 
     private void HandleFadeoutComplete()
@@ -127,7 +127,7 @@ public class OperationBar : MonoBehaviour
                 break;
 
             case OperationAction.Custom:
-                op.onCustom.Invoke();
+                op.onCustom?.Invoke();
                 break;
         }
     }

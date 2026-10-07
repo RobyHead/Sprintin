@@ -7,13 +7,15 @@ using UnityEngine.Networking;
 [RequireComponent(typeof(AudioSource))]
 public class ChartManager : MonoBehaviour
 {
-    public static bool IsReady { get; private set; }
-    public static string SongFolder { get; private set; }
-    public static string SongName { get; private set; }
-    public static float CurrentJumpBpm { get; private set; } = 120f;
-    public static int LastNoteMs { get; private set; }
-    public static bool AudioLoaded { get; private set; }
-    public static bool CoverLoaded { get; set; } = true;
+    public static ChartManager Instance { get; private set; }
+
+    public string SongFolder { get; private set; }
+    public float CurrentJumpBpm { get; private set; } = 120f;
+    public int LastNoteMs { get; private set; }
+
+    private bool _isReady;
+    private bool _audioLoaded;
+    private bool _coverLoaded;
 
     [Header("References")]
     [SerializeField] private TapManager tapManager;
@@ -24,10 +26,10 @@ public class ChartManager : MonoBehaviour
     [SerializeField] private ResultPanelManager resultPanel;
     [SerializeField] private TextEffect textEffect;
 
-    public static event System.Action OnGameEnded;
-    public static event System.Action<float> OnJumpBpmChanged;
-    public static event System.Action OnFadeoutComplete;
-    public static event System.Action OnReady;
+    public event System.Action OnGameEnded;
+    public event System.Action<float> OnJumpBpmChanged;
+    public event System.Action OnFadeoutComplete;
+    public event System.Action OnReady;
 
     [Header("Fade")]
     [SerializeField] private float quickFadeOutMs = 300f;
@@ -54,7 +56,8 @@ public class ChartManager : MonoBehaviour
 
     private void Awake()
     {
-        ResetStatics();
+        Instance = this;
+        ResetState();
 
         _packId = SceneTransitionManager.Instance.PackId;
         _songId = SceneTransitionManager.Instance.SongId;
@@ -77,17 +80,22 @@ public class ChartManager : MonoBehaviour
         OnGameEnded = null;
         OnJumpBpmChanged = null;
         OnFadeoutComplete = null;
+        OnReady = null;
     }
 
-    private static void ResetStatics()
+    private void ResetState()
     {
-        IsReady = false;
+        _isReady = false;
         CurrentJumpBpm = 120f;
         LastNoteMs = 0;
-        AudioLoaded = false;
-        CoverLoaded = false;
-        GameTime.Reset();
-        Player.ResetStatics();
+        _audioLoaded = false;
+        _coverLoaded = false;
+    }
+
+    public void NotifyCoverLoaded()
+    {
+        _coverLoaded = true;
+        TrySetReady();
     }
 
     private void Start()
@@ -100,7 +108,7 @@ public class ChartManager : MonoBehaviour
 
     private void Update()
     {
-        if (!GameTime.HasStarted)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         if (!_playbackScheduled)
@@ -109,7 +117,7 @@ public class ChartManager : MonoBehaviour
         UpdateVolumeFade();
         UpdateJumpBpm();
 
-        if (!_resultShown && GameTime.ElapsedMs >= _resultTriggerMs)
+        if (!_resultShown && GameTime.Instance.ElapsedMs >= _resultTriggerMs)
         {
             _resultShown = true;
             StartCoroutine(ResultSequence());
@@ -119,7 +127,7 @@ public class ChartManager : MonoBehaviour
     private void UpdateJumpBpm()
     {
         while (_nextJumpBpmIndex < _jumpBpms.Count
-               && GameTime.ElapsedMs >= _jumpBpms[_nextJumpBpmIndex].ms)
+               && GameTime.Instance.ElapsedMs >= _jumpBpms[_nextJumpBpmIndex].ms)
         {
             CurrentJumpBpm = _jumpBpms[_nextJumpBpmIndex].bpm;
             OnJumpBpmChanged?.Invoke(CurrentJumpBpm);
@@ -138,7 +146,7 @@ public class ChartManager : MonoBehaviour
         float musicStartOffset = Mathf.Min(totalOffset, gameConfig.MaxSkipMs);
         float skipMs = Mathf.Max(0f, totalOffset - gameConfig.MaxSkipMs);
 
-        double timeToMusicStart = (-musicStartOffset - GameTime.ElapsedMs) / 1000.0;
+        double timeToMusicStart = (-musicStartOffset - GameTime.Instance.ElapsedMs) / 1000.0;
         double scheduledTime = AudioSettings.dspTime + timeToMusicStart;
         if (scheduledTime < 0)
             scheduledTime = 0;
@@ -154,7 +162,7 @@ public class ChartManager : MonoBehaviour
             return;
 
         float master = gameConfig != null ? gameConfig.MusicVolume / 100f : 1f;
-        float elapsedMs = GameTime.ElapsedMs;
+        float elapsedMs = GameTime.Instance.ElapsedMs;
         if (elapsedMs >= -gameConfig.MaxSkipMs && elapsedMs <= -gameConfig.FadeEndMs)
             _audioSource.volume = master * (elapsedMs + gameConfig.MaxSkipMs) / (gameConfig.MaxSkipMs - gameConfig.FadeEndMs);
         else if (elapsedMs > -gameConfig.FadeEndMs)
@@ -182,23 +190,23 @@ public class ChartManager : MonoBehaviour
                 Debug.LogError("DownloadHandlerAudioClip.GetContent returned null");
         }
 
-        AudioLoaded = true;
+        _audioLoaded = true;
         TrySetReady();
     }
 
-    public static void TrySetReady()
+    private void TrySetReady()
     {
-        if (AudioLoaded && CoverLoaded && !IsReady)
+        if (_audioLoaded && _coverLoaded && !_isReady)
         {
-            IsReady = true;
+            _isReady = true;
             OnReady?.Invoke();
             TryRequestIntro();
         }
     }
 
-    public static void TryRequestIntro()
+    private void TryRequestIntro()
     {
-        if (IsReady && SceneTransitionManager.Instance.IsTransitioning)
+        if (_isReady && SceneTransitionManager.Instance.IsTransitioning)
             SceneTransitionManager.Instance.RequestIntro();
     }
 
@@ -320,7 +328,7 @@ public class ChartManager : MonoBehaviour
         holdManager.Clear();
         groundManager.Clear();
         barManager.Clear();
-        IsReady = false;
+        _isReady = false;
     }
 
     private void HandleOutroStarted()

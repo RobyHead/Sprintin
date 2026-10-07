@@ -32,7 +32,7 @@ public class Hold : MonoBehaviour
 
     private void Update()
     {
-        if (!GameTime.HasStarted)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         if (_fullyJudged)
@@ -45,14 +45,14 @@ public class Hold : MonoBehaviour
 
         if (!HeadJudged)
         {
-            z = SpeedTimeline.Instance.GetDistance(GameTime.ElapsedMs, _ms);
+            z = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _ms);
             var pos = transform.position;
             pos.z = z;
             transform.position = pos;
         }
         else if (!TailJudged)
         {
-            float remaining = SpeedTimeline.Instance.GetDistance(GameTime.ElapsedMs, _endMs);
+            float remaining = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _endMs);
             if (remaining < 0f) remaining = 0f;
 
             head.localPosition = Vector3.zero;

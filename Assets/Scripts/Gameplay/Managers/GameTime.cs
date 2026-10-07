@@ -3,29 +3,41 @@ using TMPro;
 
 public class GameTime : MonoBehaviour
 {
+    public static GameTime Instance { get; private set; }
+
     [SerializeField] private GameConfig gameConfig;
 
-    private static float _startOffsetMs = -3000f;
+    public float ElapsedMs { get; private set; } = -3000f;
+    public bool HasStarted { get; private set; }
 
-    public static float ElapsedMs { get; private set; } = -3000f;
-    public static bool HasStarted { get; private set; }
+    private float _startOffsetMs = -3000f;
+
+    private double _startTime;
 
     private void Awake()
     {
+        Instance = this;
         _startOffsetMs = -gameConfig.BlankMs;
         ElapsedMs = _startOffsetMs;
+        HasStarted = false;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     private void OnEnable()
     {
-        ChartManager.OnGameEnded += HandleGameEnded;
-        ChartManager.OnReady += HandleReady;
+        ChartManager.Instance.OnGameEnded += HandleGameEnded;
+        ChartManager.Instance.OnReady += HandleReady;
     }
 
     private void OnDisable()
     {
-        ChartManager.OnGameEnded -= HandleGameEnded;
-        ChartManager.OnReady -= HandleReady;
+        ChartManager.Instance.OnGameEnded -= HandleGameEnded;
+        ChartManager.Instance.OnReady -= HandleReady;
     }
 
     private void HandleGameEnded()
@@ -39,17 +51,6 @@ public class GameTime : MonoBehaviour
         _startTime = AudioSettings.dspTime;
     }
 
-    public static void Reset()
-    {
-        ElapsedMs = _startOffsetMs;
-        HasStarted = false;
-    }
-
-    [Header("Display")]
-    [SerializeField] private TMP_Text timeText;
-
-    private double _startTime;
-
     private void Update()
     {
         if (!HasStarted)
@@ -59,10 +60,5 @@ public class GameTime : MonoBehaviour
         }
 
         ElapsedMs = (float)((AudioSettings.dspTime - _startTime) * 1000.0) + _startOffsetMs;
-
-        if (timeText != null)
-        {
-            timeText.text = $"{(int)ElapsedMs}";
-        }
     }
 }

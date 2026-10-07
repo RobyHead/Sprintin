@@ -21,7 +21,7 @@ public class Ground : MonoBehaviour
 
     private void Update()
     {
-        if (!GameTime.HasStarted)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         if (_hidden)
@@ -30,11 +30,11 @@ public class Ground : MonoBehaviour
             return;
         }
 
-        float z = SpeedTimeline.Instance.GetDistance(GameTime.ElapsedMs, _ms + 25);
+        float z = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _ms + 25);
         var pos = transform.position;
         pos.z = z;
 
-        float elapsedSinceMs = GameTime.ElapsedMs - _ms;
+        float elapsedSinceMs = GameTime.Instance.ElapsedMs - _ms;
         if (IsJudged && elapsedSinceMs >= landingStartMs)
         {
             float landingT = Mathf.Clamp01((elapsedSinceMs - landingStartMs) / landingDurationMs);
