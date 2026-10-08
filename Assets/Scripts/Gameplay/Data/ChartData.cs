@@ -12,5 +12,6 @@ public class ChartData
     public List<GroundData> grounds = new List<GroundData>();
     public List<EffectData> effects = new List<EffectData>();
     public List<SpeedData> speeds = new List<SpeedData>();
+    public List<StretchData> stretchs = new List<StretchData>();
     public List<TextEffectData> textEffects = new List<TextEffectData>();
 }

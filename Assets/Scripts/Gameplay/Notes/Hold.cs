@@ -45,22 +45,36 @@ public class Hold : MonoBehaviour
 
         if (!HeadJudged)
         {
-            z = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _ms);
+            z = SpeedTimeline.Instance.GetDistance(_ms);
             var pos = transform.position;
             pos.z = z;
             transform.position = pos;
+
+            float tailDist = SpeedTimeline.Instance.GetDistance(_endMs);
+            float headDist = SpeedTimeline.Instance.GetDistance(_ms);
+            float bodyLength = tailDist - headDist;
+
+            var bodyScale = body.localScale;
+            bodyScale.x = Mathf.Abs(bodyLength) / 2f;
+            body.localScale = bodyScale;
+            head.localPosition = Vector3.zero;
+            tail.localPosition = new Vector3(-bodyLength, 0f, 0f);
+            body.localPosition = new Vector3(-bodyLength / 2f, 0f, 0f);
         }
         else if (!TailJudged)
         {
-            float remaining = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _endMs);
-            if (remaining < 0f) remaining = 0f;
+            float tailDist = SpeedTimeline.Instance.GetDistance(_endMs);
+            if (tailDist < 0f) tailDist = 0f;
+
+            float headDist = SpeedTimeline.Instance.GetDistance(_ms);
+            float bodyLength = tailDist - headDist;
 
             head.localPosition = Vector3.zero;
-            tail.localPosition = new Vector3(-remaining, 0f, 0f);
-            body.localPosition = new Vector3(-remaining / 2f, 0f, 0f);
+            tail.localPosition = new Vector3(-tailDist, 0f, 0f);
+            body.localPosition = new Vector3(-tailDist / 2f, 0f, 0f);
 
             var bodyScale = body.localScale;
-            bodyScale.x = remaining / 2f;
+            bodyScale.x = Mathf.Abs(tailDist) / 2f;
             body.localScale = bodyScale;
 
             z = 0f;
@@ -116,15 +130,17 @@ public class Hold : MonoBehaviour
     {
         var pos = LaneGroup.Instance.KeyPositions[_key - 1];
         var rotX = LaneGroup.Instance.KeyRotationsX[_key - 1];
-        float tailOffset = SpeedTimeline.Instance.GetDistance(_ms, _endMs);
+        float tailDist = SpeedTimeline.Instance.GetDistance(_endMs);
+        float headDist = SpeedTimeline.Instance.GetDistance(_ms);
+        float bodyLength = tailDist - headDist;
 
         var bodyScale = body.localScale;
-        bodyScale.x = tailOffset / 2f;
+        bodyScale.x = Mathf.Abs(bodyLength) / 2f;
         body.localScale = bodyScale;
 
         head.localPosition = Vector3.zero;
-        tail.localPosition = new Vector3(-tailOffset, 0f, 0f);
-        body.localPosition = new Vector3(-tailOffset / 2f, 0f, 0f);
+        tail.localPosition = new Vector3(-bodyLength, 0f, 0f);
+        body.localPosition = new Vector3(-bodyLength / 2f, 0f, 0f);
 
         transform.SetPositionAndRotation(
             new Vector3(pos.x, pos.y, 50f),

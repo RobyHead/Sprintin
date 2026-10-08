@@ -15,7 +15,7 @@ public class Bar : MonoBehaviour
         if (!GameTime.Instance.HasStarted)
             return;
 
-        float z = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _ms);
+        float z = SpeedTimeline.Instance.GetDistance(_ms);
         var pos = transform.position;
         pos.z = z;
         transform.position = pos;

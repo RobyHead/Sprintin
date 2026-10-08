@@ -45,7 +45,7 @@ public class EnvironmentPiece : MonoBehaviour
 
     private Vector3 PositionAt(float spawnZ)
     {
-        float distanceTraveled = SpeedTimeline.Instance.GetDistance(0, GameTime.Instance.ElapsedMs);
+        float distanceTraveled = SpeedTimeline.Instance.GetEnvironmentDistance();
         var pos = transform.position;
         pos.z = spawnZ - distanceTraveled;
         return pos;

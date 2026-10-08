@@ -30,7 +30,7 @@ public class Ground : MonoBehaviour
             return;
         }
 
-        float z = SpeedTimeline.Instance.GetDistance(GameTime.Instance.ElapsedMs, _ms + 25);
+        float z = SpeedTimeline.Instance.GetDistance(_ms + 25);
         var pos = transform.position;
         pos.z = z;
 

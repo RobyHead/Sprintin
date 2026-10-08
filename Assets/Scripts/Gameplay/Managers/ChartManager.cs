@@ -225,6 +225,7 @@ public class ChartManager : MonoBehaviour
         _chartOffset = chart.offset;
         _chartEndMs = chart.end;
         SpeedTimeline.Instance.SetSpeeds(chart.speeds);
+        SpeedTimeline.Instance.SetStretchs(chart.stretchs);
         _jumpBpms = new List<BpmData>(chart.jumpBpms);
         _jumpBpms.Sort((a, b) => a.ms.CompareTo(b.ms));
         CurrentJumpBpm = _jumpBpms.Count > 0 ? _jumpBpms[0].bpm : 120f;

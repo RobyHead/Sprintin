@@ -140,12 +140,12 @@ public static class ChartParser
         int ms = int.Parse(parts[0]);
         string effectName = parts[1];
 
-        if (effectName == "speed")
+        if (effectName == "speed") // {ms, "speed", multiplier};
         {
             if (parts.Count != 3) { LogError(lineNum, $"speed effect needs 3 values, got {parts.Count}"); return; }
             data.speeds.Add(new SpeedData(ms, float.Parse(parts[2], CultureInfo.InvariantCulture)));
         }
-        else if (effectName == "text")
+        else if (effectName == "text") // {ms, "text", fadeInMs, holdMs, fadeOutMs, content};
         {
             if (parts.Count != 6) { LogError(lineNum, $"text effect needs 6 values, got {parts.Count}"); return; }
             data.textEffects.Add(new TextEffectData
@@ -156,6 +156,13 @@ public static class ChartParser
                 fadeOutMs = int.Parse(parts[4]),
                 content = parts[5]
             });
+        }
+        else if (effectName == "stretch") // {ms, "stretch", endms, multiplier, s|si|so};
+        {
+            if (parts.Count != 5) { LogError(lineNum, $"stretch effect needs 5 values, got {parts.Count}"); return; }
+            if (parts[4] != "s" && parts[4] != "si" && parts[4] != "so") { LogError(lineNum, $"stretch easing type '{parts[4]}' not supported"); return; }
+            if (int.Parse(parts[2]) < ms) { LogError(lineNum, $"stretch endms '{parts[2]}' must be after startms '{ms}'"); return; }
+            data.stretchs.Add(new StretchData(ms, int.Parse(parts[2]), float.Parse(parts[3], CultureInfo.InvariantCulture), parts[4]));
         }
         else
         {

@@ -64,7 +64,7 @@ public class EnvironmentManager : MonoBehaviour
         if (!_initialized || SpeedTimeline.Instance == null)
             return;
 
-        float distanceTraveled = SpeedTimeline.Instance.GetDistance(0, GameTime.Instance.ElapsedMs);
+        float distanceTraveled = SpeedTimeline.Instance.GetEnvironmentDistance();
         float visibleFront = SpeedTimeline.Instance.VisibleRangeMax + distanceTraveled + visibleBuffer;
 
         while (_furthestSpawnZ < visibleFront)
@@ -89,7 +89,7 @@ public class EnvironmentManager : MonoBehaviour
 
         if (SpeedTimeline.Instance != null)
         {
-            distanceTraveled = SpeedTimeline.Instance.GetDistance(0, GameTime.Instance.ElapsedMs);
+            distanceTraveled = SpeedTimeline.Instance.GetEnvironmentDistance();
             rangeMin = SpeedTimeline.Instance.VisibleRangeMin;
             rangeMax = SpeedTimeline.Instance.VisibleRangeMax;
         }
