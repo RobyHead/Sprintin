@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 public class SongMeta : MonoBehaviour
 {
-    [SerializeField] private Image coverImage;
+    [SerializeField] private RawImage coverImage;
+    [SerializeField] private RawImage difficultyBackground;
     [SerializeField] private TMP_Text songNameText;
     [SerializeField] private TMP_Text artistText;
     [SerializeField] private TMP_Text difficultyText;
@@ -47,16 +48,19 @@ public class SongMeta : MonoBehaviour
 
         int diffId = SceneTransitionManager.Instance.DifficultyId;
         if (difficultyText != null && song.difficulties != null)
-        {
-            foreach (var diff in song.difficulties)
             {
-                if (diff.id == diffId)
+                foreach (var diff in song.difficulties)
                 {
-                    difficultyText.text = $"{difficultyAbbreviations[diffId]} {diff.value.ToString("F0")}";
-                    break;
+                    if (diff.id == diffId)
+                    {
+                        difficultyText.text = $"{difficultyAbbreviations[diffId]} {diff.value.ToString("F0")}";
+                        break;
+                    }
                 }
             }
-        }
+
+            if (difficultyBackground != null && diffId >= 0 && diffId < difficultyColors.Length)
+                difficultyBackground.color = difficultyColors[diffId];
     }
 
     private IEnumerator LoadCover()
@@ -79,11 +83,7 @@ public class SongMeta : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 var texture = DownloadHandlerTexture.GetContent(request);
-                coverImage.sprite = Sprite.Create(
-                    texture,
-                    new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.5f, 0.5f)
-                );
+                coverImage.texture = texture;
             }
             else
             {

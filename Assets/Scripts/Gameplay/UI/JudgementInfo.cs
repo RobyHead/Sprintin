@@ -6,6 +6,12 @@ public class JudgementInfo : MonoBehaviour
 {
     [SerializeField] private TMP_Text text;
 
+    [Header("Judgement Colors")]
+    [SerializeField] private Color perfectColor = Color.cyan;
+    [SerializeField] private Color greatColor = Color.green;
+    [SerializeField] private Color badColor = Color.yellow;
+    [SerializeField] private Color missColor = Color.red;
+
     [Header("Animation")]
     [SerializeField] private float scaleInDurationMs = 100f;
     [SerializeField] private float scaleOvershoot = 1f;
@@ -45,9 +51,22 @@ public class JudgementInfo : MonoBehaviour
             StopCoroutine(_animation);
 
         text.text = judgement.ToString();
+        text.color = GetJudgementColor(judgement);
         SetAlpha(1f);
         transform.localScale = _baseScale * 0.5f;
         _animation = StartCoroutine(Animate());
+    }
+
+    private Color GetJudgementColor(Judgement judgement)
+    {
+        return judgement switch
+        {
+            Judgement.Perfect => perfectColor,
+            Judgement.Great   => greatColor,
+            Judgement.Bad     => badColor,
+            Judgement.Miss    => missColor,
+            _ => Color.white,
+        };
     }
 
     private IEnumerator Animate()
