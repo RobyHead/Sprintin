@@ -222,10 +222,46 @@ public class CalibratePanelManager : MonoBehaviour
         while (_offsetSamples.Count > 5)
             _offsetSamples.Dequeue();
 
-        float sum = 0f;
-        foreach (var s in _offsetSamples)
-            sum += s;
-        _cachedOffsetMs = Mathf.Round(sum / _offsetSamples.Count);
+        _cachedOffsetMs = Mathf.Round(CalculateTrimmedMean());
+    }
+
+    private float CalculateTrimmedMean()
+    {
+        int count = _offsetSamples.Count;
+        if (count <= 1)
+        {
+            float sum = 0f;
+            foreach (var s in _offsetSamples)
+                sum += s;
+            return sum / count;
+        }
+
+        var values = _offsetSamples.ToArray();
+        float sumAll = 0f;
+        for (int i = 0; i < values.Length; i++)
+            sumAll += values[i];
+        float mean = sumAll / values.Length;
+
+        int outlierIndex = 0;
+        float maxDeviation = 0f;
+        for (int i = 0; i < values.Length; i++)
+        {
+            float dev = Mathf.Abs(values[i] - mean);
+            if (dev > maxDeviation)
+            {
+                maxDeviation = dev;
+                outlierIndex = i;
+            }
+        }
+
+        float sumTrim = 0f;
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (i == outlierIndex) continue;
+            sumTrim += values[i];
+        }
+
+        return sumTrim / (values.Length - 1);
     }
 
     private void LoadOffsetFromPrefs()
