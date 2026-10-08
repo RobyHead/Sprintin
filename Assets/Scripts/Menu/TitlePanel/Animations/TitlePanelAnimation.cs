@@ -20,9 +20,10 @@ public class TitlePanelAnimation : MonoBehaviour
     [SerializeField] private float textureHeight = 1080f;
 
     public event System.Action OnIntroComplete;
+    public event System.Action OnSlideOutComplete;
     public event System.Action OnOutroComplete;
 
-    private enum Phase { Idle, FadeIn, SlideIn, SlideOut, FadeOut }
+    private enum Phase { Idle, FadeIn, SlideIn, SlideOut, WaitingForFadeOut, FadeOut }
     private Phase _phase;
     private float _timer;
 
@@ -62,6 +63,15 @@ public class TitlePanelAnimation : MonoBehaviour
     {
         _timer = 0f;
         _phase = Phase.SlideOut;
+    }
+
+    public void StartFadeOut()
+    {
+        if (_phase == Phase.WaitingForFadeOut)
+        {
+            _timer = 0f;
+            _phase = Phase.FadeOut;
+        }
     }
 
     public void ResetToOffscreen()
@@ -122,11 +132,18 @@ public class TitlePanelAnimation : MonoBehaviour
                         groundRect.anchoredPosition = Vector2.Lerp(_groundTargetPos, _groundOffscreenPos, t);
                     if (_timer >= slideOutDurationMs / 1000f)
                     {
+                        titleRect.anchoredPosition = _titleOffscreenPos;
+                        if (groundRect != null)
+                            groundRect.anchoredPosition = _groundOffscreenPos;
                         _timer = 0f;
-                        _phase = Phase.FadeOut;
+                        _phase = Phase.WaitingForFadeOut;
+                        OnSlideOutComplete?.Invoke();
                     }
                     break;
                 }
+
+            case Phase.WaitingForFadeOut:
+                break;
 
             case Phase.FadeOut:
                 {

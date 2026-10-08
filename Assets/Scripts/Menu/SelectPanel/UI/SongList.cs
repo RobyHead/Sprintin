@@ -1,5 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class SongList : MonoBehaviour
@@ -37,6 +40,17 @@ public class SongList : MonoBehaviour
     private float _stableTimer;
     private bool _previewStarted;
 
+    private readonly Dictionary<string, Texture2D> _coverCache = new();
+    private Coroutine _preloadRoutine;
+    private bool _coverCacheReady;
+    public bool IsCoverCacheReady => _coverCacheReady;
+    public event System.Action OnCoverCacheReady;
+
+    private string _restorePackId;
+    private string _restoreSongId;
+    private int _restoreDifficultyId;
+    private bool _finishedInit;
+
     public void StopPreview()
     {
         _previewStarted = true;
@@ -65,13 +79,65 @@ public class SongList : MonoBehaviour
         string restorePackId = null, string restoreSongId = null, int restoreDifficultyId = -1)
     {
         _songsPath = songsPath;
+        _restorePackId = restorePackId;
+        _restoreSongId = restoreSongId;
+        _restoreDifficultyId = restoreDifficultyId;
+        _finishedInit = false;
+        _coverCacheReady = false;
+
         scrollRect.enabled = false;
         scrollRect.vertical = false;
         scrollRect.horizontal = false;
         BuildList(items);
 
-        if (!string.IsNullOrEmpty(restorePackId))
-            RestoreSelection(restorePackId, restoreSongId, restoreDifficultyId);
+        if (_preloadRoutine != null)
+            StopCoroutine(_preloadRoutine);
+        _preloadRoutine = StartCoroutine(PreloadAllCovers(items));
+    }
+
+    private IEnumerator PreloadAllCovers(List<SongListItem> items)
+    {
+        _coverCacheReady = false;
+        _coverCache.Clear();
+
+        foreach (var item in items)
+        {
+            if (item.Type != SongListItem.ItemType.Song) continue;
+            string key = CoverCacheKey(item.Pack.id, item.Song.id);
+
+            var jpgPath = Path.Combine(_songsPath, item.Pack.id, item.Song.id, "cover.jpg");
+            var pngPath = Path.Combine(_songsPath, item.Pack.id, item.Song.id, "cover.png");
+            var path = File.Exists(jpgPath) ? jpgPath : pngPath;
+
+            if (!File.Exists(path))
+                continue;
+
+            var uri = new System.Uri(path).AbsoluteUri;
+            using var request = UnityWebRequestTexture.GetTexture(uri);
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+                _coverCache[key] = DownloadHandlerTexture.GetContent(request);
+        }
+
+        _coverCacheReady = true;
+        OnCoverCacheReady?.Invoke();
+        DoFinishInit();
+    }
+
+    private static string CoverCacheKey(string packId, string songId)
+    {
+        return $"{packId}/{songId}";
+    }
+
+    private void DoFinishInit()
+    {
+        if (_finishedInit) return;
+        if (_entries.Count == 0) return;
+        _finishedInit = true;
+
+        if (!string.IsNullOrEmpty(_restorePackId))
+            RestoreSelection(_restorePackId, _restoreSongId, _restoreDifficultyId);
         else
             SnapToFirstSong();
     }
@@ -289,8 +355,12 @@ public class SongList : MonoBehaviour
         var entry = _entries[index];
         if (entry.Data.Type == SongListItem.ItemType.Song && songInfo != null)
         {
-            songInfo.DisplayMeta(entry.Data.Song, entry.Data.Pack.id, _songsPath);
-            songInfo.DisplayCover();
+            songInfo.DisplayMeta(entry.Data.Song, entry.Data.Pack.id);
+            string key = CoverCacheKey(entry.Data.Pack.id, entry.Data.Song.id);
+            if (_coverCache.TryGetValue(key, out var tex))
+                songInfo.SetCoverTexture(tex);
+            else
+                songInfo.SetCoverTexture(null);
         }
 
         if (songPreview != null)

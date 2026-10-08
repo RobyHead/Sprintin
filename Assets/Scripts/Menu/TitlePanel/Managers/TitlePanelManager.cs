@@ -9,7 +9,8 @@ public class TitlePanelManager : MonoBehaviour
 
     public event System.Action OnWaitingInput;
     public event System.Action OnExitStarted;
-    public event System.Action OnSequenceComplete;
+    public event System.Action OnSlideOutComplete;
+    public event System.Action OnExitComplete;
     public event System.Action OnQuitGame;
 
     private enum State { Idle, Intro, WaitingInput, Outro }
@@ -20,6 +21,7 @@ public class TitlePanelManager : MonoBehaviour
         if (titleAnimation != null)
         {
             titleAnimation.OnIntroComplete += HandleIntroComplete;
+            titleAnimation.OnSlideOutComplete += HandleSlideOutComplete;
             titleAnimation.OnOutroComplete += HandleOutroComplete;
         }
     }
@@ -29,6 +31,7 @@ public class TitlePanelManager : MonoBehaviour
         if (titleAnimation != null)
         {
             titleAnimation.OnIntroComplete -= HandleIntroComplete;
+            titleAnimation.OnSlideOutComplete -= HandleSlideOutComplete;
             titleAnimation.OnOutroComplete -= HandleOutroComplete;
         }
     }
@@ -57,13 +60,27 @@ public class TitlePanelManager : MonoBehaviour
             keyHintAnimation.StartBlinking();
     }
 
+    private void HandleSlideOutComplete()
+    {
+        if (_state != State.Outro)
+            return;
+
+        OnSlideOutComplete?.Invoke();
+    }
+
+    public void StartFadeOut()
+    {
+        if (titleAnimation != null)
+            titleAnimation.StartFadeOut();
+    }
+
     private void HandleOutroComplete()
     {
         if (_state != State.Outro)
             return;
 
         _state = State.Idle;
-        OnSequenceComplete?.Invoke();
+        OnExitComplete?.Invoke();
     }
 
     private void Update()

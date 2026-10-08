@@ -12,6 +12,10 @@ public class MenuCanvasManager : MonoBehaviour
     private bool _pendingTitle;
     private bool _pendingSelect;
     private bool _firstTimeSetup;
+    private bool _isTitleExiting;
+    private bool _titleSlideOutComplete;
+    private bool _coversReady;
+    private bool _pendingSceneIntro;
 
     private void Start()
     {
@@ -22,11 +26,13 @@ public class MenuCanvasManager : MonoBehaviour
 
         titleManager.OnWaitingInput += OnTitleWaitingInput;
         titleManager.OnExitStarted += OnTitleExitStarted;
-        titleManager.OnSequenceComplete += OnTitleSequenceComplete;
+        titleManager.OnSlideOutComplete += OnTitleSlideOutComplete;
+        titleManager.OnExitComplete += OnTitleExitComplete;
         titleManager.OnQuitGame += OnTitleQuitGame;
 
         selectManager.OnRequestBack += OnSelectRequestBack;
         selectManager.OnRequestSettings += OnSelectRequestSettings;
+        selectManager.OnCoversReady += OnCoversReadyHandler;
 
         settingsManager.OnRequestBack += OnSettingsRequestBack;
         settingsManager.OnRequestCalibrate += OnSettingsRequestCalibrate;
@@ -47,7 +53,7 @@ public class MenuCanvasManager : MonoBehaviour
         if (SceneTransitionManager.Instance.IsTransitioning)
         {
             SceneTransitionManager.Instance.OnIntroComplete += OnTransitionIntroComplete;
-            SceneTransitionManager.Instance.RequestIntro();
+            _pendingSceneIntro = true;
         }
     }
 
@@ -71,7 +77,8 @@ public class MenuCanvasManager : MonoBehaviour
         {
             titleManager.OnWaitingInput -= OnTitleWaitingInput;
             titleManager.OnExitStarted -= OnTitleExitStarted;
-            titleManager.OnSequenceComplete -= OnTitleSequenceComplete;
+            titleManager.OnSlideOutComplete -= OnTitleSlideOutComplete;
+            titleManager.OnExitComplete -= OnTitleExitComplete;
             titleManager.OnQuitGame -= OnTitleQuitGame;
         }
 
@@ -79,6 +86,7 @@ public class MenuCanvasManager : MonoBehaviour
         {
             selectManager.OnRequestBack -= OnSelectRequestBack;
             selectManager.OnRequestSettings -= OnSelectRequestSettings;
+            selectManager.OnCoversReady -= OnCoversReadyHandler;
         }
 
         if (settingsManager != null)
@@ -100,6 +108,9 @@ public class MenuCanvasManager : MonoBehaviour
 
     private void OnTitleExitStarted()
     {
+        _isTitleExiting = true;
+        _titleSlideOutComplete = false;
+
         if (!PlayerPrefs.HasKey("offset"))
         {
             _firstTimeSetup = true;
@@ -111,7 +122,43 @@ public class MenuCanvasManager : MonoBehaviour
         }
     }
 
-    private void OnTitleSequenceComplete()
+    private void OnTitleSlideOutComplete()
+    {
+        if (!_isTitleExiting)
+            return;
+
+        _titleSlideOutComplete = true;
+        TryStartTitleFadeOut();
+    }
+
+    private void OnCoversReadyHandler()
+    {
+        _coversReady = true;
+
+        if (_pendingSceneIntro)
+        {
+            _pendingSceneIntro = false;
+            if (SceneTransitionManager.Instance != null)
+                SceneTransitionManager.Instance.RequestIntro();
+        }
+        else if (_isTitleExiting)
+        {
+            TryStartTitleFadeOut();
+        }
+    }
+
+    private void TryStartTitleFadeOut()
+    {
+        if (!_titleSlideOutComplete || !_coversReady)
+            return;
+
+        _titleSlideOutComplete = false;
+
+        if (titleManager != null)
+            titleManager.StartFadeOut();
+    }
+
+    private void OnTitleExitComplete()
     {
         titleManager.gameObject.SetActive(false);
 

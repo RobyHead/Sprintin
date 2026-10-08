@@ -7,8 +7,12 @@ public class SelectPanelManager : MonoBehaviour
 
     public event System.Action OnRequestBack;
     public event System.Action OnRequestSettings;
+    public event System.Action OnCoversReady;
 
     private bool _acceptInput;
+
+    public bool IsCoverCacheReady =>
+        songList != null && songList.IsCoverCacheReady;
 
     public void SetInteractable(bool interactable)
     {
@@ -33,6 +37,10 @@ public class SelectPanelManager : MonoBehaviour
     {
         _acceptInput = false;
         RefreshPreview();
+
+        if (songList != null)
+            songList.OnCoverCacheReady += OnCoverCacheReady;
+
         if (MenuInputManager.Instance != null)
         {
             MenuInputManager.Instance.OnBack += HandleBack;
@@ -42,11 +50,19 @@ public class SelectPanelManager : MonoBehaviour
 
     private void OnDisable()
     {
+        if (songList != null)
+            songList.OnCoverCacheReady -= OnCoverCacheReady;
+
         if (MenuInputManager.Instance != null)
         {
             MenuInputManager.Instance.OnBack -= HandleBack;
             MenuInputManager.Instance.OnSettings -= HandleSettings;
         }
+    }
+
+    private void OnCoverCacheReady()
+    {
+        OnCoversReady?.Invoke();
     }
 
     private void HandleBack()

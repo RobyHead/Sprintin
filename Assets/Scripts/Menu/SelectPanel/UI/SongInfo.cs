@@ -26,19 +26,20 @@ public class SongInfo : MonoBehaviour
     private int _selectedDifficultyId = -1;
     public int SelectedDifficultyId => _selectedDifficultyId;
 
-    private Coroutine _coverRoutine;
+    private SongData _currentSong;
+    private string _currentPackId;
 
     public void SetPendingDifficulty(int id)
     {
         _selectedDifficultyId = id;
         UpdateRecordDisplay();
     }
-    private SongData _pendingSong;
-    private string _pendingPackId;
-    private string _pendingSongsPath;
 
-    public void DisplayMeta(SongData song, string packId, string songsPath)
+    public void DisplayMeta(SongData song, string packId)
     {
+        _currentSong = song;
+        _currentPackId = packId;
+
         if (songNameText != null) songNameText.text = song.name;
         if (artistText != null) artistText.text = song.artist;
         if (bpmText != null) bpmText.text = $"BPM: {song.bpm}";
@@ -49,19 +50,13 @@ public class SongInfo : MonoBehaviour
             _selectedDifficultyId = difficultySelector.SelectedId;
         }
 
-        _pendingSong = song;
-        _pendingPackId = packId;
-        _pendingSongsPath = songsPath;
-
         UpdateRecordDisplay();
     }
 
-    public void DisplayCover()
+    public void SetCoverTexture(Texture2D texture)
     {
-        if (_pendingSong == null) return;
-        if (_coverRoutine != null)
-            StopCoroutine(_coverRoutine);
-        _coverRoutine = StartCoroutine(LoadCover(_pendingPackId, _pendingSong.id, _pendingSongsPath));
+        if (coverImage != null)
+            coverImage.texture = texture;
     }
 
     public void SelectNextDifficulty()
@@ -84,38 +79,9 @@ public class SongInfo : MonoBehaviour
         UpdateRecordDisplay();
     }
 
-    private IEnumerator LoadCover(string packId, string songId, string songsPath)
-    {
-        if (coverImage == null) yield break;
-
-        var jpgPath = Path.Combine(songsPath, packId, songId, "cover.jpg");
-        var pngPath = Path.Combine(songsPath, packId, songId, "cover.png");
-        var path = File.Exists(jpgPath) ? jpgPath : pngPath;
-
-        if (!File.Exists(path))
-        {
-            coverImage.texture = null;
-            yield break;
-        }
-
-        var uri = new Uri(path).AbsoluteUri;
-        using var request = UnityWebRequestTexture.GetTexture(uri);
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            var tex = DownloadHandlerTexture.GetContent(request);
-            coverImage.texture = tex;
-        }
-        else
-        {
-            coverImage.texture = null;
-        }
-    }
-
     private void UpdateRecordDisplay()
     {
-        if (_pendingSong == null || _pendingPackId == null)
+        if (_currentSong == null || _currentPackId == null)
             return;
 
         if (_selectedDifficultyId < 0)
@@ -125,7 +91,7 @@ public class SongInfo : MonoBehaviour
             return;
 
         var diff = RecordManager.Instance.GetDiffRecord(
-            _pendingPackId, _pendingSong.id, _selectedDifficultyId);
+            _currentPackId, _currentSong.id, _selectedDifficultyId);
 
         if (recordScoreText != null)
             recordScoreText.text = diff.highestScore.ToString("D6");
