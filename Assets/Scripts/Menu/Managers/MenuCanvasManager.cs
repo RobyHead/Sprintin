@@ -149,7 +149,7 @@ public class MenuCanvasManager : MonoBehaviour
 
     private void TryStartTitleFadeOut()
     {
-        if (!_titleSlideOutComplete || !_coversReady)
+        if (!_titleSlideOutComplete || (!_coversReady && !_firstTimeSetup))
             return;
 
         _titleSlideOutComplete = false;
