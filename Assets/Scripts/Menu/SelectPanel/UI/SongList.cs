@@ -122,7 +122,23 @@ public class SongList : MonoBehaviour
 
         _coverCacheReady = true;
         OnCoverCacheReady?.Invoke();
+        ApplyCoversToEntries();
         DoFinishInit();
+    }
+
+    private void ApplyCoversToEntries()
+    {
+        foreach (var entry in _entries)
+        {
+            if (entry.SongUI == null)
+                continue;
+
+            string key = CoverCacheKey(entry.Data.Pack.id, entry.Data.Song.id);
+            if (_coverCache.TryGetValue(key, out var tex))
+                entry.SongUI.SetCoverTexture(tex);
+
+            entry.SongUI.SetDifficultyIndicators(entry.Data.Song.difficulties);
+        }
     }
 
     private static string CoverCacheKey(string packId, string songId)
@@ -167,7 +183,7 @@ public class SongList : MonoBehaviour
             else
             {
                 var songUI = Instantiate(songPrefab, content);
-                songUI.Setup(item.Pack.id, item.Song.id, item.Song);
+                songUI.Setup(item.Pack.id, item.Song.id, item.Song.name);
                 entry.SongUI = songUI;
                 entry.Rect = songUI.GetComponent<RectTransform>();
             }
