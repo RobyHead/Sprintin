@@ -68,13 +68,12 @@ public class SpeedTimeline : MonoBehaviour
 
     private void Update()
     {
-        if (_stretchs.Count == 0)
+        if (!GameTime.Instance.HasStarted)
             return;
 
         float now = CurrentMs;
-        float ms = Mathf.Max(0f, now);
 
-        while (_activeStretchIndex + 1 < _stretchs.Count && _stretchs[_activeStretchIndex + 1].ms <= ms)
+        while (_activeStretchIndex + 1 < _stretchs.Count && _stretchs[_activeStretchIndex + 1].ms <= now)
         {
             _stretchFromValue = _stretchs[_activeStretchIndex].multiplier;
             _activeStretchIndex++;
@@ -82,10 +81,10 @@ public class SpeedTimeline : MonoBehaviour
 
         var s = _stretchs[_activeStretchIndex];
 
-        if (ms < s.endms)
+        if (now < s.endms)
         {
             float duration = s.endms - s.ms;
-            float t = duration > 0f ? Mathf.Clamp01((ms - s.ms) / duration) : 1f;
+            float t = duration > 0f ? Mathf.Clamp01((now - s.ms) / duration) : 1f;
             float progress = ApplyEasing(t, s.easing);
             _currentStretch = Mathf.Lerp(_stretchFromValue, s.multiplier, progress);
         }
@@ -97,22 +96,10 @@ public class SpeedTimeline : MonoBehaviour
         float dt = now - _lastFrameMs;
         _lastFrameMs = now;
         dt = Mathf.Max(0f, dt);
-        if (dt > 0f && _speeds.Count > 0)
-        {
-            float speedMul, stretch;
-            if (now <= 0f)
-            {
-                speedMul = _speeds[0].multiplier;
-                stretch = _stretchs[0].multiplier;
-            }
-            else
-            {
-                int idx = FindStartIndex(now);
-                speedMul = idx > 0 ? _speeds[idx - 1].multiplier : _speeds[0].multiplier;
-                stretch = _currentStretch;
-            }
-            _environmentDistance += dt / 1000f * Speed * speedMul * stretch;
-        }
+        int speedIndex = FindStartIndex(now);
+        float speedMul = speedIndex > 0 ? _speeds[speedIndex - 1].multiplier : _speeds[0].multiplier;
+        float stretch = _currentStretch;
+        _environmentDistance += dt / 1000f * Speed * speedMul * stretch;
     }
 
     private static float ApplyEasing(float t, string easing)
