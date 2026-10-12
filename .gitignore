@@ -107,7 +107,8 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 # Songs for development
-Assets/StreamingAssets/Songs/Dev/
+Assets/StreamingAssets/Songs/dev*
+Assets/StreamingAssets/Songs/fordemo*
 
 # Transforming Charts
 Assets/StreamingAssets/ChartTransformers/*

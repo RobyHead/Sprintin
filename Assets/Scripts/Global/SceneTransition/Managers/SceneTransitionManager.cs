@@ -36,6 +36,8 @@ public class SceneTransitionManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        SetupDisplay();
+
         panelManager.gameObject.SetActive(false);
 
         panelManager.OnOutroComplete += HandleOutroComplete;
@@ -49,6 +51,11 @@ public class SceneTransitionManager : MonoBehaviour
             panelManager.OnOutroComplete -= HandleOutroComplete;
             panelManager.OnIntroComplete -= HandleIntroComplete;
         }
+    }
+
+    private static void SetupDisplay()
+    {
+        Cursor.visible = false;
     }
 
     public void TransitionToGame(string packId, string songId, int difficultyId)

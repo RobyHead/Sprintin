@@ -1,0 +1,15 @@
+{
+  "id": "speedandstretchdemo",
+  "name": "为了展示变速而速通的歌",
+  "artist": "rbhd",
+  "difficulties": [
+    {
+      "id": 3,
+      "value": 14.0,
+      "charter": "rbhd"
+    }
+  ],
+  "bpm": 98,
+  "viewbegin": 44000,
+  "viewend": 55200
+}
