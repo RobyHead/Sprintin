@@ -294,8 +294,6 @@ public class MenuCanvasManager : MonoBehaviour
             PlayerPrefs.SetString("speed", "2");
         if (!PlayerPrefs.HasKey("music_volume"))
             PlayerPrefs.SetString("music_volume", "100");
-        if (!PlayerPrefs.HasKey("sfx_volume"))
-            PlayerPrefs.SetString("sfx_volume", "100");
         PlayerPrefs.Save();
         _firstTimeSetup = false;
     }

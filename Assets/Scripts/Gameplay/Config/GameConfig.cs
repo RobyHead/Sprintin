@@ -15,11 +15,8 @@ public class GameConfig : MonoBehaviour
 
     [Header("Volume")]
     [SerializeField] private string musicVolumeKey = "music_volume";
-    [SerializeField] private string sfxVolumeKey = "sfx_volume";
     [SerializeField] private float defaultMusicVolume = 100f;
-    [SerializeField] private float defaultSfxVolume = 100f;
     private float musicVolume = 100f;
-    private float sfxVolume = 100f;
 
     [Header("Notes Visibility")]
     [SerializeField] private float visibleRangeMax = 40f;
@@ -46,7 +43,6 @@ public class GameConfig : MonoBehaviour
     public float FadeOutDurationMs => fadeOutDurationMs;
     public float SettlementDelayMs => settlementDelayMs;
     public float MusicVolume => musicVolume;
-    public float SfxVolume => sfxVolume;
 
     private void Awake()
     {
@@ -58,7 +54,6 @@ public class GameConfig : MonoBehaviour
         speed = SafeParseFloat(PlayerPrefs.GetString(speedKey), defaultSpeed) * 10;
         offset = SafeParseFloat(PlayerPrefs.GetString(offsetKey), defaultOffset);
         musicVolume = SafeParseFloat(PlayerPrefs.GetString(musicVolumeKey), defaultMusicVolume);
-        sfxVolume = SafeParseFloat(PlayerPrefs.GetString(sfxVolumeKey), defaultSfxVolume);
     }
 
     private static float SafeParseFloat(string s, float fallback)
