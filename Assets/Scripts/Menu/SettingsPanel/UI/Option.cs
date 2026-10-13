@@ -8,9 +8,8 @@ public abstract class Option : MonoBehaviour
     public abstract string PersistKey { get; }
     public abstract void Increase();
     public abstract void Decrease();
-    public abstract void LoadDefault();
-    public abstract void LoadFrom(string data);
-    public abstract string SaveData();
+    public abstract void Load(string data = null);
+    public abstract string Save();
 
     public event Action OnValueChanged;
 

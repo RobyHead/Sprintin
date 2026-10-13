@@ -27,19 +27,13 @@ public class EnumOption : Option
     public string CurrentLabel => entries.Length > 0 ? entries[_currentIndex].label : string.Empty;
     public int CurrentIndex => _currentIndex;
 
-    public override void LoadDefault()
+    public override void Load(string data = null)
     {
-        _currentIndex = FindLabelIndex(defaultLabel);
+        _currentIndex = FindLabelIndex(data ?? defaultLabel);
         UpdateDisplay();
     }
 
-    public override void LoadFrom(string data)
-    {
-        _currentIndex = FindLabelIndex(data);
-        UpdateDisplay();
-    }
-
-    public override string SaveData()
+    public override string Save()
     {
         return CurrentLabel;
     }

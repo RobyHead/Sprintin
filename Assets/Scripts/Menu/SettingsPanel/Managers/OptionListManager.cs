@@ -15,7 +15,7 @@ public class OptionListManager : MonoBehaviour
     private void OnEnable()
     {
         LoadAll();
-        optionList.Open();
+        optionList.Open(_options);
     }
 
     private void OnDisable()
@@ -28,17 +28,8 @@ public class OptionListManager : MonoBehaviour
     {
         foreach (var opt in _options)
         {
-            if (string.IsNullOrEmpty(opt.PersistKey))
-            {
-                opt.LoadDefault();
-                continue;
-            }
-
-            string saved = PlayerPrefs.GetString(opt.PersistKey, null);
-            if (saved != null)
-                opt.LoadFrom(saved);
-            else
-                opt.LoadDefault();
+            string saved = string.IsNullOrEmpty(opt.PersistKey) ? null : PlayerPrefs.GetString(opt.PersistKey, null);
+            opt.Load(saved);
         }
     }
 
@@ -47,7 +38,7 @@ public class OptionListManager : MonoBehaviour
         foreach (var opt in _options)
         {
             if (!string.IsNullOrEmpty(opt.PersistKey))
-                PlayerPrefs.SetString(opt.PersistKey, opt.SaveData());
+                PlayerPrefs.SetString(opt.PersistKey, opt.Save());
         }
         PlayerPrefs.Save();
     }
@@ -60,8 +51,8 @@ public class OptionListManager : MonoBehaviour
             if (string.IsNullOrEmpty(opt.PersistKey)) continue;
             if (PlayerPrefs.HasKey(opt.PersistKey)) continue;
 
-            opt.LoadDefault();
-            PlayerPrefs.SetString(opt.PersistKey, opt.SaveData());
+            opt.Load();
+            PlayerPrefs.SetString(opt.PersistKey, opt.Save());
             anyMissing = true;
         }
         if (anyMissing)

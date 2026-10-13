@@ -27,12 +27,11 @@ public class OptionList : MonoBehaviour
         public float BaseY;
     }
 
-    public void Open()
+    public void Open(Option[] options)
     {
         if (_entries.Count == 0)
         {
-            var options = content.GetComponentsInChildren<Option>(true);
-            if (options.Length == 0) return;
+            if (options == null || options.Length == 0) return;
 
             float y = -optionHeight / 2f;
 

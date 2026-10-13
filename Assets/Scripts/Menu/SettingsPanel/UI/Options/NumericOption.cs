@@ -22,22 +22,16 @@ public class NumericOption : Option
     public override string PersistKey => persistKey;
     public float Value => _currentValue;
 
-    public override void LoadDefault()
+    public override void Load(string data = null)
     {
-        _currentValue = defaultValue;
-        UpdateDisplay();
-    }
-
-    public override void LoadFrom(string data)
-    {
-        if (float.TryParse(data, NumberStyles.Float, CultureInfo.InvariantCulture, out float val))
+        if (data != null && float.TryParse(data, NumberStyles.Float, CultureInfo.InvariantCulture, out float val))
             _currentValue = Mathf.Clamp(val, minValue, maxValue);
         else
             _currentValue = defaultValue;
         UpdateDisplay();
     }
 
-    public override string SaveData()
+    public override string Save()
     {
         return _currentValue.ToString(CultureInfo.InvariantCulture);
     }
