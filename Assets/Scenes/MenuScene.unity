@@ -9861,7 +9861,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7221833194372528838, guid: 3344ec37f3a49d749967a2d2519c0cbe, type: 3}
       propertyPath: m_text
-      value: Music Volume
+      value: "\u97F3\u4E50\u97F3\u91CF"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12100,9 +12100,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7221833194372528838, guid: 3344ec37f3a49d749967a2d2519c0cbe, type: 3}
       propertyPath: m_text
-      value: 'Offset
-
-'
+      value: "\u6E38\u620F\u5EF6\u8FDF"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12449,6 +12447,10 @@ PrefabInstance:
     - target: {fileID: 525947849621228926, guid: 3344ec37f3a49d749967a2d2519c0cbe, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7221833194372528838, guid: 3344ec37f3a49d749967a2d2519c0cbe, type: 3}
+      propertyPath: m_text
+      value: "\u97F3\u7B26\u6D41\u901F"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
