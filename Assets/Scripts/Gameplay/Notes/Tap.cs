@@ -18,11 +18,8 @@ public class Tap : MonoBehaviour
     private int _ms;
     private bool _isDual;
 
-    private void Update()
+    public void UpdateState()
     {
-        if (!GameTime.Instance.HasStarted)
-            return;
-
         if (IsJudged)
         {
             SetRenderersVisible(false);
@@ -46,14 +43,12 @@ public class Tap : MonoBehaviour
         ApplyMaterial();
         ApplyStaticTransform();
         SetRenderersVisible(false);
-        Judge.Instance.RegisterTap(this);
     }
 
-    public void OnJudged(Judgement judgement, float diff)
+    public void MarkJudged()
     {
         IsJudged = true;
         SetRenderersVisible(false);
-        Judge.Instance.UnregisterTap(this);
     }
 
     private void ApplyStaticTransform()

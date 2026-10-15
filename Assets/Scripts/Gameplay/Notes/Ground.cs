@@ -19,15 +19,12 @@ public class Ground : MonoBehaviour
     private int _ms;
     private bool _hidden;
 
-    private void Update()
+    public bool UpdateState()
     {
-        if (!GameTime.Instance.HasStarted)
-            return;
-
         if (_hidden)
         {
             SetRenderersVisible(false);
-            return;
+            return false;
         }
 
         float z = SpeedTimeline.Instance.GetDistance(_ms + 25);
@@ -44,8 +41,7 @@ public class Ground : MonoBehaviour
             {
                 _hidden = true;
                 SetRenderersVisible(false);
-                Judge.Instance.UnregisterGround(this);
-                return;
+                return false;
             }
         }
         else
@@ -57,6 +53,7 @@ public class Ground : MonoBehaviour
 
         bool visible = z >= SpeedTimeline.Instance.VisibleRangeMin && z <= SpeedTimeline.Instance.VisibleRangeMax;
         SetRenderersVisible(visible);
+        return true;
     }
 
     public void Initialize(int ms)
@@ -68,10 +65,9 @@ public class Ground : MonoBehaviour
             new Vector3(0f, 0f, 50f),
             Quaternion.identity
         );
-        Judge.Instance.RegisterGround(this);
     }
 
-    public void OnJudged(Judgement judgement, float diff)
+    public void MarkJudged()
     {
         IsJudged = true;
     }

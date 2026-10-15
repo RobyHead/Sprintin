@@ -7754,6 +7754,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1656914625}
     - target: {fileID: 1256937887020617005, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: tapManager
+      value: 
+      objectReference: {fileID: 8914841135642013323}
+    - target: {fileID: 1256937887020617005, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: holdManager
+      value: 
+      objectReference: {fileID: 8914841135642013322}
+    - target: {fileID: 1256937887020617005, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+      propertyPath: groundManager
+      value: 
+      objectReference: {fileID: 8914841135642013321}
+    - target: {fileID: 1256937887020617005, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
       propertyPath: judgementInfo
       value: 
       objectReference: {fileID: 1084002654}
@@ -7842,6 +7854,39 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+--- !u!114 &8914841135642013321 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2603272030079891455, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+  m_PrefabInstance: {fileID: 8914841135642013320}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89934c3a43f04414288b708f3a444674, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundPool
+--- !u!114 &8914841135642013322 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5398793889997474018, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+  m_PrefabInstance: {fileID: 8914841135642013320}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d9733b40ec15b544b42e50c9d27374e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HoldPool
+--- !u!114 &8914841135642013323 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6348981534055412640, guid: 5c5dee6a58a7826479aad7735697eda6, type: 3}
+  m_PrefabInstance: {fileID: 8914841135642013320}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c2c8750a72b4d546bfaf8a4e6a0501f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NotePool
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

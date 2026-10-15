@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Judge : MonoBehaviour
@@ -25,23 +24,19 @@ public class Judge : MonoBehaviour
     [Header("Ground")]
     [SerializeField] private float groundWindowMs = 50f;
 
+    [Header("Managers")]
+    [SerializeField] private TapManager tapManager;
+    [SerializeField] private HoldManager holdManager;
+    [SerializeField] private GroundManager groundManager;
+
     public event System.Action<Judgement> OnJudged;
 
     private int _currentScore;
     private int _maxScore;
 
-    private readonly List<Tap>[] _taps = new List<Tap>[4];
-    private readonly List<Hold>[] _holds = new List<Hold>[4];
-    private readonly List<Ground> _grounds = new List<Ground>();
-
     private void Awake()
     {
         Instance = this;
-        for (int i = 0; i < 4; i++)
-        {
-            _taps[i] = new List<Tap>();
-            _holds[i] = new List<Hold>();
-        }
     }
 
     private void Start()
@@ -74,10 +69,10 @@ public class Judge : MonoBehaviour
         int holdCount = 0;
         for (int i = 0; i < 4; i++)
         {
-            tapCount += _taps[i].Count;
-            holdCount += _holds[i].Count;
+            tapCount += tapManager.ActiveTaps[i].Count;
+            holdCount += holdManager.ActiveHolds[i].Count;
         }
-        int n = tapCount + _grounds.Count + holdCount * 2;
+        int n = tapCount + groundManager.ActiveGrounds.Count + holdCount * 2;
         _maxScore = n * 3;
         _currentScore = 0;
     }
@@ -91,43 +86,15 @@ public class Judge : MonoBehaviour
         CheckAutoMiss();
     }
 
-    public void RegisterTap(Tap tap)
-    {
-        _taps[tap.Key - 1].Add(tap);
-    }
-
-    public void UnregisterTap(Tap tap)
-    {
-        _taps[tap.Key - 1].Remove(tap);
-    }
-
-    public void RegisterHold(Hold hold)
-    {
-        _holds[hold.Key - 1].Add(hold);
-    }
-
-    public void UnregisterHold(Hold hold)
-    {
-        _holds[hold.Key - 1].Remove(hold);
-    }
-
-    public void RegisterGround(Ground ground)
-    {
-        _grounds.Add(ground);
-    }
-
-    public void UnregisterGround(Ground ground)
-    {
-        _grounds.Remove(ground);
-    }
-
     public void JudgePress(int trackIndex)
     {
         Tap earliestTap = null;
         float earliestTapMs = float.MaxValue;
 
-        foreach (var tap in _taps[trackIndex])
+        foreach (var tap in tapManager.ActiveTaps[trackIndex])
         {
+            if (tap.IsJudged)
+                continue;
             float diff = GameTime.Instance.ElapsedMs - tap.Ms;
             if (Mathf.Abs(diff) <= badWindowMs && tap.Ms < earliestTapMs)
             {
@@ -139,16 +106,15 @@ public class Judge : MonoBehaviour
         Hold earliestHold = null;
         float earliestHoldMs = float.MaxValue;
 
-        foreach (var hold in _holds[trackIndex])
+        foreach (var hold in holdManager.ActiveHolds[trackIndex])
         {
-            if (!hold.HeadJudged)
+            if (hold.HeadJudged)
+                continue;
+            float diff = GameTime.Instance.ElapsedMs - hold.Ms;
+            if (Mathf.Abs(diff) <= badWindowMs && hold.Ms < earliestHoldMs)
             {
-                float diff = GameTime.Instance.ElapsedMs - hold.Ms;
-                if (Mathf.Abs(diff) <= badWindowMs && hold.Ms < earliestHoldMs)
-                {
-                    earliestHoldMs = hold.Ms;
-                    earliestHold = hold;
-                }
+                earliestHoldMs = hold.Ms;
+                earliestHold = hold;
             }
         }
 
@@ -171,14 +137,14 @@ public class Judge : MonoBehaviour
 
     public void JudgeRelease(int trackIndex)
     {
-        foreach (var hold in _holds[trackIndex])
+        foreach (var hold in holdManager.ActiveHolds[trackIndex])
         {
             if (hold.HeadJudged && !hold.TailJudged && !hold.HeadWasMiss)
             {
                 float diff = GameTime.Instance.ElapsedMs - hold.EndMs;
                 var judgement = diff >= -tailEarlyWindowMs ? Judgement.Perfect : Judgement.Bad;
                 HandleJudgement(judgement);
-                hold.JudgeTail(judgement, diff);
+                hold.MarkTailJudged();
                 return;
             }
         }
@@ -189,7 +155,7 @@ public class Judge : MonoBehaviour
         float diff = GameTime.Instance.ElapsedMs - tap.Ms;
         var judgement = GetJudgement(Mathf.Abs(diff));
         HandleJudgement(judgement);
-        tap.OnJudged(judgement, diff);
+        tap.MarkJudged();
     }
 
     private void JudgeHoldHead(Hold hold)
@@ -197,7 +163,7 @@ public class Judge : MonoBehaviour
         float diff = GameTime.Instance.ElapsedMs - hold.Ms;
         var judgement = GetJudgement(Mathf.Abs(diff));
         HandleJudgement(judgement);
-        hold.JudgeHead(judgement, diff);
+        hold.MarkHeadJudged(judgement == Judgement.Miss);
 
         if (judgement == Judgement.Miss)
             HandleJudgement(Judgement.Miss);
@@ -243,9 +209,10 @@ public class Judge : MonoBehaviour
 
     private void CheckGround()
     {
-        for (int j = _grounds.Count - 1; j >= 0; j--)
+        var grounds = groundManager.ActiveGrounds;
+        for (int j = grounds.Count - 1; j >= 0; j--)
         {
-            var ground = _grounds[j];
+            var ground = grounds[j];
             if (ground.IsJudged)
                 continue;
 
@@ -255,7 +222,7 @@ public class Judge : MonoBehaviour
                 var judgement = Judgement.Miss;
                 if (Player.Instance.WasJumpingAt(judgeTime)) judgement = Judgement.Perfect;
                 HandleJudgement(judgement);
-                ground.OnJudged(judgement, GameTime.Instance.ElapsedMs - ground.Ms);
+                ground.MarkJudged();
             }
         }
     }
@@ -264,30 +231,35 @@ public class Judge : MonoBehaviour
     {
         for (int i = 0; i < 4; i++)
         {
-            for (int j = _taps[i].Count - 1; j >= 0; j--)
+            var taps = tapManager.ActiveTaps[i];
+            for (int j = taps.Count - 1; j >= 0; j--)
             {
-                if (GameTime.Instance.ElapsedMs > _taps[i][j].Ms + badWindowMs)
+                if (taps[j].IsJudged)
+                    continue;
+                if (GameTime.Instance.ElapsedMs > taps[j].Ms + badWindowMs)
                 {
                     HandleJudgement(Judgement.Miss);
-                    _taps[i][j].OnJudged(Judgement.Miss, GameTime.Instance.ElapsedMs - _taps[i][j].Ms);
+                    taps[j].MarkJudged();
                 }
             }
 
-            for (int j = _holds[i].Count - 1; j >= 0; j--)
+            var holds = holdManager.ActiveHolds[i];
+            for (int j = holds.Count - 1; j >= 0; j--)
             {
-                if (!_holds[i][j].HeadJudged && GameTime.Instance.ElapsedMs > _holds[i][j].Ms + badWindowMs)
+                var hold = holds[j];
+                if (!hold.HeadJudged && GameTime.Instance.ElapsedMs > hold.Ms + badWindowMs)
                 {
                     HandleJudgement(Judgement.Miss);
-                    _holds[i][j].JudgeHead(Judgement.Miss, GameTime.Instance.ElapsedMs - _holds[i][j].Ms);
+                    hold.MarkHeadJudged(true);
                     HandleJudgement(Judgement.Miss);
                     continue;
                 }
 
-                if (_holds[i][j].HeadJudged && !_holds[i][j].TailJudged && !_holds[i][j].HeadWasMiss
-                    && GameTime.Instance.ElapsedMs > _holds[i][j].EndMs)
+                if (hold.HeadJudged && !hold.TailJudged && !hold.HeadWasMiss
+                    && GameTime.Instance.ElapsedMs > hold.EndMs)
                 {
                     HandleJudgement(Judgement.Perfect);
-                    _holds[i][j].JudgeTail(Judgement.Perfect, GameTime.Instance.ElapsedMs - _holds[i][j].EndMs);
+                    hold.MarkTailJudged();
                 }
             }
         }

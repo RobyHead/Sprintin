@@ -10,11 +10,8 @@ public class Bar : MonoBehaviour
 
     private int _ms;
 
-    private void Update()
+    public void UpdateState()
     {
-        if (!GameTime.Instance.HasStarted)
-            return;
-
         float z = SpeedTimeline.Instance.GetDistance(_ms);
         var pos = transform.position;
         pos.z = z;

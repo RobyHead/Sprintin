@@ -30,15 +30,12 @@ public class Hold : MonoBehaviour
     private bool _isDual;
     private bool _fullyJudged;
 
-    private void Update()
+    public bool UpdateState()
     {
-        if (!GameTime.Instance.HasStarted)
-            return;
-
         if (_fullyJudged)
         {
             SetRenderersVisible(false);
-            return;
+            return false;
         }
 
         float z;
@@ -66,9 +63,7 @@ public class Hold : MonoBehaviour
             float tailDist = SpeedTimeline.Instance.GetDistance(_endMs);
             if (tailDist < 0f) tailDist = 0f;
 
-            float headDist = SpeedTimeline.Instance.GetDistance(_ms);
-            float bodyLength = tailDist - headDist;
-
+            float bodyLength = tailDist;
             head.localPosition = Vector3.zero;
             tail.localPosition = new Vector3(-tailDist, 0f, 0f);
             body.localPosition = new Vector3(-tailDist / 2f, 0f, 0f);
@@ -89,6 +84,7 @@ public class Hold : MonoBehaviour
 
         bool visible = z >= SpeedTimeline.Instance.VisibleRangeMin && z <= SpeedTimeline.Instance.VisibleRangeMax;
         SetRenderersVisible(visible);
+        return true;
     }
 
     public void Initialize(int trackKey, int ms, int endMs, bool isDual = false)
@@ -101,29 +97,26 @@ public class Hold : MonoBehaviour
         ApplyStaticTransform();
         ApplyMaterial();
         SetRenderersVisible(false);
-        Judge.Instance.RegisterHold(this);
     }
 
-    public void JudgeHead(Judgement judgement, float diff)
+    public void MarkHeadJudged(bool isMiss)
     {
         HeadJudged = true;
 
-        if (judgement == Judgement.Miss)
+        if (isMiss)
         {
             HeadWasMiss = true;
             TailJudged = true;
             _fullyJudged = true;
             SetRenderersVisible(false);
-            Judge.Instance.UnregisterHold(this);
         }
     }
 
-    public void JudgeTail(Judgement judgement, float diff)
+    public void MarkTailJudged()
     {
         TailJudged = true;
         _fullyJudged = true;
         SetRenderersVisible(false);
-        Judge.Instance.UnregisterHold(this);
     }
 
     private void ApplyStaticTransform()
