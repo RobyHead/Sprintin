@@ -35,12 +35,6 @@ public class EnvironmentPiece : MonoBehaviour
             return;
 
         transform.position = PositionAt(_spawnZ);
-
-        float z = transform.position.z;
-        bool visible = z + Length >= SpeedTimeline.Instance.VisibleRangeMin
-                       && z <= SpeedTimeline.Instance.VisibleRangeMax;
-        foreach (var r in _renderers)
-            r.enabled = visible;
     }
 
     private Vector3 PositionAt(float spawnZ)

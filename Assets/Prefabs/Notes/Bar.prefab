@@ -108,7 +108,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -161,4 +161,3 @@ MonoBehaviour:
   barMaterial: {fileID: 2100000, guid: 345744f828f2a044c84b1626e1c7480b, type: 2}
   meshRenderers:
   - {fileID: 3848303411174608139}
-  deleteZ: -10

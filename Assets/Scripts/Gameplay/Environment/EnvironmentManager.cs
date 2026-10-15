@@ -65,10 +65,10 @@ public class EnvironmentManager : MonoBehaviour
             return;
 
         float distanceTraveled = SpeedTimeline.Instance.GetEnvironmentDistance();
-        float visibleFront = SpeedTimeline.Instance.VisibleRangeMax + distanceTraveled + visibleBuffer;
-
-        while (_furthestSpawnZ < visibleFront)
-            SpawnAt(_furthestSpawnZ);
+        float rangeMin = SpeedTimeline.Instance.VisibleRangeMin;
+        float rangeMax = SpeedTimeline.Instance.VisibleRangeMax;
+        float visibleFront = rangeMax + distanceTraveled + visibleBuffer;
+        _furthestSpawnZ = Mathf.Max(_furthestSpawnZ, rangeMin + distanceTraveled);
 
         for (int i = _activePieces.Count - 1; i >= 0; i--)
         {
@@ -79,6 +79,8 @@ public class EnvironmentManager : MonoBehaviour
                 _activePieces.RemoveAt(i);
             }
         }
+
+        SpawnToFront(visibleFront);
     }
 
     private void PrefillVisibleArea()
@@ -97,16 +99,17 @@ public class EnvironmentManager : MonoBehaviour
         _furthestSpawnZ = rangeMin + distanceTraveled;
         float visibleFront = rangeMax + distanceTraveled + visibleBuffer;
 
-        while (_furthestSpawnZ < visibleFront)
-            SpawnAt(_furthestSpawnZ);
+        SpawnToFront(visibleFront);
     }
 
-    private void SpawnAt(float spawnZ)
+    private void SpawnToFront(float visibleFront)
     {
-        var piece = GetFromPool();
-        piece.PlaceAt(spawnZ);
-        _activePieces.Add(piece);
-        _furthestSpawnZ = spawnZ + piece.Length;
+        while (_furthestSpawnZ < visibleFront) {
+            var piece = GetFromPool();
+            piece.PlaceAt(_furthestSpawnZ);
+            _activePieces.Add(piece);
+            _furthestSpawnZ += piece.Length;
+        }
     }
 
     private EnvironmentPiece GetFromPool()
